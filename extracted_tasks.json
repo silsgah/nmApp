@@ -1,0 +1,4891 @@
+{
+  "RM": [
+    {
+      "name": "EXAMINING A NEWBORN BABY IN THE LYING-IN WARD",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport, explains procedure to mum and gain her consent"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Picks baby and places in a safe place"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Washes, dries hands and puts on gloves (if baby has not been bathed since birth)"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Places baby on a flat surface and undress"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Examines the head and face"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Examines the neck, chest and abdomen"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Examines the arms and hands"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Checks the cord for bleeding and applies another clamp or ligature if necessary"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Examines the external genitalia and checks for patency of rectum"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Examines the hips, legs and feet"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Examines the back of the baby"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Re-dress, wraps baby and gives to the mother"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Communicates findings and thanks the mother"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Removes gloves (if used), washes and dries hands"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Records and reports findings"
+        }
+      ]
+    },
+    {
+      "name": "BATHING THE NEWBORN BABY AND CORD DRESSING",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport and explains procedure to client"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Assembles all items to be used"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Puts on plastic apron, washes, and dries hands"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Mixes and tests temperature of water with elbow or bath thermometer"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Collects baby and puts baby on a safe flat surface and undresses him/her"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Wraps baby with towel/cot sheet"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Cleans baby’s eyes with sterile cotton wool swabs soaked with warm water"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Cleans baby’s face with a damp face towel"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Supports the nape of the baby’s neck and plugs baby’s ears with two fingers"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Washes hair with soapy sponge, rinses, and dries"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Washes arms and front of the trunk to the feet"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Turns the back with one arm supporting the chest and washes the back down to"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Immerses baby’s body in a bath of warm water and rinses thoroughly"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Places baby on a bath towel/clean cot sheet"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Uses a small towel to dry the baby, paying attention to skin folds"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Applies oil on baby, dresses him/her up, and exposes cord"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Washes and dries hands and puts on sterile gloves"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Observes ligature/cord clamp for looseness and re-clamps/re-ligates if necessary"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Holds stem of cord with one cotton wool swab soaked in spirit OR dry cotton"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Swabs skin 5 cm away and around the base of the cord when using spirit OR"
+        },
+        {
+          "stepNumber": 21,
+          "description": "Swabs stem from base upwards using a swab for each stroke till cord is"
+        },
+        {
+          "stepNumber": 22,
+          "description": "Swabs the tip of the cord (with spirit) and leaves cord exposed in both cases"
+        },
+        {
+          "stepNumber": 23,
+          "description": "Wraps baby, sends him/her to client, gives feedback, and thanks client"
+        },
+        {
+          "stepNumber": 24,
+          "description": "Tidies work environment and observes infection prevention practice"
+        },
+        {
+          "stepNumber": 25,
+          "description": "Washes and dries hands"
+        },
+        {
+          "stepNumber": 26,
+          "description": "Records and reports findings"
+        }
+      ]
+    },
+    {
+      "name": "GENERAL EXAMINATION OF THE PREGNANT CLIENT AT THE ANTE-NATAL CLINIC",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport and explains procedure to client"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Asks the client to empty her bladder"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Provides privacy, washes and dries hands"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Assists client to undress and wear gown"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Helps client to adopt dorsal position"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Examines scalp and face"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Examines neck, upper limbs and axillae"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Examines breasts and teaches client breast self-examination"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Exposes and inspects abdomen"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Measures symphysio-fundal height and performs fundal palpation"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Performs lateral palpation"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Instructs client to bend her knees slightly and breathe slowly through the mouth"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Performs pelvic palpation and assesses head descent"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Listens and counts foetal heart rate for one minute"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Inspects the vulva"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Instructs client to lie on her side and examines the back"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Examines the lower limbs"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Communicates findings to the client"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Helps her out of bed and assists her to re-dress"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Thanks client, washes and dries hands"
+        },
+        {
+          "stepNumber": 21,
+          "description": "Records and reports findings"
+        }
+      ]
+    },
+    {
+      "name": "EXAMINING THE BREAST OF THE PREGNANT CLIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport and explains procedure to client"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Ensures privacy makes client comfortable"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Sends tray to bedside"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Assists client to undress and wear a gown"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Helps client into a dorsal position on a couch"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Washes, dries and warms hands"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Exposes both breasts and inspects"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Covers one breast and exposes the other"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Asks client to put the hand of the part to be examined under her head"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Supports heavy breast and palpates systematically"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Teaches client breast self-examination"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Squeezes the nipple gently for fluid, examines and cleans with swab"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Repeats the same process for the other breast"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Assists client to re-dress"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Communicates findings to client and thanks her"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Washes and dries hands"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Records and reports findings"
+        }
+      ]
+    },
+    {
+      "name": "GIVING HEALTH EDUCATION ON BIRTH PREPAREDNESS AND COMPLICATION READINESS PLAN TO A PREGNANT CLIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport with client"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Provides a comfortable environment and ensures privacy"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Explains to client the need to attend antenatal clinic regularly"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Informs client about the importance of physical examination, laboratory"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Informs client about her expected date of delivery"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Enquires from client preparations made towards delivery and fill in the gap"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Assists client to decide on the facility/place of birth"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Assists client in deciding on the necessary support including a companion to stay"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Counsels client to register with the National Health Insurance Scheme (NHIS)"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Educates client on the signs and symptoms and what to expect during labour"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Counsels client on the need for a skilled provider during delivery"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Counsels client/support persons on how to save money towards delivery and"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Tells client/support persons to arrange for transportation in times of need"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Ensures that client/support persons donate blood"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Ensures that client/support persons identify an appropriate blood donor who"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Educates client on danger signs of pregnancy"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Encourages client to ask questions and gives appropriate answers"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Emphasizes the need for client to adhere to information given her"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Thanks client, records and reports all information"
+        }
+      ]
+    },
+    {
+      "name": "GIVING HEALTH EDUCATION ON NUTRITION TO A PREGNANT CLIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport, provides a comfortable environment and ensures privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Explains to client the need to attend antenatal clinic and procedures involved"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Finds out about client's eating habits"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Finds out about the local foods available and food taboos"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Informs client about the Importance of adequate and nutritious diet"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Teaches client about the sources of protective, energy giving and body building"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Explains the importance of roughage and fluids in the diet"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Educates client on the avoidance of Intake of non-nutritious substances (Pica)"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Advices client to report to the clinic in case of severe vomiting"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Encourages to take prescribed Iron supplements and folic acid regularly"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Finds out client's socio-economic status and counsels appropriately"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Educates on the avoidance of alcohol and smoking"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Educates on the elimination/reduction of caffeinated beverages"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Encourages client to ask questions and gives appropriate answers"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Emphasizes the need for client to adhere to information given"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Thanks client, records and reports all Information"
+        }
+      ]
+    },
+    {
+      "name": "GIVING HEALTH EDUCATION ON PERSONAL AND ENVIRONMENTAL HYGIENE TO A PREGNANT CLIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport with client"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Provides a comfortable environment and ensures privacy"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Explains to client the need to attend antenatal clinic and procedures involved"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Educates client on care of the hair and mouth"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Counsels client on the need to bath with adequate water end soap at least once"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Counsels client on the importance of keeping the finger and toe nails short and"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Teaches client how to care for her perineum"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Counsels client to wear loose cotton clothes, underwear, low and well-fitting"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Teaches client on the importance of good ventilation and lighting"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Teaches client the importance of sleeping under treated mosquito net"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Educates client on the need for clean environment"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Encourages client to ask questions and gives appropriate answers"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Emphasizes the need for client to adhere to the information given and thank her"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Records and reports all information"
+        }
+      ]
+    },
+    {
+      "name": "GIVING HEALTH EDUCATION ON PREVENTION OF MALARIA TO A PREGNANT CLIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport, provides a comfortable environment and ensures privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Explains to client the need to attend antenatal clinic and procedures involved"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Finds out about client's environment and how she protects herself from"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Informs client about the importance of sleeping in insecticide treated mosquito"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Teaches client about the importance of environmental cleanliness"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Informs client about intermittent preventive Treatment (IPT) and when to begin"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Finds out allergies to Sulphur drugs and client's G6PD status"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Educates client on the importance of taking all the 5 doses at 4 weekly intervals"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Informs client about the benefits of malaria prevention and the risk of malaria to"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Educates client on the signs and symptoms of malaria and the need to report"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Allows client to ask questions and responds appropriately"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Thanks client, records and reports all information"
+        }
+      ]
+    },
+    {
+      "name": "EXAMINING THE PUERPERAL CLIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport and explains procedure to the client"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Asks client to empty the bladder"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Provides privacy' and puts clients into the dorsal position"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Washes and dries hands"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Examines the hair and scalp"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Examines the conjunctiva, mouth, nose and ears"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Examines the arms, hands and checks capillary refill of fingernail beds"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Examines breasts and teaches breast self-examination"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Inspects the abdomen, palpates uterus and measures fundal height"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Examines the back, sacral region and the legs"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Washes, dries hands and puts on gloves"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Instructs client to flex her knees and open her thighs exposing the vulva"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Removes perineal pad using one hand"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Inspects the lochia, discards soiled perineal pad"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Inspects vulva and perineum"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Cleans vulva and perineum and applies fresh perineal pad using the other hand"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Removes gloves, washes and dries hands"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Assists client to re-dress and makes her comfortable"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Communicates findings and thanks client"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Records and reports findings"
+        }
+      ]
+    },
+    {
+      "name": "TAKING THE PAST OBSTETRICAL HISTORY OF A PREGNANT CLIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport and explains procedure to client"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Ensures client is comfortable and provides privacy"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Asks about the number of previous pregnancies and what happened in each case"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Asks for intervals between pregnancies and any ill health"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Enquires about number of tetanol injections received in life time"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Asks about the mode, place of delivery and duration of labour for each child"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Enquires if delivery of placenta for each child was normal and the amount of"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Asks about any ill health following each delivery"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Enquires about the condition, sex and weight of each baby at birth"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Asks about any ill health of each baby and at what age"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Asks if babies were breast fed and for how long"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Asks type of Family Planning method used"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Enquires about immunization of babies"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Asks about family support"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Thanks client, records and reports findings"
+        }
+      ]
+    },
+    {
+      "name": "HELPING TO FIX AND BREASTFEED BABY",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport and explains procedure to client"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Puts baby in a safe place"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Ensures client washes hands and puts client in a comfortable position"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Ensures baby is dry and comfortable"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Washes hands, dries them and sits by the client"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Allows baby's head to rest in the crook of the client's elbow"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Allows baby's buttocks to rest in client's palm while supporting baby's back"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Assists client to ensure baby's shoulders and hips are in alignment"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Helps client to position baby so that the abdomen touches client's abdomen"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Assists client to adjust baby's position to enable baby's chin to touch the breast"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Teaches client to elicit rooting reflex"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Assists client to insert the nipple and areola of the breast into baby's well"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Instructs client to admire and talk to baby as it suckles"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Educates client to allow baby to empty one breast completely before offering"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Allows baby to release the breast after feeding"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Educate client to wind the baby after feeding"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Thanks client, records and reports procedure"
+        }
+      ]
+    },
+    {
+      "name": "CONDUCTING ABDOMINAL EXAMINATION ON A PREGNANT CLIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establishes rapport, explains procedure to client"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Asks client to empty her bladder"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Provides privacy, washes and dries hands"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Assists client to undress and wears gown"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Helps client to adopt the recumbent position"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Warms hands and stands by the right side of the client"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Exposes and inspects abdomen"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Measures symphysio-fundal height and performs fundal palpation"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Performs lateral palpation"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Instructs client to bend knees slightly and breathe slowly through the mouth"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Performs pelvic palpation and assesses head descent"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Listens and counts foetal heart beats for one minute"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Assists client out of bed to re-dress"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Communicates findings and thanks client"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Washes and dries hands"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Records and reports findings"
+        }
+      ]
+    }
+  ],
+  "RGN": [
+    {
+      "name": "MAKING A SIMPLE UNOCCUPIED BED",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Collect, arrange items on trolley and send to bedside"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Arrange items in order of use on two chairs or cardiac table"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Place bottom sheet evenly on bed"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Tuck the sheets evenly under the mattress at the top and bottom using"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Pull and tuck sheet at the sides with no creases"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Place draw mackintosh across the bed and cover with draw sheet"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Slip the pillow case on the pillow with assistant"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Place pillow on the bed with open ends away from the entrance"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Place the top sheet on with the wrong side uppermost"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Fold over at the bottom and tuck in loosely"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Place the bed cover and counterpane loosely over the bed"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Tuck in bedcover and counterpane at the bottom end using envelop corners"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Fold top sheet over the bed cover (counterpane) at the top end"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Tuck in sides under the mattress"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Remove trolley and chairs"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Wash and dry hands or use alcohol rub if applicable"
+        }
+      ]
+    },
+    {
+      "name": "MAKING AN ADMISSION BED",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Collect, arrange items on trolley and send to bedside"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Arrange items in order of use on two chairs or cardiac table"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Place bottom sheet evenly on bed"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Tuck sheet evenly under the mattress at the top and bottom using enveloped"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Place draw mackintosh across the bed and cover with draw sheet"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Place long mackintosh on bed"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Use one bath blanket or sheet over and tuck in all round or fold under itself"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Place second bath blanket over the bed"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Put in hot water bottle if necessary"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Put on top bed clothes"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Place counterpane loosely over the top bed clothes"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Tuck in the bed clothes on the other side"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Fold the bed clothes on the other side nearest to the door, leaving it open to"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Move trolley and chairs"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Wash and dry hands or use alcohol rub if applicable"
+        }
+      ]
+    },
+    {
+      "name": "MAKING AN OPERATION BED",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Collect, arrange items on trolley and send to bedside"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Arrange items in order of use on two chairs or cardiac table"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Place bottom sheet evenly on bed and tuck the sheet evenly under the mattress"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Pull sheet tightly so that there are no creases and tuck the sheets under the"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Place draw mackintosh across the bed and cover with draw sheet"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Place protective dressing towel at the top of bed"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Leave pillow on chair by the bed"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Spread blanket on the bed"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Place top sheet on with the wrong side uppermost and turn back the bottom"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Fold top bed cloth at the open side in three parts over the bed for easy"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Place a post anaesthetic tray by the bed side containing vomitus bowl, dressing"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Arrange other bed accessories by the bed side – drip stand, bed rail, vital signs"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Move trolley and chairs"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Wash and dry hands or use alcohol rub if applicable"
+        }
+      ]
+    },
+    {
+      "name": "MAKING A CARDIAC BED",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Collect, arrange items on trolley and send to bedside"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Arrange items in order of use on two chairs or cardiac table"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Place bottom sheet evenly on bed and tuck the sheets under the mattress at the"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Pull sheet tightly so that there are no creases"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Place draw mackintosh across the bed and cover with draw sheet and tuck in"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Place covered air rings in between the draw mackintosh and draw sheet"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Place/elevate back rest at the top of bed and arrange pillows in an arm chair-like"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Place the top sheet on with the wrong side uppermost and fold over at the"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Place foot rest in position"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Place cardiac table with covered pillow in position"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Place sputum mug and bell within reach of patient"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Provide pen and paper if patient is literate"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Clear chair/cardiac table, trolley, wash, dry hands or use alcohol rub if applicable"
+        }
+      ]
+    },
+    {
+      "name": "CHANGING BOTTOM SHEET OF A PATIENT FROM TOP TO BOTTOM",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Collect and arrange necessary items on trolley and send to bed side"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Arrange items in order of use on chair/cardiac table at the bottom of the bed"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Loosen sheets at the sides and foot end of the bed"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Remove counterpane by folding it into three and place on chairs"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Leave patient covered with the top sheet"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Hold top sheet over patient’s shoulder with hand nearest to the head of the bed"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Move patient to foot end of the bed with the help of an assistant and let patient"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Remove pillows on the head end of the bed and place on chair"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Roll the soiled sheets down from the top end of the bed to the patient’s buttocks"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Make top half foundation with clean sheets and arrange pillow at top half of bed"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Help patient back to position, keeping him/her covered"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Instruct assistant to lift patient’s legs while he/she removes the soiled bottom"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Pull down the clean bottom sheet, mackintosh and draw sheets"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Pull the bottom sheet tight and tuck in using envelope corners with the help of"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Finish making bed using top sheet and make patient comfortable"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Clear items and remove screen"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Wash and dry hands and"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Document findings"
+        }
+      ]
+    },
+    {
+      "name": "CHANGING BOTTOM SHEET OF A PATIENT FROM SIDE TO SIDE",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and ensure privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Collect and arrange items on a trolley"
+        },
+        {
+          "stepNumber": 3,
+          "description": "arrange items in order of use on chairs or cardiac table"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Remove any equipment attached to the side of the bed e.g. drip stand, side rails"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Loosen sheet at the sides of the bed, leave patient with only one pillow and"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Assist the patient to turn to the side away from the clean portion of the linen"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Roll the dirty bottom sheet under patient"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Cover the bed with a clean rolled bottom sheet halfway in the middle of the bed"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Put on draw mackintosh and draw sheet across bed and tuck in greater part"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Remove dirty bottom sheet and place it in a receptacle"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Pull the bottom sheet tightly and tuck in"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Cover patient with top sheet and counterpane and leave him/her comfortable"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Clear items and remove screen"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Complete bed making and make patient comfortable"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Wash and dry hands"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Document findings and report"
+        }
+      ]
+    },
+    {
+      "name": "CHECKING OF VITAL SIGNS – TEMPERATURE, PULSE, RESPIRATION, BLOOD PRESSURE (USING THE INDIVIDUAL ELECTRONIC THERMOMETER AND ELECTRONIC SPHYGMOMANOMETER)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Press knob to ensure thermometer and sphygmomanometer are functioning"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Prepare and send tray to patient’s bed side"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Make patient comfortable by lying/sitting up in bed, wash and dry hands or use"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Press knob again to show reading, expose axilla, dry with clean dry cotton swab"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Clean the thermometer with dry cotton swab from bulb to stem"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Insert thermometer into the axilla between two skin folds"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Check and record pulse and respiration while thermometer is in axilla"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Remove thermometer after beep, read, record and clean from stem to bulb and"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Chart readings of temperature, pulse and respiration"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Stretch patient arm and place sphygmomanometer beside arm at the same level"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Wind/wound/wrap cuff around arm above elbow"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Inflate cuff by pressing the start knob and wait for reading to appear on screen"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Remove cuff and reassemble apparatus"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Thank and make patient comfortable"
+        },
+        {
+          "stepNumber": 16,
+          "description": "wash, dry hands and record readings"
+        }
+      ]
+    },
+    {
+      "name": "CHECKING OF VITAL SIGNS – TEMPERATURE, PULSE, RESPIRATION, BLOOD PRESSURE (USING THE INDIVIDUAL NON-DIGITAL THERMOMETER AND MERCURY OR ANEROID SPHYGMOMANOMETER)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Prepare and send tray to patient’s bed side"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Make patient comfortable by lying/sitting up in bed"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Dip the bulb of the thermometer into a gallipot containing water"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Clean the thermometer from bulb to stem with dry cotton swab"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Read thermometer at eye level and ensure mercury is at 35°C"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Wipe patient’s axilla with a dry cotton wool swab and discard"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Insert thermometer into the axilla between two skin folds"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Leave thermometer in axilla for three full minutes"
+        },
+        {
+          "stepNumber": 10,
+          "description": "While the thermometer is in position, check pulse and respiration rate"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Record pulse and respiratory rate"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Remove thermometer, clean from stem to bulb at eye-level"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Read thermometer at eye-level"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Wash, dry hands or use alcohol rub and record temperature"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Stretch patient arm and place sphygmomanometer at the shoulder level/ if"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Wind/wound/wrap cuff around arm above elbow"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Palpate radial artery and inflate cuff until pulse disappears"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Check, wear and place stethoscope on the brachial artery"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Release cuff pressure slowly and listen to sound with stethoscope"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Remove cuff, fold and reassemble apparatus"
+        },
+        {
+          "stepNumber": 21,
+          "description": "Thank and make patient comfortable"
+        },
+        {
+          "stepNumber": 22,
+          "description": "wash, dry hands chart readings on vital signs chart"
+        },
+        {
+          "stepNumber": 23,
+          "description": "Record blood pressure readings on nurses note and vital signs chart"
+        }
+      ]
+    },
+    {
+      "name": "ADMISSION OF A PATIENT (AMBULANT)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Welcome patient and relatives to the nurses’ station and make them"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Introduce self (nurse) and any staff present"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Collect necessary documents, admission notes and any other information from"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Identify and confirm patient’s name, particulars and reassure him/her and"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Send patient to bedside and introduce him/her to other patients near him/her"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Check vital signs and record"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Inform charge nurse of any urgent prescribed medication"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Assist patient to change into his/her night gown/pajamas"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Ask patient to declare valuables if any and inform charge nurse for safe keeping"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Explain National Health Insurance system to patient and relative(s)"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Orientate patient/relatives to the ward"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Inform relatives about the visiting times as well as other ward activities and"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Enter patient’s name into admission, discharges book and daily ward state"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Document on nurses’ note and plan care"
+        }
+      ]
+    },
+    {
+      "name": "ADMISSION OF A CHILD (AMBULANT)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Welcome child, parent(s)/caregiver(s) into nurses’ station, establish rapport"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Ask child’s name and introduce self and other staff present to them an reassure"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Get child’s record from accompanying nurse, confirm patient’s name and"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Send child to the prepared cot/bed with side rails and introduce other children"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Administer urgent prescribed medication"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Check vital signs, weight, height and record and collect specimen if ordered"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Assist child to change into pajamas or hospital wear"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Orientate child and parent(s)/caregiver(s) to the unit e.g. playroom, television"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Educate child on how to call the nurse and emphasize the willingness to meet"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Explain the hospital ward policies e.g. visiting time, National Health Insurance"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Ensure parent(s)/Legal guardians sign consent form for treatment where"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Inform parent(s)/caregiver(s) to bring learning/playing material"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Enter child’s name into admission and discharge book, daily ward state and"
+        }
+      ]
+    },
+    {
+      "name": "ADMISSION OF A SERIOUSLY ILL CHILD",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Welcome child and parent(s)/caregiver(s), establish rapport and receive folder"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Check and confirm child’s name and diagnosis and immediate treatment"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Put child into cot/bed and direct parent(s)/caregiver(s), to sit in the day room"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Administer immediate treatment or perform the necessary resuscitation"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Check vital signs, weight and record"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Take a brief history of child’s condition from parent(s)/caregiver(s)"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Allow parent(s)/caregiver(s), to see where child is lying and orientate them to"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Explain ward and hospital policies, visiting time, National Health Insurance"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Encourage parent(s)/caregiver(s) to bring child’s favourite toys etc. and find out"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Guide parent(s)/caregiver(s) to sign consent form for treatment etc. if necessary"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Enter child’s name into admission and discharge book, daily ward state"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Document on nurses’ notes"
+        }
+      ]
+    },
+    {
+      "name": "DISCHARGING A PATIENT FROM THE HOSPITAL",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Ensure that discharge papers are duly signed by the discharging doctor"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Inform patient about discharge"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Ensure that patients hospital bill is assessed and settled"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Educate patient and relatives on the need for continuing treatment and follow"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Record all receipt numbers in admission and discharge book and hand over"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Collect medication for patient from hospital’s pharmacy where applicable"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Explain how medication should be taken and stored at home"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Help patient to pack his or her belongings"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Hand over any valuables in nurses’ custody to the patient or relative(s) and"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Remind patient and relative(s) of review date and stress on its importance"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Thank and bid them good-bye"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Document in the admission and discharge book, daily ward state and nurses’"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Ensure linen are removed, bed and lockers decontaminated"
+        }
+      ]
+    },
+    {
+      "name": "ORIENTATION OF PATIENT TO THE WARD ENVIRONMENT (AMBULANT)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establish rapport with patient by introducing herself."
+        },
+        {
+          "stepNumber": 2,
+          "description": "Mentions the name of the ward to him."
+        },
+        {
+          "stepNumber": 3,
+          "description": "Introduces patient to ward staff around and other patients."
+        },
+        {
+          "stepNumber": 4,
+          "description": "Shows patient the nurses office, shows patient his bed."
+        },
+        {
+          "stepNumber": 5,
+          "description": "Shows patient the bathroom and the toilet."
+        },
+        {
+          "stepNumber": 6,
+          "description": "Shows patient dining hall and dayroom."
+        },
+        {
+          "stepNumber": 7,
+          "description": "Shows patient the patients’ cupboard and bed locker."
+        },
+        {
+          "stepNumber": 8,
+          "description": "Informs patient of ward activities."
+        },
+        {
+          "stepNumber": 9,
+          "description": "Tells patient whom to contact for any information."
+        },
+        {
+          "stepNumber": 10,
+          "description": "Encourages patient to ask questions."
+        },
+        {
+          "stepNumber": 11,
+          "description": "Thank patient and put him to bed."
+        }
+      ]
+    },
+    {
+      "name": "EDUCATING A PATIENT ON CONDITION",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain the need for education to patient"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Make patient comfortable either by sitting or lying down"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Sit comfortably on a chair by patient’s side"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Ensure enabling and relaxed environment to maintain privacy and individuality"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Find patient’s level of awareness of condition"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Build on what the patient already knows with scientific data of condition in"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Explain to patient the rationale for treatment and possible outcome"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Ensure patient understands the teaching and co-operates with the health team"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Allow the patient to ask questions for clarification"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Provide patient with clear simple pamphlets if available"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Thank patient and document education"
+        }
+      ]
+    },
+    {
+      "name": "EDUCATING A PATIENT ON MEDICATION PRIOR TO DISCHARGE",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Identify patient’s treatment chart and medication"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Establish rapport with patient"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Use language patient understands"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Involve patient’s and/or significant others"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Speak audibly to patient"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Explain procedure to patient’s family"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Assess patient’s previous knowledge on medication"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Show type of medication to patient and/or significant others"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Inform patient/or significant others about route of administration"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Instruct patient and/or significant others on dosage of medication to be taken"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Explain action of medication to patient and/or significant others"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Describe the side effect of the medication to patient and/or significant others"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Instruct patient and/or significant others to hospital when serious side effects"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Demonstrate to patient and/or significant others how to store drug at home"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Allow patient and/or significant others to repeat instruction and ask question(s)"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Respond to questions appropriately"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Thank patient and/or significant others for co-operating and document"
+        }
+      ]
+    },
+    {
+      "name": "HANDING OVER THE WARD",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Welcome the in-coming staff"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Give ward reports on patients to in-coming nurse to read"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Enquire from in-coming nurse if he/she needs further explanation on"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Hand over sensitive information about patients at the nurses’ office"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Interact with patients while handing over"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Check and confirm information about patient’s charts and notes"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Check with in-coming staff if gadgets on patient’s are functioning e.g. cardiac"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Check and hand over controlled medications and other relevant consumables"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Hand over ward annexes for in-coming nurse to ensure they are clean"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Report on any defects on equipment and request for urgent repairs"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Report on departmental instructions and other important information"
+        }
+      ]
+    },
+    {
+      "name": "TAKING OVER THE WARD",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Greet staff on duty"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Ask for oral information on major happenings on the ward from the outgoing"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Read ward written reports"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Enquire sensitive information about patients at the nurses’ office"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Take over ward from bed to bed verifying the state of all patients; especially the"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Establish rapport with patients during taking over and ask about general health"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Conduct inspection of ward with outgoing staff"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Ensure resources needed for work are available and adequate and take over"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Counter-sign written ward report"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Note important issues and document"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Congratulate out-going staff"
+        }
+      ]
+    },
+    {
+      "name": "PREPARING PATIENT AND A TROLLEY FOR LUMBAR PUNCTURE",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and ensure his/her co-operation and provide"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Wash, dry hands and prepare trolley with the following items:"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Top shelve"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Bottom shelve"
+        },
+        {
+          "stepNumber": 5,
+          "description": "i. Receiver for soiled swabs"
+        },
+        {
+          "stepNumber": 6,
+          "description": "i. 2ml syringe for local anaesthetic agent"
+        },
+        {
+          "stepNumber": 7,
+          "description": "i. Three (3) labelled specimen collection tubes with stopper"
+        },
+        {
+          "stepNumber": 8,
+          "description": "i. Bring trolley to bed side and provide privacy"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Assist patient to lie on his/her side at the edge of the bed and assume the knee"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Place one hand behind his/her neck and other behind his/her knees and assist"
+        }
+      ]
+    },
+    {
+      "name": "PREPARATION AND CARE OF PATIENT DURING AND AFTER LUMBER PUNCTURE",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain the procedure to the patient and reassure him/her to gain co-operation"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Ensure consent form has been signed"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Provide privacy and instruct patient to void before the procedure"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Wash and dry hands"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Open the equipment tray, take care not to contaminate"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Provide adequate lightening at the puncture site"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Assist patient into a required position, i.e. lying or siting and support him/her"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Continue to support, observe and reassure patient throughout the procedure"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Wear sterile gloves and apply sterile dressing when needle is withdrawn and"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Allow patient to lie flat on the back and make him/her comfortable"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Observe patient for the next 24 hours for the following;"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Check and record vital signs"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Thank patient, wash and dry hands"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Document procedure"
+        }
+      ]
+    },
+    {
+      "name": "DRESSING OF WOUND (SIMPLE OR UNCOMPLICATED)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establish rapport and explain procedure to patient"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Put on mask, prepare and take trolley to the patient’s bedside and provide"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Put patient into desired position, protect bed clothes and expose the wound"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Pour lotion into gallipot and remove plaster or bandage"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Remove soiled dressing with dissecting forceps or gloved hand, discard,"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Wash and dry hands and wear sterile gloves or use sterile forceps"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Clean wound with swabs soaked in normal saline using sterile forceps/gloves"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Clean wound with series of swabs until wound is clean"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Apply sufficient sterile dressing and secure into position"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Make patient comfortable in bed, inform patient about state of the wound and"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Remove gloves, wash hands, dry hands, discard trolley, decontaminate"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Wash, dry hands, document and report state of wound"
+        }
+      ]
+    },
+    {
+      "name": "DRESSING OF WOUND",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and ensure privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Put on mask, prepare and take trolley to the patient’s bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Position patient comfortably and protect bed clothes"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Expose area of wound and remove plaster or bandage"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Wash, dry hands, assemble instruments and pour lotions into gallipot"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Remove soiled dressing with dissecting forceps or gloved hand, discard, wash"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Dab or clean wound with sterile forceps/gloves using prescribed lotion or where"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Clean or dab wound with series of swabs until wound is clean"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Apply sterile dressing using prescribed dressing lotion, add enough sterile"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Make patient comfortable in bed, inform patient about state of the wound and"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Remove gloves, wash hands, dry hands, discard trolley, decontaminate"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Wash, dry hands, document and report state of wound"
+        }
+      ]
+    },
+    {
+      "name": "DRESSING OF WOUND (WITH ASSISTANT)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establish rapport and explain procedure to patient"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Put on mask, prepare and take trolley to the patient’s bedside and ensure"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Ask assistant to:"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Ask assistant to"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Remove soiled dressing using disserting forceps or disposable gloves and"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Wash and dry hands and wear sterile gloves or use sterile forceps"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Clean wound with sterile swabs soaked in normal saline using sterile forceps or"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Clean wound with series of swabs until wound is clean"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Apply sufficient sterile dressing and secure into position"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Make patient comfortable in bed, inform patient about state of the wound and"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Remove gloves, wash hands, dry hands, discard trolley, decontaminate"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Wash, dry hands, document and report state of wound"
+        }
+      ]
+    },
+    {
+      "name": "PROCESSING INSTRUMENTS AFTER USE (DECONTAMINATION)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Prepare a fresh 0.5% bleach (parazone) solution in a bucket or bowl"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Immerse all used instruments in the solution for at least 10 minutes"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Put on utility gloves and remove instruments from the bleach (parazone) solution"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Rinse the instruments in warm or cool water"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Scrub instruments using a soft brush with a soap/liquid detergent, paying"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Rinse instruments thoroughly with clean water to remove all detergent"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Boil for 20 minutes in a boiler covered with a well-fitting lid OR"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Dry by air or with a clean towel if to be sterilized in CSSD"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Document instruments and send them to CSSD"
+        }
+      ]
+    },
+    {
+      "name": "SUCTIONING A PATIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establish rapport and explain procedure to patient and family."
+        },
+        {
+          "stepNumber": 2,
+          "description": "Provide privacy."
+        },
+        {
+          "stepNumber": 3,
+          "description": "Observe the following before suctioning; Respiratory rate, Pulse, Skin colour and"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Wash, dry hands and don examination gloves."
+        },
+        {
+          "stepNumber": 5,
+          "description": "Disinfect and set a tray for the procedure."
+        },
+        {
+          "stepNumber": 6,
+          "description": "Ensure the proper functioning of the suction apparatus."
+        },
+        {
+          "stepNumber": 7,
+          "description": "Set appropriate suction pressure; i.e., 100 – 120mmHg."
+        },
+        {
+          "stepNumber": 8,
+          "description": "Place patient in prop-up position or high fowler’s position as condition demand"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Remove gloves, wash and dry hands."
+        },
+        {
+          "stepNumber": 10,
+          "description": "Put on goggles face mask, rubber apron and sterile gloves."
+        },
+        {
+          "stepNumber": 11,
+          "description": "Open suction catheter and connect the tube of the suction machine."
+        },
+        {
+          "stepNumber": 12,
+          "description": "Insert catheter gently from side-to-side into the mouth and into the throat"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Insert catheter gently upwards and backwards in the nostrils."
+        },
+        {
+          "stepNumber": 14,
+          "description": "Move the catheter around gently to aspirate the secretions."
+        },
+        {
+          "stepNumber": 15,
+          "description": "Suction intermittently, with a maximum duration of 5 – 10 seconds."
+        },
+        {
+          "stepNumber": 16,
+          "description": "Observe patient for signs of respiratory distress throughout the procedure and"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Withdraw catheter gently, apply continuous suctioning pressure by placing the"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Clean patient’s mouth with clean water and wipe the lips with tissue paper."
+        },
+        {
+          "stepNumber": 19,
+          "description": "Put patient in a desirable position."
+        },
+        {
+          "stepNumber": 20,
+          "description": "Clean the catheter of debris by flashing with sterile water."
+        },
+        {
+          "stepNumber": 21,
+          "description": "Disposes off, decontaminate and clean used equipment."
+        },
+        {
+          "stepNumber": 22,
+          "description": "Remove gloves, wash and dry hands."
+        },
+        {
+          "stepNumber": 23,
+          "description": "Evaluate the effectiveness of the suctioning by conducting a comprehensive"
+        },
+        {
+          "stepNumber": 24,
+          "description": "Thank and make patient comfortable in bed."
+        },
+        {
+          "stepNumber": 25,
+          "description": "Document procedure in the nurses’ note."
+        }
+      ]
+    },
+    {
+      "name": "CARE OF TRACHEOSTOMY TUBE",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient, engage his co-operation and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Prepare trolley and send to the bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Wear disposable glove and suction the tracheostomy tube"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Remove the inner tube by turning the lock 90° counter clockwise with the"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Soak the inner canula in hydrogen peroxide for five minutes and suction the"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Remove gloves, wash hands and put on sterile gloves"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Remove the inner tube from hydrogen solution into the sterile bowl with saline"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Rinse the inner cannula in a clean saline solution and dry the inner side of the"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Re-insert inner cannula into outer cannula and turn 90° clockwise to lock"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Clean the stoma using square gauze on forceps or with sterile cotton buds with"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Apply a sterile dressing and change the tie tapes, check tightness of"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Thank patient, discard and decontaminate equipment"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Wash and dry hands"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Document procedure and findings"
+        }
+      ]
+    },
+    {
+      "name": "CARE FOR A PATIENT WITH UNDER WATER-SEALED DRAINAGE",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure and reassure patient and put him/her in the fowlers or semi"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Check vital signs and record (baseline data)"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Wash hands and don gloves"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Place the bottle below the chest level in a receptacle"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Check the rate and depth of respiration, chest movement and auscultate lungs"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Observe dressing site for bleeding and dislodgement of tube and inspect air vent"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Check fluid level fluctuation and bubbling in the drainage system"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Check tube for kinking or perforations"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Encourage patient to cough frequently and breathe deeply every two hours if"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Assess patency of drainage system as evidenced by oscillations in the tubing and"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Tell patient to report any breathing difficulty immediately"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Check and change chest tube dressing when necessary and palpate the area"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Observe the volume, colour, consistency and odour of the drainage"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Thank the patient for co-operation, wash and dry hands"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Administer pain medication as needed for patient’s comfort"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Encourage chest expansion exercise (blowing of balloon)"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Wash and dry hands again and document procedure noting No. 13"
+        }
+      ]
+    },
+    {
+      "name": "CHANGING OF COLOSTOMY BAG AND CARE OF STOMA",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain the procedure to the patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Prepare and send trolley to bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Turn down top sheet to expose stoma"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Protect site with mackintosh and dressing towel"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Put on disposable gloves and remove soiled bag gently and place in large"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Remove disposable gloves, wash and dry hands"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Put on sterile gloves, washes area around stoma with soap/mild detergent and"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Dress area gently with sterile cotton wool balls and apply barrier cream/zinc"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Estimate stoma and fit correct size of stoma bag"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Remove gloves, wash and dry hands"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Make patient comfortable and thank him/her"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Discard soiled articles"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Clean, sterilize and store used items"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Document procedure and report any abnormalities"
+        }
+      ]
+    },
+    {
+      "name": "PRE-OPERATIVE PREPARATION OF PATIENT FOR SURGERY",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and reassure him/her"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Prepare a trolley with the following items: gauze, antiseptic lotion, plaster, bowl"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Send trolley to bedside and provide privacy"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Place the patient into desired position"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Expose the area to be prepared and protect the bed clothes"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Wear gloves, wash the area with soap and water"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Dry and clean area with antiseptic lotion"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Cover area with operating towel and secure it in position with adhesive"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Gown patient with a clean theatre gown"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Ask patient to empty bladder and remove dentures if any"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Check vital signs and record"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Give prescribed pre-medication when patient is ready for the theatre if"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Thank patient, discard trolley, wash and dry hands"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Document procedure"
+        }
+      ]
+    },
+    {
+      "name": "IMMEDIATE POST-OPERATIVE CARE OF PATIENT FROM THE THEATER",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain the procedure to the patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Receive patient gently into bed and reassure him/her if conscious"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Place patient flat on bed with the head turned to one side or in the appropriate"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Provide bed rails for safety if necessary"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Read through the patient’s case notes for post-operative instructions"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Observe for level of consciousness by the use of stimulus e.g. pointed object or"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Monitor vital signs for 15minutes for first 1hour, 30minutes for the next 1hour,"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Observe for bleeding from operated site and report for possible reinforcement"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Ensure cannula is in situ, check the flow rate of the intravenous fluid and"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Check and ensure that all drainage tubes e.g. naso-gastric tube and catheter are"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Record intake and output accurately"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Assess for pain and give prescribed analgesic and record"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Check and administer all prescribed medications per the appropriate route"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Maintain personal and oral hygiene"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Observe any abnormality in the patient’s condition and document findings and"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Put patient in a comfortable position or as ordered by the surgeon when he/she"
+        }
+      ]
+    },
+    {
+      "name": "FEEDING A PATIENT PER NASO-GASTRIC TUBE",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Send prepared feed in a tray to patient’s bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Assist patient into a fowler’s position in bed or a sitting up position in a chair, or"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Make patient comfortable and protect his/her clothes"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Check for proper placement of tube in the stomach by aspirating abdominal"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Wash and dry hands"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Check temperature or feed by dropping a little amount on the back of the hand"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Pinch tube and remove spigot of naso-gastric tube, push 10 – 15ml of water"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Connect syringe with feed to tube, release the pinch and allow feed to run by"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Ensure tube is never allowed to empty completely to prevent air from entering"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Continue feeding and observe patient for signs of discomfort till feeding is"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Flush the tube with 10 -15ml of water at the end of feeding"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Pinch tube and remove syringe and replace spigot"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Assist patient to remain in the sitting position for at least 30 minutes after feed"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Remove protective clothing, and make patient comfortable, discard tray, wash"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Document procedure on intake and output chart and nurses’ notes"
+        }
+      ]
+    },
+    {
+      "name": "FEEDING A HELPLESS PATIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient, consider likes and dislikes and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Inform patient about meal to be served to stimulate his/her appetite"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Ensure clean atmosphere, clear all bed pans, urinals and vomitus bowls and"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Put patient in a comfortable position if condition would allow it"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Put patient in a sitting up position and arrange pillows on the bed rest to support"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Place prepared tray on the bed table or patient’s locker"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Give patient a mouthwash"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Wash patient’s hands with soap and water and dry with clean towel"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Wash and dry hands before serving meals (the nurse)"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Place napkin/serviette across chest to protect patient’s clothing"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Sit on a chair at the bedside of the patient if convenient to make him/her feel"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Cut feed into bite sizes and feed patient with levelled spoonful a little at a time"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Allow patient enough time to chew and swallow"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Observe the rate at which the patient eats"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Co-ordinate the opening of the mouth and introduction of food into the mouth"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Place the spoon or fork accurately into the mouth i.e. not too far back to"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Serve sips of water in between feeding with a spoon or flexible straw"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Clean or wipe patient’s mouth and chin during and after the meal when"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Serve water, rinse mouth, remove used napkin/serviette and clear tray"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Congratulate patient for efforts made in eating, wash and dry his/her hand with"
+        },
+        {
+          "stepNumber": 21,
+          "description": "Encourage patient to comment on the food served"
+        },
+        {
+          "stepNumber": 22,
+          "description": "Make patient comfortable"
+        },
+        {
+          "stepNumber": 23,
+          "description": "Wash and dry hands (nurse)"
+        },
+        {
+          "stepNumber": 24,
+          "description": "Document procedure in the nurses’ notes and/or fluid intake and output chart"
+        }
+      ]
+    },
+    {
+      "name": "SPOON FEEDING OF AN ADULT ILL PATIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient, wash hands and prepare meal tray with food,"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Offer bedpan if required before feeding is started"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Put patient in a comfortable position, wash and dry hands"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Give patient a mouth wash"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Bring food in a tray to patient’s bedside and protect patient’s clothing with the"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Ensure patient is in a comfortable position and ask if prayer is preferred"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Take food by spoon in small bits into patient’s mouth"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Allow patient time to chew and swallow"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Continue feeding until patient is satisfied"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Give water intermittently as required by patient and after feeding"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Clean patient’s lips and gives a mouth wash"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Remove napkin and make patient comfortable"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Congratulate patient and discard tray"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Wash hands and document on nurses’ note"
+        }
+      ]
+    },
+    {
+      "name": "MOUTH CARE FOR A SERIOUSLY ILL PATIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Prepare a tray and take it to the patient’s bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Put patient in a suitable position"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Protect patient’s gown and bed linen with mackintosh and towel"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Pour lotion into gallipots, wash and dry hands"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Clean lips and outer part of teeth. Opens mouth with padded spatula. Inspect"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Take swab with forceps, dip into cleansing lotion and squeeze out excess"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Clean mouth thoroughly but gently i.e. from inside the cheeks, both sides of"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Control movement of the tongue with spatula"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Use tooth pick to clean in between teeth"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Clean mouth with water or any mouth wash"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Clean lips and apply Vaseline"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Make patient comfortable in bed and remove screen"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Discard tray, decontaminate, wash and sterilize instruments"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Wash, dry hands and document procedure and findings"
+        }
+      ]
+    },
+    {
+      "name": "RECORDING OF INTAKE AND OUTPUT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain the importance of keeping the fluid balance chart to patient to gain"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Explain the role patient has to play to him or her"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Get requirements e.g. measuring jugs for intake and output, fluid chart and pen"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Wash and dry hands and don gloves if applicable"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Record in milliliters the amount of infusion/transfusion and other fluid intake at"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Record in milliliters any output such as urine, watery stool, vomitus at output"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Total intake and output for 24 hours depending on hospital’s policy"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Find fluid balance by subtracting output from intake"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Document findings (characteristics of output)"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Inform the nurse in-charge/doctor immediately if amount of output is greater"
+        }
+      ]
+    },
+    {
+      "name": "BED BATHING",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain the procedure to the patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Prepare and take trolley to bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Offer bedpan or urinal if required"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Loosen and remove top bed clothes and arrange on a chair/bed table"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Remove patient’s clothes and cover him/her with a bed linen"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Protect bed and pillow with long mackintosh and a bath towel/blanket"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Maintain individuality of patient by asking him/her if he/she would like soap on"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Wash, rinse and dry patient face beginning from the inner to the outer canthus"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Wash, rinse and dry the rest of the face, ears and neck"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Wash, rinse and dry patient’s arm farther away from the nurse then wash, rinse"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Wash, rinse and dry the chest and abdomen paying attention to the skin folds"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Wash, rinse and dry the legs in the same way as the arms"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Turn patient on his/her sides and wash, rinse and dry the back"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Examine and treat pressure areas"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Change bottom linen and roll patient on his/her back"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Clean patient’s genitalia (perform vulva toileting if a female)"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Groom and dress patient in clean clothes"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Make patient comfortable and thank him/her"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Discard trolley, wash and dry hands properly"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Document procedure and report any abnormalities"
+        }
+      ]
+    },
+    {
+      "name": "CARE OF PATIENT IN SKELETAL TRACTION",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Set up trolley with sterile dressing set, sterile cotton balls, sterile gauze packs,"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Wash hands and observe infection prevention measures and inspect the"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Ensure patient is in the appropriate position, and check that the head, knee and"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Turn patient as a unit to prevent neck from twisting"
+        },
+        {
+          "stepNumber": 6,
+          "description": "In case of dislodgement of skull or Steinmann’s pin, support the head, remove"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Assess neurovascular status of the affected extremity"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Inspect carefully the pin site daily to detect infections early and provide pin site"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Remove crust from site and apply prescribed dressing agent and loosely apply"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Teach patient deep breathing and coughing exercise of the unaffected limb"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Thank patient for his co-operation"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Wash, dry hands and document procedure noting abnormalities"
+        }
+      ]
+    },
+    {
+      "name": "INSERTION OF AN INDWELLING CATHETER (FEMALE)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain the procedure to the patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Prepare and take trolley to bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Offer bedpan or urinal if required"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Loosen and remove top bed clothes and arrange on a chair/bed table"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Remove patient’s clothes and cover him/her with a bed linen"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Protect bed and pillow with long mackintosh and a bath towel/blanket"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Maintain individuality of patient by asking him/her if he/she would like soap on"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Wash, rinse and dry patient face beginning from the inner to the outer canthus"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Wash, rinse and dry the rest of the face, ears and neck"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Wash, rinse and dry patient’s arm farther away from the nurse then wash, rinse"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Wash, rinse and dry the chest and abdomen paying attention to the skin folds"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Wash, rinse and dry the legs in the same way as the arms"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Turn patient on his/her sides and wash, rinse and dry the back"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Examine and treat pressure areas"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Change bottom linen and roll patient on his/her back"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Clean patient’s genitalia (perform vulva toileting if a female)"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Groom and dress patient in clean clothes"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Make patient comfortable and thank him/her"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Discard trolley, wash and dry hands properly"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Document procedure and report any abnormalities"
+        }
+      ]
+    },
+    {
+      "name": "REMOVAL OF AN INDWELLING CATHETER",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain the procedure to the patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Prepare and send tray to bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Position patient as for catheterization"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Place mackintosh and dressing towel beneath the patient and around the"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Wash and dry hands"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Don gloves and place a towel between legs of the female patient/on the thigh"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Insert the syringe into the injection port of the catheter and gently withdraw"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Withdraw the catheter gently and place in the waste receptacle"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Dry he genital area with a towel"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Measure urine in the drainage bag and remove gloves"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Thank patient and discard used items"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Wash, dry hands and document findings"
+        }
+      ]
+    },
+    {
+      "name": "CATHETER CARE FOR A FEMALE PATIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Wash, dry hands and assemble the following:"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Protect bed with mackintosh, towel and ensure adequate lighting"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Wash, dry hands don gloves"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Instruct assistant to place patient in supine position with knees flexed and legs"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Place bedpan under patient and wash the perineum thoroughly with soap and"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Clean patient, remove bedpan and drape with sterile towel"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Remove the gloves, wear sterile gloves and clean the vulva with an antiseptic"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Lubricate catheter with xylocaine jelly"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Use the non-dominant hand to part the labia and establish a firm but gentle"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Pick a cotton wool ball soaked in antiseptic with forceps in the dominant hand"
+        }
+      ]
+    },
+    {
+      "name": "CATHETER CARE FOR A MALE PATIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establish rapport and explain the procedure to patient and"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Assemble necessary items"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Ensure privacy"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Wash, dry hands and put patient in the supine position"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Place mackintosh and towel under patient"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Cover patient up so that only the vulva is exposed."
+        },
+        {
+          "stepNumber": 7,
+          "description": "Remove anchor device to free the catheter tubing, remove gloves, wash and dry"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Retract foreskin if present to expose urethral meatus, clean around catheter"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Inspect urethral meatus for discharge"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Use cotton wool swab soaked in antiseptic lotion, wipe in a circular motion"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Apply antibiotic ointment at urethral meatus and along 2.5cm of catheter if"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Remove gloves, wash, dry hands, place patient in a safe and comfortable"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Discard tray/trolley, wash, dry hands, record and report findings"
+        }
+      ]
+    },
+    {
+      "name": "ADMINISTRATION OF TABLET",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Identify patient by mentioning the name and check treatment sheet against"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Explain procedure to patient and send tray to bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Check for the right patient, right medication, right time, right dose, ensure"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Read the label on the package and compare with patient’s treatment sheet"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Remove the package, check the label of the packages and compare with"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Pour out water into a drinking glass or cup"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Take tablet with spoon"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Give tablet to patient and ensure that patient swallows it"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Congratulate patient and make him/her comfortable in bed"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Discard tray, wash and dry hands"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Document procedure in the nurses’ note and chart on treatment sheet"
+        }
+      ]
+    },
+    {
+      "name": "ADMINISTRATION OF MIXTURE",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Identify and check for the right patient, right medication, right time, right dose,"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Inform patient and send tray to bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Identify patient by mentioning the name and check with treatment sheet"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Read the label on the package and compare with patient’s treatment sheet"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Shake the bottle well"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Remove the cork and hold it with little or ring finger, compare label on the bottle"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Pick the medicine glass and with the thumb nail, mark the level of the measure"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Pour out the prescribed dose at eye level in bright light by, holding the bottle"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Replace the cork, read the label a third time, compare with patient’ treatment"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Supervise patient to drink the medicine and serve water if necessary"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Discard tray, wash and dry hands"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Document procedure and sign treatment sheet"
+        }
+      ]
+    },
+    {
+      "name": "ADMINISTRATION OF IV MEDICATION (AMPOULE RECONSTITUTED MEDICATION)",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Establish rapport and explain procedure to the patient"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Check the Physician’s order for the type of medication and the rights of"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Check the medication label and be sure before reconstituting as per"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Wash, dry hands, reconstitute, examine for cloudiness and sediments"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Draw medication and expel air from the barrel of the syringe"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Protect bed linen with a dressing mackintosh and towel and position patient"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Wash, dry hands, wear gloves and clean entry port of cannula with methylated"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Fixe syringe into the entry port of cannula and push medication slowly using the"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Continue observing patient even after injecting medication 5 to 10 minutes later"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Encourage patient to inform the nurse for any adverse reaction"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Thank patient and make him/her comfortable in bed"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Remove dressing mackintosh, towel and discard used items"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Wash, dry hands and record procedure on treatment chart and on the nurses’"
+        }
+      ]
+    },
+    {
+      "name": "ADMINISTRATION OF RECTAL MEDICATION",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Identify patient by mentioning the name and check treatment sheet against"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Establish rapport and explain procedure to patient and encourage him/her to"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Observe the right of medication administration"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Send tray to bedside and provide privacy"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Assist patient to left lateral or left sim’s position, with the upper leg flexed"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Protect bed with dressing mackintosh and towel at the buttocks"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Fold back the top bed clothes to expose the buttocks"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Wash, dry hands, don gloves and clean anal area with cotton wool swab"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Remove gloves, wash and dry hands"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Remove medication, check label and compare with patient’s treatment sheet"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Wear gloves, unwrap the suppository, encourage patient to relax by breathing"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Insert the suppository gently into the rectum using gloved index finger and press"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Ask the patient to remain in the left lateral or supine position at least for five"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Congratulate patient and make him comfortable in bed"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Remove gloves, clear tray, wash and dry hands"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Document procedure on treatment sheet and nurses’ notes"
+        }
+      ]
+    },
+    {
+      "name": "PREPARING TRAY AND GIVING INTRAMUSCULAR (IM) INJECTION",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Identify and check for the right patient, right medication, right time, right dose,"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Explain procedure to patient and provide privacy"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Prepare and take tray to patient’s bedside"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Check details again with patient’s treatment sheet"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Wash and dry hands"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Assemble syringe and needle using sterile technique"
+        },
+        {
+          "stepNumber": 7,
+          "description": "File and break ampoule or remove metal cap of vial with a clean swab, draw"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Replace needle with a new one and expel air"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Assist patient into required position and expose site for the injection"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Clean injection site with swab dipped in antiseptic lotion (i.e. upper outer"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Insert the needle quickly and firmly deep into the muscle at right angle"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Withdraw piston a little to ensure needle is not in the blood vessel (if blood"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Push to release medication into the tissue"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Withdraw the syringe and needle quickly and with a swab, gently apply pressure"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Discard syringe and needle into a safety box"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Thank patient and leave him/her comfortably in bed"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Wash and dry hands, document any findings and sign treatment sheet"
+        }
+      ]
+    },
+    {
+      "name": "PREPARAING TROLLEY FOR INTRAVENOUS INFUSION",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Wash and dry hands, and set trolley with the following items:"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Top Shelf:"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Bottom Shelf:"
+        },
+        {
+          "stepNumber": 4,
+          "description": "c. Tourniquet"
+        },
+        {
+          "stepNumber": 5,
+          "description": "d. Medication (Infusion bag/bottle, ampoule or vial)"
+        },
+        {
+          "stepNumber": 6,
+          "description": "e. Syringe and needle"
+        },
+        {
+          "stepNumber": 7,
+          "description": "f. Sterile glove"
+        },
+        {
+          "stepNumber": 8,
+          "description": "g. Sterile cotton in a pack"
+        },
+        {
+          "stepNumber": 9,
+          "description": "h. Antimicrobial solution (Methylated spirit)"
+        },
+        {
+          "stepNumber": 10,
+          "description": "i. Sterile water"
+        },
+        {
+          "stepNumber": 11,
+          "description": "j. Receiver for used items"
+        },
+        {
+          "stepNumber": 12,
+          "description": "k. Sharps container"
+        },
+        {
+          "stepNumber": 13,
+          "description": "l. Adhesive strips/tape"
+        },
+        {
+          "stepNumber": 14,
+          "description": "m. Mackintosh and dressing towel"
+        },
+        {
+          "stepNumber": 15,
+          "description": "n. Timer"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Giving set"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Drip stand"
+        }
+      ]
+    },
+    {
+      "name": "SETTING UP I.V. INFUSION",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure and its purpose to patient and reassure him/her"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Check the Physician’s order for the type of solution and check the rights of"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Ensure quality of the infusion (check for cloudiness, sediments, other particles"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Send prepared trolley and other equipment to the patient’s bedside"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Encourage patient to use bedpan, check vital signs and record"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Select and inspect site and shave if necessary"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Place infusion stand at the side of the bed and prepare plaster strips/tape"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Insert the piercing needle of giving set into rubber seal of the infusion"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Hang the bottle/bag on the drip stand"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Remove the cap from the other end of the giving set and attach needle to it"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Protect the bed with dressing mackintosh and dressing towel"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Fill the chamber half way and expel the air from the giving set"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Wash hands, dry and wear sterile gloves and clean the site with antimicrobial"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Ask assistant to apply tourniquet to locate the vein"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Discard syringe and needle into a safety box"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Thank patient and leave him/her comfortably in bed"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Wash and dry hands, document any findings and sign treatment sheet"
+        }
+      ]
+    },
+    {
+      "name": "TEPID SPONGING",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure to patient and provide privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Prepare trolley and send to the bedside"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Wash and dry hands"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Take patient's temperature, pulse and respiration and record"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Arrange top bed clothes leaving top sheet"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Protect bottom sheet and undress the patient"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Wash and dry face to refresh patient"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Leave a flannel rung out of cold water on the patient's forehead"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Place 6 pieces of flannel into basin or tepid water"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Place a wet flannel in each axilla and groin, squeeze out excess water"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Change the wet flannel frequently to keep them tepid"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Sponge upper arms, trunk, lower limbs and back in strokes leaving small drops"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Change water as often as necessary"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Leave patient for 15-20 minutes"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Dress patient up, recheck temperature and record"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Thank and makes patient comfortable"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Wash, dry hands and serves cold drink if necessary"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Document procedure and reports findings"
+        }
+      ]
+    },
+    {
+      "name": "MONITORING BLOOD GLUCOSE LEVEL",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Check physicians order for the frequency of monitoring glucose level"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Identify patient and establish rapport (Refer to steps)"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Explain procedure (Refer to steps)"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Perform hand hygiene"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Check the functionality of the glucose meter and ensure reading is in mmol/L"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Set the tray and send to the bedside"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Select the site for glucose check (fingers/palmer area)"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Assess the selected site for any cut, callous, scars or rashes (if any is found"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Insert glucose strip into the glucometer and check for its functionality"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Wear disposable glove"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Clean the area with antimicrobial solution and allow to dry"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Stroke from the base of the finger/palmer area to fill the capillary tube and"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Puncture the area using lancet or needle"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Drop blood on the glucose strip and allow to read"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Place dry swab on punctured area applying pressure about fifteen (15) seconds"
+        },
+        {
+          "stepNumber": 16,
+          "description": "After noting the reading on the glucometer remove the strip and dispose off"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Remove gloves"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Perform hand hygiene"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Discuss findings with the patient and appropriate officer"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Document on the appropriate recording software and observation chart"
+        },
+        {
+          "stepNumber": 21,
+          "description": "Dispose off used items, decontaminate tray and place the glucometer in a safe"
+        }
+      ]
+    }
+  ],
+  "HA": [
+    {
+      "name": "TASK: TAKING A STRUCTURED BIOGRAPHIC DATA",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Ensure privacy"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Explain procedure"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Patient's Name"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Date of birth"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Age"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Address"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Marital status"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Occupation"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Religion"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Ethnic affiliation"
+        }
+      ]
+    },
+    {
+      "name": "TASK: TAKING A STRUCTURED PRESENT HISTORY",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Patient Name"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Chief Complaint"
+        },
+        {
+          "stepNumber": 3,
+          "description": "History of Present Illness"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Onset: \"When did the pain start?\""
+        },
+        {
+          "stepNumber": 5,
+          "description": "Character: \"Can you describe the pain? Is it sharp, dull, crushing, burning?\""
+        },
+        {
+          "stepNumber": 6,
+          "description": "Location: \"Where exactly is the pain located?”"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Radiation: \"Does the pain travel anywhere else?”"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Timing Duration: \"How long does the pain last? Is it constant or"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Exacerbating/Alleviating Factors: \"What makes the pain worse?"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Severity: \"On a scale of 0 to 10, with 0 being no pain and 10 being the worst"
+        }
+      ]
+    },
+    {
+      "name": "TASK: TAKING A STRUCTURED PAST HISTORY",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Patient's name:"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Date"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Childhood illnesses: (e.g., measles, chickenpox, rheumatic fever)"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Adult illnesses: (e.g., hypertension, diabetes, asthma, heart disease)"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Surgical history: (type of surgery, date, complications)"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Hospitalizations: (reasons, dates)"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Injuries or accidents: (dates, types, sequelae)"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Immunizations: (current and past)"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Allergies: (medications, foods, environmental; type of reaction)"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Current medications: (prescription, over-the-counter, herbal supplements;"
+        }
+      ]
+    },
+    {
+      "name": "TASK: TAKING A STRUCTURED SOCIAL HISTORY OF PATIENT",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Patient Name……………………………….                                 Date:…………………….."
+        },
+        {
+          "stepNumber": 2,
+          "description": "Lifestyle factors that can influence health."
+        },
+        {
+          "stepNumber": 3,
+          "description": "Smoking status"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Alcohol use"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Drug use"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Occupation"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Living situation"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Diet"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Exercise"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Travel history"
+        }
+      ]
+    },
+    {
+      "name": "TASK: REVIEW OF PATIENT'S SYSTEM FROM HEAD TO TOE",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "General – ask about changes in weight, weakness, fever and other problems"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Skin – ask about presence of rashes, lumps, itching, dryness, colour changes, changes in the"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Head – ask about aches, dizziness, light-headedness and injury."
+        },
+        {
+          "stepNumber": 4,
+          "description": "Eyes – Vision, glasses and contact lenses, pain, redness, excessive tearing, double vision,"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Ears – hearing, aches, discharges, infection, vertigo, tinnitus, use of hearing aid."
+        },
+        {
+          "stepNumber": 6,
+          "description": "Nose/sinuses – frequent colds, nasal stuffiness, discharge, itching, nose bleeding."
+        },
+        {
+          "stepNumber": 7,
+          "description": "Throat – teeth, gums, dentures, tongue, dry mouth, sore throat, hoarseness, redness of"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Neck – lumps, swollen glands, pain, stiffness, engorgement of neck blood vessels."
+        },
+        {
+          "stepNumber": 9,
+          "description": "Breast – pain, rashes, discharge, lump, self-examination practices."
+        },
+        {
+          "stepNumber": 10,
+          "description": "Respiratory – breathing pattern, airway, cough, lung expansion, breath sounds."
+        },
+        {
+          "stepNumber": 11,
+          "description": "Cardiovascular – blood pressure, pulse, chest pain, palpitation, dyspnoea, murmurs, ECG &"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Gastrointestinal – swallowing, heartburns, appetite, nausea, bowels, pain, jaundice etc."
+        },
+        {
+          "stepNumber": 13,
+          "description": "Urinary – frequency of urination, force, pain, infection, polyuria, nocturia, incontinence,"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Genital – discharges, pain, masses, sore, change in colour, sexual habits."
+        },
+        {
+          "stepNumber": 15,
+          "description": "Check for menarche/menopause in female and problems associated with menstrual cycle."
+        },
+        {
+          "stepNumber": 16,
+          "description": "Peripheral Vascular - varicose veins, cramps, past clots, capillary refill."
+        },
+        {
+          "stepNumber": 17,
+          "description": "Musculoskeletal - muscles/joints pains, stiffness, inflammation, swelling, weakness,"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Neurologic - fainting, blackouts, seizures, weakness, paralysis, numbness, tingling, tremors."
+        },
+        {
+          "stepNumber": 19,
+          "description": "Hematologic - Anaemia, bleeding, transfusions, transfusion reactions"
+        }
+      ]
+    },
+    {
+      "name": "TASK: CHECKING WEIGHT AND HEIGHT OF PATIENT AND CALCULATING THE BMI",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Assemble requirements."
+        },
+        {
+          "stepNumber": 2,
+          "description": "Explain procedure to patient."
+        },
+        {
+          "stepNumber": 3,
+          "description": "Ask patient to empty bladder"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Ask patient to change clothing if heavy."
+        },
+        {
+          "stepNumber": 5,
+          "description": "Ask patient to remove shoes."
+        },
+        {
+          "stepNumber": 6,
+          "description": "Assist patient to mount scale making sure feet is properly placed on platform."
+        },
+        {
+          "stepNumber": 7,
+          "description": "Ask patient to stand erect."
+        },
+        {
+          "stepNumber": 8,
+          "description": "Note the reading on the scale."
+        },
+        {
+          "stepNumber": 9,
+          "description": "Place height har over patient's head and note reading."
+        },
+        {
+          "stepNumber": 10,
+          "description": "Ask patient to step out of scale."
+        },
+        {
+          "stepNumber": 11,
+          "description": "Assist patient to dress and inform him about findings Allow patient to ask questions."
+        },
+        {
+          "stepNumber": 12,
+          "description": "Thank patient."
+        },
+        {
+          "stepNumber": 13,
+          "description": "Discard items appropriately."
+        },
+        {
+          "stepNumber": 14,
+          "description": "Where there are no height bars attached to the scale:"
+        },
+        {
+          "stepNumber": 15,
+          "description": "Obtain tape measure and demarcate measurement unit on the wall."
+        },
+        {
+          "stepNumber": 16,
+          "description": "Ask client to stand erect at the demarcated area."
+        },
+        {
+          "stepNumber": 17,
+          "description": "Use a rule or straight edge over the top of the head to determine height."
+        },
+        {
+          "stepNumber": 18,
+          "description": "BMI CATEGORIES:"
+        }
+      ]
+    },
+    {
+      "name": "TASK: PHYSICAL EXAMINATION OF THE SKIN AND NAILS",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Inspect skin colour. Look for increased pigmentation, loss of pigmentation, redness,"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Note any odour on the skin it might be an indication of poor hygiene."
+        },
+        {
+          "stepNumber": 3,
+          "description": "Palpate the skin for moisture and temperature it should feel warm and dry."
+        },
+        {
+          "stepNumber": 4,
+          "description": "Check the texture of noting whether it is smooth and soft. Rough, thick and dry skin"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Pinch the skin and observe for how fast the skin returns to its original state to"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Check for oedema by pressing firmly for 5-10 seconds on the tibia and ankle. There"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Inspect and palpate the hair noting the colour, texture and distribution of the hair"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Inspect and palpate nails for colour."
+        },
+        {
+          "stepNumber": 9,
+          "description": "Check texture of the nail which is usually round, hard, immobile. The nail bed"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Thank patient and document."
+        }
+      ]
+    },
+    {
+      "name": "TASK: EXAMINATION OF ANTERIOR CHEST",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Ensure privacy"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Auscultate the lung fields with the diaphragm of stethoscope using the pattern shown"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Ask client to breathe slowly and deeply through the mouth."
+        },
+        {
+          "stepNumber": 5,
+          "description": "Listen for breath sounds for at least one full cycle (inspiration and expiration)"
+        },
+        {
+          "stepNumber": 6,
+          "description": "At each point starting from apices and inter scapular areas to the periphery, compare"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Vesicular sounds may be heard throughout lung fields"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Broncho vesicular sounds heard around the scapular"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Check respiratory expansion by placing thumbs along each coastal margin"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Wrap hands loosely around lateral rib cage at lower sternum."
+        },
+        {
+          "stepNumber": 11,
+          "description": "Slide hand medially to raise skin folds between thumbs and instruct client to inhale"
+        },
+        {
+          "stepNumber": 12,
+          "description": "The thumbs move apart in equal distance symmetrically."
+        },
+        {
+          "stepNumber": 13,
+          "description": "Palpate and compare symmetrical areas."
+        },
+        {
+          "stepNumber": 14,
+          "description": "Asks client to repeat '99' and use ball of land to feel for tactile fremitus."
+        },
+        {
+          "stepNumber": 15,
+          "description": "Press distal phalanx & joint of middle finger firmly over intercostal space."
+        },
+        {
+          "stepNumber": 16,
+          "description": "Aim at the distal phalanx or interphalangeal joint and strike the pleximeter with sharp"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Ensure client is breathing quietly and percuss from resonance to liver dullness on the"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Instruct client to breathe through the mouth and listen to the lung fields for at least"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Thanks patient and documents"
+        }
+      ]
+    },
+    {
+      "name": "TASK: EXAMINATION OF POSTERIOR CHEST",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Ensure privacy"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Wash hands"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Inspect posterior chest"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Notes any abnormalities"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Check respiratory expansion by placing thumbs at the level of 10th rib"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Wraps hands loosely around lateral rib cage at lower sternum."
+        },
+        {
+          "stepNumber": 8,
+          "description": "Slide hand medially to raise skin folds between thumbs and instruct client to inhale"
+        },
+        {
+          "stepNumber": 9,
+          "description": "The thumbs should move apart in equal distance in both directions"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Instructs client to round shoulders with arms folded across chest and hands on the"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Palpates areas"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Compares symmetrical areas in the pattern shown in the diagram."
+        },
+        {
+          "stepNumber": 13,
+          "description": "Asks client to repeat “99\" while you use the hall or palm of hand to feel for tactile"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Vibrations are felt along the upper, lower and lateral aspects of the thorax"
+        },
+        {
+          "stepNumber": 15,
+          "description": "The vibrations are more prominent in the major lung fields and decrease towards"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Ensure client is still rounding shoulder. Percuss and compare symmetrical areas in a"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Press the distal phalanx and joint of the middle finger firmly over intercostal space."
+        },
+        {
+          "stepNumber": 18,
+          "description": "Aim at the distal phalanx or interphalangeal joint and strike the pleximeter with sharp"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Thank patient"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Document findings."
+        }
+      ]
+    },
+    {
+      "name": "TASK: EXAMINATION OF THE HEART",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain Procedure"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Ensure privacy"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Ask client to lie down and disrobe to the waist."
+        },
+        {
+          "stepNumber": 4,
+          "description": "Direct tangential/any light on the chest and inspect the precordium noting landmarks such"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Landmark sternal angle which is the joint between the manubrium and sternum; it"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Palpate the right border of the 2nd interspace for pulsation/vibration in aortic area. There"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Palpate the left border of 2nd interspace for pulsation vibration in the pulmonic area."
+        },
+        {
+          "stepNumber": 8,
+          "description": "There should be no pulsation or vibration."
+        },
+        {
+          "stepNumber": 9,
+          "description": "Erb's point is palpated at the left sternal border of the 3rd intercostal space."
+        },
+        {
+          "stepNumber": 10,
+          "description": "Palpate right ventricular area by placing tips of finger in 3rd-5th interspaces and ask client"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Palpate apical/mitral area by using finger pads to locate 5th interspace medial to mid-"
+        },
+        {
+          "stepNumber": 12,
+          "description": "Palpate epigastric area by pressing index finger of flattened hand under “L” coastal margin"
+        },
+        {
+          "stepNumber": 13,
+          "description": "Use diaphragm and bell to listen to all six areas from apex to base or base to apex."
+        },
+        {
+          "stepNumber": 14,
+          "description": "Apply bell lightly to chest wall in the sequence noted in diagram above."
+        },
+        {
+          "stepNumber": 15,
+          "description": "Auscultate from the right 2nd interspace to the left sequentially up to the 5th interspace"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Listens for 5 seconds in each area with diaphragm and bell."
+        },
+        {
+          "stepNumber": 17,
+          "description": "Use diaphragm to listen for apical rate for one minute."
+        },
+        {
+          "stepNumber": 18,
+          "description": "Thanks patient"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Document findings"
+        }
+      ]
+    },
+    {
+      "name": "TASK: EXAMINATION OF THE ARM",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Explain procedure"
+        },
+        {
+          "stepNumber": 2,
+          "description": "Provide privacy"
+        },
+        {
+          "stepNumber": 3,
+          "description": "Inspect both arms from fingers to shoulder instructing client to extend, flex and rotate"
+        },
+        {
+          "stepNumber": 4,
+          "description": "Note areas of oedema, scar, lesions or other changes."
+        },
+        {
+          "stepNumber": 5,
+          "description": "Note skin colour, texture and hair distribution"
+        },
+        {
+          "stepNumber": 6,
+          "description": "Note the patterns of the veins"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Use back of hands to feel for the temperature in both arms if the arms are cool at any"
+        },
+        {
+          "stepNumber": 8,
+          "description": "Palpate radial pulse noting rate and compare the amplitude it should be symmetrically"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Perform Allen test to detect patency of ulnar/radial artery"
+        },
+        {
+          "stepNumber": 10,
+          "description": "Instruct the patient to clench his or her fist"
+        },
+        {
+          "stepNumber": 11,
+          "description": "Using your fingers, apply occlusive pressure to both the ulnar and radial"
+        },
+        {
+          "stepNumber": 12,
+          "description": "arteries, to obstruct blood flow to the hand."
+        },
+        {
+          "stepNumber": 13,
+          "description": "While applying occlusive pressure to both arteries, have the patient relax his or her hand"
+        },
+        {
+          "stepNumber": 14,
+          "description": "Check whether the palm and fingers have blanched or pale."
+        },
+        {
+          "stepNumber": 15,
+          "description": "Correctly occlude for about 5 seconds or more"
+        },
+        {
+          "stepNumber": 16,
+          "description": "Release the occlusive pressure on the ulnar artery to see if colour of palm returns within"
+        },
+        {
+          "stepNumber": 17,
+          "description": "Check radial patency using same procedure but release pressure on radial artery"
+        },
+        {
+          "stepNumber": 18,
+          "description": "Note colour change"
+        },
+        {
+          "stepNumber": 19,
+          "description": "Repeat test in both arms"
+        },
+        {
+          "stepNumber": 20,
+          "description": "Thank patient"
+        }
+      ]
+    },
+    {
+      "name": "TASK: EXAMINATION OF THE LEG",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Wash hands with soap and water."
+        },
+        {
+          "stepNumber": 2,
+          "description": "Explain procedure to the client."
+        },
+        {
+          "stepNumber": 3,
+          "description": "Put client in the supine position and drape."
+        },
+        {
+          "stepNumber": 4,
+          "description": "Expose leg for examination but ensure genital area is covered."
+        },
+        {
+          "stepNumber": 5,
+          "description": "Inspect both legs from the groin to the toes noting symmetry, size, shape and colour."
+        },
+        {
+          "stepNumber": 6,
+          "description": "Note areas of oedema, scar, lesions or other changes."
+        },
+        {
+          "stepNumber": 7,
+          "description": "Note skin colour, texture, hair distribution and nail beds."
+        },
+        {
+          "stepNumber": 8,
+          "description": "Note any abnormality in the patterns of the blood vessels."
+        },
+        {
+          "stepNumber": 9,
+          "description": "Use the back of your hands to feel for the temperature in both legs."
+        },
+        {
+          "stepNumber": 10,
+          "description": "Thank patient and document"
+        }
+      ]
+    },
+    {
+      "name": "TASK: EXAMINATION OF THE ABDOMEN",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "Ensure the environment is conducive and privacy is assured"
+        },
+        {
+          "stepNumber": 2,
+          "description": "The client is placed in the supine position, with small pillows under the head and knees."
+        },
+        {
+          "stepNumber": 3,
+          "description": "Expose the abdomen from the breasts to the symphysis pubis."
+        },
+        {
+          "stepNumber": 4,
+          "description": "The assessment is done systematically, beginning with the LUQ, progressing clockwise"
+        },
+        {
+          "stepNumber": 5,
+          "description": "Ensure that that client empties the bladder before the assessment."
+        },
+        {
+          "stepNumber": 6,
+          "description": "Inspect abdomen for the shape, veins, skin colour, hernia, abdominal aorta or any"
+        },
+        {
+          "stepNumber": 7,
+          "description": "Auscultate for bowel motility in the clockwise direction."
+        },
+        {
+          "stepNumber": 8,
+          "description": "Percussion for the amount and distribution of gas in the abdomen and identify possible"
+        },
+        {
+          "stepNumber": 9,
+          "description": "Palpate lightly or deeply to identify abdominal tenderness."
+        },
+        {
+          "stepNumber": 10,
+          "description": "Thank patient and document"
+        }
+      ]
+    },
+    {
+      "name": "TASK",
+      "steps": [
+        {
+          "stepNumber": 1,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 2,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 3,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 4,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 5,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 6,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 7,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 8,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 9,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 10,
+          "description": "0 1 2"
+        },
+        {
+          "stepNumber": 11,
+          "description": "0 1 2"
+        }
+      ]
+    }
+  ]
+}
