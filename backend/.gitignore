@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+## Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+## OS
+.DS_Store
+
+## Prisma generated client
+# (regenerated on deploy via `prisma generate`)
+
+## Debug logs
+npm-debug.log*
+
+## IDE
+.vscode/
+.idea/
+.vercel

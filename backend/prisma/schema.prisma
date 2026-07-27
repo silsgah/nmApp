@@ -1,0 +1,368 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// In Prisma 7, all connection URLs are configured in prisma.config.ts
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  EXAMINER
+  STUDENT
+}
+
+enum SessionStatus {
+  DRAFT
+  ACTIVE
+  MARKING
+  COMPLETED
+  ARCHIVED
+}
+
+enum RatingScale {
+  SCALE_0_2   // Health Assessment tasks
+  SCALE_0_4   // RGN / RM component tasks
+}
+
+enum ResultStatus {
+  PENDING
+  PUBLISHED
+}
+
+// ─────────────────────────────────────────────
+// USERS & AUTHENTICATION
+// ─────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  passwordHash  String
+  role          Role
+  staffId       String?  // For examiners (rank/ID)
+  profilePictureUrl String?
+  programme     Programme? @relation(fields: [programmeId], references: [id])
+  programmeId   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  isActive      Boolean  @default(true)
+
+  // Relations
+  examinerAssignments ExaminerAssignment[]
+  studentAssignments  StudentAssignment[]
+  scorecards          Scorecard[]
+  studentResults      StudentResult[]
+  carePlanScoresAsStudent  CarePlanScore[] @relation("CarePlanStudent")
+  carePlanScoresAsExaminer CarePlanScore[] @relation("CarePlanExaminer")
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
+// PROGRAMMES (RGN, RM)
+// ─────────────────────────────────────────────
+
+model Programme {
+  id          String   @id @default(cuid())
+  name        String   @unique  // e.g. "RGN", "RM"
+  fullName    String            // e.g. "Registered General Nurse"
+  description String?
+  createdAt   DateTime @default(now())
+
+  users             User[]
+  taskProgrammes    TaskProgramme[]
+  examSessions      ExamSession[]
+  assessmentCategories AssessmentCategory[]
+  carePlanTypes     CarePlanType[]
+
+  @@map("programmes")
+}
+
+// ─────────────────────────────────────────────
+// ASSESSMENT CATEGORIES (Configurable)
+// ─────────────────────────────────────────────
+
+model AssessmentCategory {
+  id             String   @id @default(cuid())
+  name           String            // e.g. "Basic", "Major", "Minor", "Health Assessment"
+  description    String?
+  programme      Programme @relation(fields: [programmeId], references: [id])
+  programmeId    String
+  weight         Float    @default(1.0)  // Relative weight in final score (configurable)
+  scaledMaxMarks Float    @default(80.0) // Max marks this category scales to: Major=80, Minor=40
+  minPassScore   Float    @default(50.0) // Minimum % to pass this category (configurable)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tasks        Task[]
+  stationCategories StationCategory[]
+
+  @@unique([name, programmeId])
+  @@map("assessment_categories")
+}
+
+// ─────────────────────────────────────────────
+// TASK BANK
+// ─────────────────────────────────────────────
+
+model Task {
+  id           String      @id @default(cuid())
+  name         String
+  description  String?
+  ratingScale  RatingScale @default(SCALE_0_4)
+  maxScore     Int         // Computed: steps × max_rating (e.g. 16 steps × 4 = 64)
+  category     AssessmentCategory? @relation(fields: [categoryId], references: [id])
+  categoryId   String?
+  isActive     Boolean     @default(true)
+  sortOrder    Int         @default(0)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  programmes TaskProgramme[]
+  yearLevels TaskYearLevel[]
+  steps      TaskStep[]
+  stations   Station[]
+
+  @@map("tasks")
+}
+
+// Junction: Task ↔ Programme (many-to-many — allows sharing tasks across programmes)
+model TaskProgramme {
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId      String
+  programme   Programme @relation(fields: [programmeId], references: [id])
+  programmeId String
+
+  @@id([taskId, programmeId])
+  @@map("task_programmes")
+}
+
+// Junction: Task ↔ Year Level (which year levels a task applies to)
+model TaskYearLevel {
+  task       Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId     String
+  yearLevel  Int    // e.g. 2 or 3
+
+  @@id([taskId, yearLevel])
+  @@map("task_year_levels")
+}
+
+model TaskStep {
+  id          String  @id @default(cuid())
+  task        Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId      String
+  stepNumber  Int
+  description String
+  isKeyStep   Boolean @default(false) // Optional: mark critical steps
+  createdAt   DateTime @default(now())
+
+  @@unique([taskId, stepNumber])
+  @@map("task_steps")
+}
+
+// ─────────────────────────────────────────────
+// EXAM SESSIONS
+// ─────────────────────────────────────────────
+
+model ExamSession {
+  id            String        @id @default(cuid())
+  name          String        // e.g. "2024 Semester 2 RGN Practicals"
+  semester      String        // e.g. "Semester 2"
+  academicYear  String        // e.g. "2024/2025"
+  programme     Programme     @relation(fields: [programmeId], references: [id])
+  programmeId   String
+  yearLevel     Int?          // e.g. 2 or 3 — which student year level this exam targets
+  status        SessionStatus @default(DRAFT)
+  startDate     DateTime?
+  endDate       DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Configurable exam settings
+  config        ExamConfig?
+
+  stations      Station[]
+  results       StudentResult[]
+  carePlanScores CarePlanScore[]
+
+  @@map("exam_sessions")
+}
+
+model ExamConfig {
+  id               String      @id @default(cuid())
+  session          ExamSession @relation(fields: [sessionId], references: [id])
+  sessionId        String      @unique
+  examinerCount    Int         @default(3)          // Configurable: default 3
+  overallPassMark  Float       @default(50.0)       // Overall pass percentage
+  practicalMaxMarks Float      @default(80.0)       // Practical component max marks (out of 100 total; Care Plan is the rest)
+  scoreAggregation String      @default("AVERAGE")  // AVERAGE | SUM | HIGHEST
+  categoryWeights  Json?       // JSON: { categoryId: weight }
+  categoryPassMarks Json?      // JSON: { categoryId: minPass% }
+  updatedAt        DateTime    @updatedAt
+
+  @@map("exam_configs")
+}
+
+// ─────────────────────────────────────────────
+// STATIONS
+// ─────────────────────────────────────────────
+
+model Station {
+  id          String      @id @default(cuid())
+  session     ExamSession @relation(fields: [sessionId], references: [id])
+  sessionId   String
+  task        Task        @relation(fields: [taskId], references: [id])
+  taskId      String
+  stationCode String      // e.g. "A1", "B3"
+  notes       String?
+  createdAt   DateTime    @default(now())
+
+  studentAssignments  StudentAssignment[]
+  examinerAssignments ExaminerAssignment[]
+  stationCategories   StationCategory[]
+
+  @@unique([sessionId, stationCode])
+  @@map("stations")
+}
+
+// Junction: Station → AssessmentCategory (which category this station belongs to for this session)
+model StationCategory {
+  station     Station            @relation(fields: [stationId], references: [id])
+  stationId   String
+  category    AssessmentCategory @relation(fields: [categoryId], references: [id])
+  categoryId  String
+
+  @@id([stationId, categoryId])
+  @@map("station_categories")
+}
+
+// ─────────────────────────────────────────────
+// ASSIGNMENTS
+// ─────────────────────────────────────────────
+
+model StudentAssignment {
+  id               String  @id @default(cuid())
+  student          User    @relation(fields: [studentId], references: [id])
+  studentId        String
+  station          Station @relation(fields: [stationId], references: [id])
+  stationId        String
+  candidateNumber  String  // Official exam candidate number
+  createdAt        DateTime @default(now())
+
+  scorecards Scorecard[]
+
+  @@unique([studentId, stationId])
+  @@map("student_assignments")
+}
+
+model ExaminerAssignment {
+  id          String  @id @default(cuid())
+  examiner    User    @relation(fields: [examinerId], references: [id])
+  examinerId  String
+  station     Station @relation(fields: [stationId], references: [id])
+  stationId   String
+  createdAt   DateTime @default(now())
+
+  scorecards Scorecard[]
+
+  @@unique([examinerId, stationId])
+  @@map("examiner_assignments")
+}
+
+// ─────────────────────────────────────────────
+// SCORING
+// ─────────────────────────────────────────────
+
+model Scorecard {
+  id                   String            @id @default(cuid())
+  studentAssignment    StudentAssignment @relation(fields: [studentAssignmentId], references: [id])
+  studentAssignmentId  String
+  examinerAssignment   ExaminerAssignment @relation(fields: [examinerAssignmentId], references: [id])
+  examinerAssignmentId String
+  examiner             User              @relation(fields: [examinerId], references: [id])
+  examinerId           String
+  totalScore           Float             // Score entered by examiner for this task
+  maxPossibleScore     Float             // Max score for the task
+  percentageScore      Float             // totalScore / maxPossibleScore * 100
+  remarks              String?           // Optional examiner remarks
+  submittedAt          DateTime?
+  isSubmitted          Boolean           @default(false)
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  @@unique([studentAssignmentId, examinerAssignmentId])
+  @@map("scorecards")
+}
+
+// ─────────────────────────────────────────────
+// RESULTS
+// ─────────────────────────────────────────────
+
+model StudentResult {
+  id              String        @id @default(cuid())
+  student         User          @relation(fields: [studentId], references: [id])
+  studentId       String        @map("student_id")
+  session         ExamSession   @relation(fields: [sessionId], references: [id])
+  sessionId       String
+  categoryScores  Json          // { categoryId: { score, maxScore, percentage, passed } }
+  overallScore    Float
+  overallMaxScore Float
+  overallPercent  Float
+  passed          Boolean
+  grade           String?       // e.g. "A", "B+", "C", "FAIL"
+  status          ResultStatus  @default(PENDING)
+  publishedAt     DateTime?
+  computedAt      DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([studentId, sessionId])
+  @@map("student_results")
+}
+
+// ─────────────────────────────────────────────
+// CARE PLAN (Configurable sub-types per programme)
+// ─────────────────────────────────────────────
+
+model CarePlanType {
+  id            String      @id @default(cuid())
+  name          String      // e.g. "Surgery", "Medicine", "Paediatrics"
+  programme     Programme   @relation(fields: [programmeId], references: [id])
+  programmeId   String
+  maxMarks      Float       @default(10.0)  // Max marks for this sub-type
+  sortOrder     Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  scores        CarePlanScore[]
+
+  @@unique([name, programmeId])
+  @@map("care_plan_types")
+}
+
+model CarePlanScore {
+  id              String       @id @default(cuid())
+  student         User         @relation("CarePlanStudent", fields: [studentId], references: [id])
+  studentId       String
+  session         ExamSession  @relation(fields: [sessionId], references: [id])
+  sessionId       String
+  carePlanType    CarePlanType @relation(fields: [carePlanTypeId], references: [id])
+  carePlanTypeId  String
+  examiner        User         @relation("CarePlanExaminer", fields: [examinerId], references: [id])
+  examinerId      String
+  marks           Float        @default(0)
+  submittedAt     DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  @@unique([studentId, sessionId, carePlanTypeId])
+  @@map("care_plan_scores")
+}
