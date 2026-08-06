@@ -5,9 +5,9 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, BookOpen, ClipboardList,
   BarChart3, Settings, LogOut, Stethoscope, Calendar,
-  ChevronRight, Bell, Menu, X, GraduationCap
+  ChevronRight, ChevronDown, Bell, Menu, X, GraduationCap, Download
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
 import { api } from "@/lib/api";
@@ -17,7 +17,22 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const navItems = [
+interface SubNavItem {
+  href: string;
+  label: string;
+  icon: any;
+  exact?: boolean;
+}
+
+interface NavItem {
+  href?: string;
+  label: string;
+  icon: any;
+  exact?: boolean;
+  children?: SubNavItem[];
+}
+
+const navItems: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/programmes", label: "Programmes", icon: GraduationCap },
   { href: "/admin/sessions", label: "Exam Sessions", icon: Calendar },
@@ -25,7 +40,13 @@ const navItems = [
   { href: "/admin/students", label: "Student Management", icon: GraduationCap },
   { href: "/admin/users", label: "Staff Management", icon: Users },
   { href: "/admin/care-plans", label: "Care Plans", icon: Stethoscope },
-  { href: "/admin/results", label: "Results", icon: BarChart3 },
+  {
+    label: "Downloads",
+    icon: Download,
+    children: [
+      { href: "/admin/results", label: "Results", icon: BarChart3 },
+    ],
+  },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
@@ -34,6 +55,38 @@ export function AdminSidebar() {
   const router = useRouter();
   const { user, clearAuth } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
+    const initial: Record<string, boolean> = {};
+    navItems.forEach((item) => {
+      if (item.children) {
+        const hasActiveChild = item.children.some((child) =>
+          child.exact ? pathname === child.href : pathname.startsWith(child.href)
+        );
+        if (hasActiveChild) {
+          initial[item.label] = true;
+        }
+      }
+    });
+    return initial;
+  });
+
+  useEffect(() => {
+    navItems.forEach((item) => {
+      if (item.children) {
+        const hasActiveChild = item.children.some((child) =>
+          child.exact ? pathname === child.href : pathname.startsWith(child.href)
+        );
+        if (hasActiveChild) {
+          setExpandedMenus((prev) => ({ ...prev, [item.label]: true }));
+        }
+      }
+    });
+  }, [pathname]);
+
+  const toggleMenu = (label: string) => {
+    setExpandedMenus((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
 
   const handleLogout = async () => {
     try {
@@ -77,24 +130,80 @@ export function AdminSidebar() {
         <p className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider px-3 py-2">
           Management
         </p>
-        {navItems.map(({ href, label, icon: Icon, exact }) => (
-          <Link
-            key={href}
-            href={href}
-            onClick={() => setMobileOpen(false)}
-            className={cn(
-              "sidebar-nav-item",
-              isActive(href, exact) && "active"
-            )}
-            id={`admin-nav-${label.toLowerCase().replace(/\s+/g, "-")}`}
-          >
-            <Icon className="w-4 h-4 flex-shrink-0" />
-            <span className="flex-1">{label}</span>
-            {isActive(href, exact) && (
-              <ChevronRight className="w-3 h-3 opacity-60" />
-            )}
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          if (item.children && item.children.length > 0) {
+            const isChildActive = item.children.some((child) =>
+              child.exact ? pathname === child.href : pathname.startsWith(child.href)
+            );
+            const isOpen = expandedMenus[item.label] ?? isChildActive;
+
+            return (
+              <div key={item.label} className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => toggleMenu(item.label)}
+                  className={cn(
+                    "sidebar-nav-item w-full flex items-center justify-between text-left cursor-pointer",
+                    isChildActive && "bg-sidebar-accent/50 text-sidebar-foreground font-semibold"
+                  )}
+                  id={`admin-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <item.icon className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{item.label}</span>
+                  </div>
+                  {isOpen ? (
+                    <ChevronDown className="w-3.5 h-3.5 opacity-60 flex-shrink-0" />
+                  ) : (
+                    <ChevronRight className="w-3.5 h-3.5 opacity-60 flex-shrink-0" />
+                  )}
+                </button>
+
+                {isOpen && (
+                  <div className="pl-4 ml-3 border-l border-sidebar-border/60 space-y-1 py-1">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={cn(
+                          "sidebar-nav-item py-2 text-xs",
+                          isActive(child.href, child.exact) && "active"
+                        )}
+                        id={`admin-nav-${child.label.toLowerCase().replace(/\s+/g, "-")}`}
+                      >
+                        <child.icon className="w-3.5 h-3.5 flex-shrink-0 opacity-80" />
+                        <span className="flex-1 truncate">{child.label}</span>
+                        {isActive(child.href, child.exact) && (
+                          <ChevronRight className="w-3 h-3 opacity-60 flex-shrink-0" />
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href!}
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "sidebar-nav-item",
+                isActive(item.href!, item.exact) && "active"
+              )}
+              id={`admin-nav-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              <item.icon className="w-4 h-4 flex-shrink-0" />
+              <span className="flex-1 truncate">{item.label}</span>
+              {isActive(item.href!, item.exact) && (
+                <ChevronRight className="w-3 h-3 opacity-60 flex-shrink-0" />
+              )}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* User Profile */}
