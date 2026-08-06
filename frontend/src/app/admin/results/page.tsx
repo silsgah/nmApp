@@ -729,7 +729,7 @@ function ResultDetailDialog({
                 {/* PDF Cover-sheet Equivalent Header */}
                 <div className="border-b border-dashed border-border/60 pb-4 flex justify-between flex-wrap gap-4 text-xs font-mono text-muted-foreground">
                   <div>
-                    <span className="font-bold text-foreground">CANDIDATE NUMBER:</span> {currentComp.candidateNumber || "—"}
+                    <span className="font-bold text-foreground">INDEX NUMBER:</span> {result.student.staffId || "—"}
                   </div>
                   <div>
                     <span className="font-bold text-foreground">CENTRE:</span> {result.session.name.split(" ")[0]} Examination Centre
