@@ -149,7 +149,7 @@ export default async function scorecardRoutes(fastify) {
     });
   });
 
-  // POST unsubmit (admin override)
+  // POST unsubmit (admin override — resets assessment to pending)
   fastify.post('/:id/unsubmit', {
     onRequest: [fastify.requireRole('ADMIN')],
   }, async (request, reply) => {
@@ -157,6 +157,16 @@ export default async function scorecardRoutes(fastify) {
       where: { id: request.params.id },
       data: { isSubmitted: false, submittedAt: null },
     });
+  });
+
+  // DELETE /scorecards/:id (admin override — deletes scorecard permanently)
+  fastify.delete('/:id', {
+    onRequest: [fastify.requireRole('ADMIN')],
+  }, async (request, reply) => {
+    await prisma.scorecard.delete({
+      where: { id: request.params.id },
+    });
+    return reply.send({ message: 'Scorecard deleted successfully' });
   });
 
   // GET /assessment-matrix — per student, index, task, assigned examiner(s), assessment completion status & score

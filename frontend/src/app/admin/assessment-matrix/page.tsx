@@ -1,11 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   FileSpreadsheet, Search, RefreshCw, Filter, CheckCircle2,
-  Clock, Users, Award, BookOpen, Download
+  Clock, Users, Award, BookOpen, Download, RotateCcw, Trash2,
+  AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +22,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 interface AssessmentMatrixRecord {
@@ -66,10 +76,15 @@ interface AssessmentMatrixRecord {
 }
 
 export default function AssessmentMatrixPage() {
+  const queryClient = useQueryClient();
   const [selectedProgramme, setSelectedProgramme] = useState<string>("ALL");
   const [selectedSession, setSelectedSession] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<"ALL" | "COMPLETED" | "PENDING">("ALL");
   const [search, setSearch] = useState<string>("");
+
+  // Modal dialog states for resetting / deleting scorecards
+  const [resetTarget, setResetTarget] = useState<AssessmentMatrixRecord | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<AssessmentMatrixRecord | null>(null);
 
   // Fetch Programmes
   const { data: programmes } = useQuery({
@@ -91,6 +106,32 @@ export default function AssessmentMatrixPage() {
       if (selectedSession !== "ALL") params.append("sessionId", selectedSession);
       if (selectedProgramme !== "ALL") params.append("programmeId", selectedProgramme);
       return api.get(`/scorecards/assessment-matrix?${params.toString()}`).then((r) => r.data);
+    },
+  });
+
+  // Mutation: Reset (unsubmit) scorecard
+  const resetMutation = useMutation({
+    mutationFn: (scorecardId: string) => api.post(`/scorecards/${scorecardId}/unsubmit`),
+    onSuccess: () => {
+      toast.success("Assessment reset to Pending! Examiner can now re-assess candidate.", { icon: "🔄" });
+      setResetTarget(null);
+      queryClient.invalidateQueries({ queryKey: ["assessment-matrix"] });
+    },
+    onError: (err: any) => {
+      toast.error("Failed to reset assessment: " + (err.response?.data?.error || err.message));
+    },
+  });
+
+  // Mutation: Delete scorecard permanently
+  const deleteMutation = useMutation({
+    mutationFn: (scorecardId: string) => api.delete(`/scorecards/${scorecardId}`),
+    onSuccess: () => {
+      toast.success("Scorecard permanently deleted! Candidate station restored to fresh state.", { icon: "🗑️" });
+      setDeleteTarget(null);
+      queryClient.invalidateQueries({ queryKey: ["assessment-matrix"] });
+    },
+    onError: (err: any) => {
+      toast.error("Failed to delete assessment: " + (err.response?.data?.error || err.message));
     },
   });
 
@@ -188,7 +229,7 @@ export default function AssessmentMatrixPage() {
           <div>
             <h1 className="page-title text-xl font-bold tracking-tight text-foreground">Assessment Matrix & Progress Tracker</h1>
             <p className="page-subtitle text-xs text-muted-foreground mt-0.5">
-              Monitor student assignments, examiner status, and marks obtained per programme/course
+              Monitor student assignments, examiner status, marks obtained, and manage assessment resets per programme
             </p>
           </div>
         </div>
@@ -357,6 +398,9 @@ export default function AssessmentMatrixPage() {
               <TableHead className="px-5 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right h-11">
                 Marks Obtained
               </TableHead>
+              <TableHead className="px-5 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right h-11">
+                Admin Control
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -369,11 +413,12 @@ export default function AssessmentMatrixPage() {
                   <TableCell className="px-5 py-4"><Skeleton className="h-4 w-32" /></TableCell>
                   <TableCell className="px-5 py-4"><Skeleton className="h-6 w-24 rounded-full" /></TableCell>
                   <TableCell className="px-5 py-4 text-right"><Skeleton className="h-4 w-16 ml-auto" /></TableCell>
+                  <TableCell className="px-5 py-4 text-right"><Skeleton className="h-8 w-20 ml-auto rounded-lg" /></TableCell>
                 </TableRow>
               ))
             ) : filteredRecords.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="py-16 text-center">
+                <TableCell colSpan={7} className="py-16 text-center">
                   <FileSpreadsheet className="w-12 h-12 mx-auto mb-3 text-muted-foreground/20" />
                   <p className="text-muted-foreground font-semibold text-sm">No assessment matrix records found</p>
                   <p className="text-xs text-muted-foreground/75 mt-1">
@@ -463,6 +508,36 @@ export default function AssessmentMatrixPage() {
                         <span className="text-xs text-muted-foreground/60 font-sans italic">—</span>
                       )}
                     </TableCell>
+
+                    {/* Admin Control (Reset / Delete) */}
+                    <TableCell className="px-5 py-3.5 text-right whitespace-nowrap">
+                      {r.scorecard ? (
+                        <div className="flex items-center justify-end gap-1.5">
+                          {isSubmitted && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setResetTarget(r)}
+                              className="h-7 text-[11px] font-medium border-amber-200 bg-amber-50/50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-800 cursor-pointer"
+                              title="Reset assessment status back to Pending"
+                            >
+                              <RotateCcw className="w-3 h-3 mr-1" /> Reset
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setDeleteTarget(r)}
+                            className="h-7 w-7 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer"
+                            title="Delete scorecard permanently"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/40 italic">—</span>
+                      )}
+                    </TableCell>
                   </TableRow>
                 );
               })
@@ -470,6 +545,79 @@ export default function AssessmentMatrixPage() {
           </TableBody>
         </Table>
       </div>
+
+      {/* ── Modal Dialog: Reset Assessment ── */}
+      {resetTarget && (
+        <Dialog open onOpenChange={() => setResetTarget(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-amber-600">
+                <RotateCcw className="w-5 h-5" /> Reset Candidate Assessment?
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground mt-1">
+                This will unsubmit the scorecard for <strong>{resetTarget.student.name}</strong> (Index: {resetTarget.student.staffId || "N/A"}) at Station <strong>{resetTarget.station.stationCode} ({resetTarget.station.task.name})</strong> and revert their status back to <strong>Pending Assessment</strong> so an examiner can re-assess them.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-xs text-amber-800 dark:text-amber-300">
+              <p className="font-semibold">Current Marks: {resetTarget.scorecard?.totalScore} / {resetTarget.station.task.maxScore} ({Math.round(resetTarget.scorecard?.percentageScore ?? 0)}%)</p>
+              <p className="mt-0.5 text-[11px] opacity-80">Assessed by: {resetTarget.scorecard?.examinerName || "Examiner"}</p>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0 mt-2">
+              <Button variant="outline" size="sm" onClick={() => setResetTarget(null)}>
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white border-0"
+                disabled={resetMutation.isPending}
+                onClick={() => {
+                  if (resetTarget.scorecard?.id) {
+                    resetMutation.mutate(resetTarget.scorecard.id);
+                  }
+                }}
+              >
+                {resetMutation.isPending ? "Resetting..." : "Yes, Reset Assessment"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* ── Modal Dialog: Delete Scorecard ── */}
+      {deleteTarget && (
+        <Dialog open onOpenChange={() => setDeleteTarget(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-red-600">
+                <AlertTriangle className="w-5 h-5" /> Delete Scorecard Permanently?
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground mt-1">
+                Are you sure you want to permanently delete the scorecard for <strong>{deleteTarget.student.name}</strong> at Station <strong>{deleteTarget.station.stationCode} ({deleteTarget.station.task.name})</strong>? This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter className="gap-2 sm:gap-0 mt-2">
+              <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={deleteMutation.isPending}
+                onClick={() => {
+                  if (deleteTarget.scorecard?.id) {
+                    deleteMutation.mutate(deleteTarget.scorecard.id);
+                  }
+                }}
+              >
+                {deleteMutation.isPending ? "Deleting..." : "Permanently Delete Scorecard"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
