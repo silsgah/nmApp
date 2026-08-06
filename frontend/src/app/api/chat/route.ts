@@ -88,12 +88,16 @@ Max Score: ${stationContext.maxScore || 100}${stationContext.candidateNumber ? `
     const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
     if (apiKey) {
-      const result = streamText({
-        model: google("gemini-2.0-flash"),
-        system: contextualSystem,
-        messages,
-      });
-      return result.toUIMessageStreamResponse();
+      try {
+        const result = streamText({
+          model: google("gemini-2.0-flash"),
+          system: contextualSystem,
+          messages,
+        });
+        return result.toUIMessageStreamResponse();
+      } catch (streamErr) {
+        console.warn("[Examiner Copilot] streamText failed, using clinical fallback engine:", streamErr);
+      }
     }
 
     // Offline fallback when API key not yet configured

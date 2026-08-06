@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, BookOpen, ClipboardList,
   BarChart3, Settings, LogOut, Stethoscope, Calendar,
-  ChevronRight, ChevronDown, Bell, Menu, X, GraduationCap, Download
+  ChevronRight, ChevronDown, Bell, Menu, X, GraduationCap, Download, FileSpreadsheet
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -44,7 +44,8 @@ const navItems: NavItem[] = [
     label: "Downloads",
     icon: Download,
     children: [
-      { href: "/admin/results", label: "Results", icon: BarChart3 },
+      { href: "/admin/results", label: "Results Summary", icon: BarChart3 },
+      { href: "/admin/assessment-matrix", label: "Assessment Matrix", icon: FileSpreadsheet },
     ],
   },
   { href: "/admin/settings", label: "Settings", icon: Settings },

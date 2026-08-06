@@ -158,4 +158,69 @@ export default async function scorecardRoutes(fastify) {
       data: { isSubmitted: false, submittedAt: null },
     });
   });
+
+  // GET /assessment-matrix — per student, index, task, assigned examiner(s), assessment completion status & score
+  fastify.get('/assessment-matrix', {
+    onRequest: [fastify.requireRole('ADMIN')],
+  }, async (request) => {
+    const { sessionId, programmeId } = request.query;
+
+    const where = {
+      ...(sessionId && { station: { sessionId } }),
+      ...(programmeId && { station: { session: { programmeId } } }),
+    };
+
+    const studentAssignments = await prisma.studentAssignment.findMany({
+      where,
+      include: {
+        student: { select: { id: true, name: true, email: true, staffId: true } },
+        station: {
+          include: {
+            task: { select: { id: true, name: true, maxScore: true } },
+            session: { select: { id: true, name: true, programme: { select: { id: true, name: true, fullName: true } } } },
+            examinerAssignments: {
+              include: {
+                examiner: { select: { id: true, name: true, staffId: true } },
+              },
+            },
+          },
+        },
+        scorecards: {
+          include: {
+            examiner: { select: { id: true, name: true } },
+          },
+          orderBy: { submittedAt: 'desc' },
+        },
+      },
+      orderBy: [
+        { station: { stationCode: 'asc' } },
+        { student: { name: 'asc' } },
+      ],
+    });
+
+    return studentAssignments.map(sa => {
+      const submittedScorecard = sa.scorecards.find(s => s.isSubmitted) || sa.scorecards[0] || null;
+      return {
+        assignmentId: sa.id,
+        candidateNumber: sa.candidateNumber,
+        student: sa.student,
+        session: sa.station.session,
+        station: {
+          id: sa.station.id,
+          stationCode: sa.station.stationCode,
+          task: sa.station.task,
+        },
+        assignedExaminers: sa.station.examinerAssignments.map(ea => ea.examiner),
+        scorecard: submittedScorecard ? {
+          id: submittedScorecard.id,
+          totalScore: submittedScorecard.totalScore,
+          maxPossibleScore: submittedScorecard.maxPossibleScore,
+          percentageScore: submittedScorecard.percentageScore,
+          isSubmitted: submittedScorecard.isSubmitted,
+          submittedAt: submittedScorecard.submittedAt,
+          examinerName: submittedScorecard.examiner?.name || null,
+        } : null,
+      };
+    });
+  });
 }
