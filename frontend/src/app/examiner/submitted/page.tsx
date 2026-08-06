@@ -144,9 +144,11 @@ export default function SubmittedScorecardsPage() {
                           {getInitials(s.student.name)}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-foreground truncate">{s.student.name}</p>
-                          <span className="text-[10px] font-semibold text-muted-foreground block mt-0.5">
-                            #{s.student.staffId || "—"}
+                          <p className="text-xs font-bold font-mono text-foreground truncate">
+                            {s.student.staffId ? `Index: ${s.student.staffId}` : "—"}
+                          </p>
+                          <span className="text-[10px] font-medium text-muted-foreground block truncate mt-0.5">
+                            {s.student.name}
                           </span>
                         </div>
                       </div>

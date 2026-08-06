@@ -30,7 +30,7 @@ import { ExaminerCopilot } from "@/components/examiner/examiner-copilot";
 interface Candidate {
   assignmentId: string;
   candidateNumber: string;
-  student: { id: string; name: string; email: string };
+  student: { id: string; name: string; email: string; staffId: string | null };
   scorecard: {
     id: string; totalScore: number; percentageScore: number; isSubmitted: boolean; remarks: string;
   } | null;
@@ -186,11 +186,16 @@ function ScoreEntryCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-sm font-bold text-foreground">{candidate.student.name}</p>
-            <span className="text-xs font-semibold font-mono text-muted-foreground bg-muted border border-border px-2 py-0.5 rounded">
-              #{candidate.candidateNumber}
+            <p className="text-sm font-bold font-mono text-foreground">
+              Index No: {candidate.student.staffId || candidate.candidateNumber}
+            </p>
+            <span className="text-[10px] font-semibold text-muted-foreground bg-muted border border-border px-2 py-0.5 rounded">
+              Cand. #{candidate.candidateNumber}
             </span>
           </div>
+          <p className="text-xs text-muted-foreground font-medium truncate mt-0.5">
+            {candidate.student.name}
+          </p>
           {candidate.scorecard && (
             <div className="flex items-center gap-3 mt-1.5">
               <span className={cn("text-sm", getPercentColor(candidate.scorecard.percentageScore))}>
@@ -710,10 +715,10 @@ export default function ExaminerStationPage() {
                     )} />
                   </div>
                   <span className={cn(
-                    "text-[10px] font-semibold max-w-[56px] truncate",
+                    "text-[10px] font-semibold font-mono max-w-[68px] truncate",
                     isSelected ? "text-primary font-bold" : "text-muted-foreground"
                   )}>
-                    #{candidate.candidateNumber}
+                    {candidate.student.staffId || `#${candidate.candidateNumber}`}
                   </span>
                 </button>
               );
@@ -739,7 +744,7 @@ export default function ExaminerStationPage() {
                   )}
                 >
                   <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0",
+                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 font-mono",
                     isDone
                       ? "bg-emerald-100 text-emerald-700"
                       : isDraft
@@ -749,9 +754,11 @@ export default function ExaminerStationPage() {
                     {getCandidateInitials(candidate.student.name)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold truncate">{candidate.student.name}</p>
-                    <span className="text-[10px] font-semibold text-muted-foreground block mt-0.5">
-                      #{candidate.candidateNumber}
+                    <p className="text-xs font-bold font-mono text-foreground truncate">
+                      {candidate.student.staffId || `Cand. #${candidate.candidateNumber}`}
+                    </p>
+                    <span className="text-[10px] font-medium text-muted-foreground block truncate mt-0.5">
+                      {candidate.student.name}
                     </span>
                   </div>
                   {/* Small check badge */}

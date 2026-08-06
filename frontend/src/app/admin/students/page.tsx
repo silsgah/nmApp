@@ -250,7 +250,7 @@ function CreateStudentDialog({ programmes }: { programmes: { id: string; name: s
           <Button
             className="gradient-primary border-0 text-white hover:opacity-90 cursor-pointer px-5 shadow-sm"
             onClick={() => mutation.mutate()}
-            disabled={!form.name || !form.email || !form.programmeId || mutation.isPending}
+            disabled={!form.name.trim() || !form.email.trim() || !form.indexNumber.trim() || !form.programmeId || mutation.isPending}
             id="create-student-submit"
           >
             {mutation.isPending ? "Creating..." : "Save Student"}
@@ -368,7 +368,7 @@ function EditStudentDialog({
           <Button
             className="gradient-primary border-0 text-white hover:opacity-90 cursor-pointer px-5 shadow-sm"
             onClick={() => mutation.mutate()}
-            disabled={!form.name || !form.email || !form.programmeId || mutation.isPending}
+            disabled={!form.name.trim() || !form.email.trim() || !form.indexNumber.trim() || !form.programmeId || mutation.isPending}
             id="edit-student-submit"
           >
             {mutation.isPending ? "Updating..." : "Save Changes"}

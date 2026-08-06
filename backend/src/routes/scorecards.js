@@ -21,7 +21,7 @@ export default async function scorecardRoutes(fastify) {
     const studentAssignments = await prisma.studentAssignment.findMany({
       where: { stationId },
       include: {
-        student: { select: { id: true, name: true, email: true } },
+        student: { select: { id: true, name: true, email: true, staffId: true } },
         scorecards: {
           where: { examinerId },
           select: { id: true, totalScore: true, percentageScore: true, isSubmitted: true, remarks: true },

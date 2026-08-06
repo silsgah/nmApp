@@ -55,6 +55,10 @@ export default async function userRoutes(fastify) {
   fastify.post('/', adminOnly, async (request, reply) => {
     const { name, email, password, role, programmeId, staffId, profilePictureUrl } = request.body;
 
+    if (role === 'STUDENT' && (!staffId || !staffId.trim())) {
+      return reply.code(400).send({ error: 'Student Index Number is required' });
+    }
+
     const existing = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
     if (existing) return reply.code(409).send({ error: 'Email already registered' });
 
@@ -67,7 +71,7 @@ export default async function userRoutes(fastify) {
         passwordHash,
         role,
         programmeId: programmeId || null,
-        staffId: staffId || null,
+        staffId: staffId ? staffId.trim() : null,
         profilePictureUrl: profilePictureUrl || null,
       },
       select: {
@@ -168,12 +172,20 @@ export default async function userRoutes(fastify) {
   fastify.patch('/:id', adminOnly, async (request, reply) => {
     const { name, email, role, programmeId, staffId, isActive, password, profilePictureUrl } = request.body;
 
+    const existingUser = await prisma.user.findUnique({ where: { id: request.params.id } });
+    if (!existingUser) return reply.code(404).send({ error: 'User not found' });
+
+    const isStudent = (role || existingUser.role) === 'STUDENT';
+    if (isStudent && staffId !== undefined && (!staffId || !staffId.trim())) {
+      return reply.code(400).send({ error: 'Student Index Number is required' });
+    }
+
     const data = {
       ...(name && { name }),
       ...(email && { email: email.toLowerCase() }),
       ...(role && { role }),
       ...(programmeId !== undefined && { programmeId }),
-      ...(staffId !== undefined && { staffId }),
+      ...(staffId !== undefined && { staffId: staffId ? staffId.trim() : null }),
       ...(isActive !== undefined && { isActive }),
       ...(profilePictureUrl !== undefined && { profilePictureUrl }),
     };
