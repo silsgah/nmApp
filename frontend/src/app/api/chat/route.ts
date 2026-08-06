@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { streamText } from "ai";
+import { streamText, createUIMessageStream, createUIMessageStreamResponse } from "ai";
 import { google } from "@ai-sdk/google";
 
 export const maxDuration = 30;
@@ -93,11 +93,11 @@ Max Score: ${stationContext.maxScore || 100}${stationContext.candidateNumber ? `
         system: contextualSystem,
         messages,
       });
-      return result.toTextStreamResponse();
+      return result.toUIMessageStreamResponse();
     }
 
     // Offline fallback when API key not yet configured
-    const lastMsg = messages[messages.length - 1]?.content ?? "";
+    const lastMsg = messages[messages.length - 1]?.content ?? messages[messages.length - 1]?.parts?.[0]?.text ?? "";
     const lower = (typeof lastMsg === "string" ? lastMsg : "").toLowerCase();
     let reply: string;
 
@@ -118,17 +118,13 @@ Max Score: ${stationContext.maxScore || 100}${stationContext.candidateNumber ? `
       reply = guide.length > 100 ? guide : `Hello Examiner! 👋 I am your **GAFCONM Clinical AI Assistant**.\n\nI can help you with:\n- **Draft Scorecard Remarks** for any candidate\n- **Rubric Clarification** on 0–2 or 0–4 rating scales\n- **Safety Rule Checks** for RGN & RM practical tasks\n- **Clinical Guidelines** (catheterization, vital signs, care plans, aseptic technique)\n\nHow can I assist you${stationContext?.taskName ? ` with **${stationContext.taskName}**` : ""}?`;
     }
 
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        controller.enqueue(encoder.encode(reply));
-        controller.close();
+    const stream = createUIMessageStream({
+      execute({ writer }) {
+        writer.write({ type: "text-delta", id: "msg-" + Date.now(), delta: reply });
       },
     });
 
-    return new Response(stream, {
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
-    });
+    return createUIMessageStreamResponse({ stream });
   } catch (err: any) {
     console.error("[Examiner Copilot]", err);
     return new Response(JSON.stringify({ error: err.message || "Internal error" }), {

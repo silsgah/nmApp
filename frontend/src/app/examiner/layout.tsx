@@ -14,9 +14,6 @@ export default function ExaminerLayout({ children }: { children: React.ReactNode
           </p>
         </footer>
       </main>
-
-      {/* Global Examiner AI Copilot — station pages mount their own context-aware instance */}
-      <ExaminerCopilot />
     </div>
   );
 }
