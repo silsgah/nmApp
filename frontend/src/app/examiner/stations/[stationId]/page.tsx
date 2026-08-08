@@ -1,14 +1,14 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { api } from "@/lib/api";
 import { useAuthStore } from "@/store/auth";
 import { toast } from "sonner";
 import {
   ArrowLeft, User, CheckCircle2, AlertCircle, Send,
-  ChevronDown, ChevronUp, Info, Clock
+  ChevronDown, ChevronUp, Info, Clock, Search, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -557,10 +557,15 @@ function ScoreEntryCard({
 
 export default function ExaminerStationPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const stationId = params.stationId as string;
   const { user } = useAuthStore();
 
+  // Auto-select student from URL query param (from global search)
+  const highlightStudentId = searchParams.get("studentId");
+
   const [activeAssignmentId, setActiveAssignmentId] = useState<string | null>(null);
+  const [rosterSearch, setRosterSearch] = useState("");
   // Ref to route AI copilot insert into the currently active ScoreEntryCard's remarks
   const insertRemarkRef = useRef<((text: string) => void) | null>(null);
 
@@ -590,11 +595,30 @@ export default function ExaminerStationPage() {
   const submitted = candidatesList.filter((c) => c.scorecard?.isSubmitted).length;
   const total = candidatesList.length;
 
+  // Filter candidates by search term (index number or name)
+  const filteredCandidates = useMemo(() => {
+    if (!rosterSearch.trim()) return candidatesList;
+    const term = rosterSearch.toLowerCase().trim();
+    return candidatesList.filter((c) =>
+      (c.student.staffId?.toLowerCase() || "").includes(term) ||
+      c.student.name.toLowerCase().includes(term) ||
+      c.candidateNumber.toLowerCase().includes(term)
+    );
+  }, [candidatesList, rosterSearch]);
+
+  // Auto-select: if a studentId is in URL (from global search), select that candidate
   useEffect(() => {
+    if (highlightStudentId && candidatesList.length > 0) {
+      const match = candidatesList.find((c) => c.student.id === highlightStudentId);
+      if (match) {
+        setActiveAssignmentId(match.assignmentId);
+        return;
+      }
+    }
     if (candidatesList.length > 0 && !activeAssignmentId) {
       setActiveAssignmentId(candidatesList[0].assignmentId);
     }
-  }, [candidatesList, activeAssignmentId]);
+  }, [candidatesList, activeAssignmentId, highlightStudentId]);
 
   const activeCandidate = candidatesList.find((c) => c.assignmentId === activeAssignmentId);
 
@@ -680,91 +704,142 @@ export default function ExaminerStationPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
-          {/* Mobile Stories-style Horizontal bubble selector */}
-          <div className="flex md:hidden gap-3.5 overflow-x-auto pb-3 border-b border-border scrollbar-none">
-            {candidatesList.map((candidate) => {
-              const isSelected = candidate.assignmentId === activeAssignmentId;
-              const isDone = candidate.scorecard?.isSubmitted;
-              const isDraft = candidate.scorecard && !candidate.scorecard.isSubmitted;
-              return (
+          {/* Mobile: Search + Stories-style Horizontal bubble selector */}
+          <div className="md:hidden space-y-3">
+            {/* Mobile search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/60" />
+              <input
+                type="text"
+                placeholder="Search by index or name..."
+                value={rosterSearch}
+                onChange={(e) => setRosterSearch(e.target.value)}
+                className="w-full pl-9 pr-8 py-2 text-xs rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all"
+              />
+              {rosterSearch && (
                 <button
-                  key={candidate.assignmentId}
-                  onClick={() => setActiveAssignmentId(candidate.assignmentId)}
-                  className="flex flex-col items-center flex-shrink-0 gap-1.5 focus:outline-none"
+                  onClick={() => setRosterSearch("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  <div className={cn(
-                    "w-12 h-12 rounded-full flex items-center justify-center relative font-bold text-xs border-2 transition-all cursor-pointer",
-                    isSelected
-                      ? "border-primary ring-2 ring-primary/20 bg-primary/10 text-primary"
-                      : isDone
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                        : isDraft
-                          ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                          : "border-border bg-background text-muted-foreground"
-                  )}>
-                    {getCandidateInitials(candidate.student.name)}
-                    {/* Status dot */}
-                    <div className={cn(
-                      "w-3 h-3 rounded-full border border-background absolute bottom-0 right-0",
-                      isDone ? "bg-emerald-500" : isDraft ? "bg-indigo-500" : "bg-muted-foreground/30"
-                    )} />
-                  </div>
-                  <span className={cn(
-                    "text-[10px] font-semibold font-mono max-w-[68px] truncate",
-                    isSelected ? "text-primary font-bold" : "text-muted-foreground"
-                  )}>
-                    {candidate.student.staffId || "—"}
-                  </span>
+                  <X className="w-3.5 h-3.5" />
                 </button>
-              );
-            })}
+              )}
+            </div>
+            <div className="flex gap-3.5 overflow-x-auto pb-3 border-b border-border scrollbar-none">
+              {filteredCandidates.map((candidate) => {
+                const isSelected = candidate.assignmentId === activeAssignmentId;
+                const isDone = candidate.scorecard?.isSubmitted;
+                const isDraft = candidate.scorecard && !candidate.scorecard.isSubmitted;
+                return (
+                  <button
+                    key={candidate.assignmentId}
+                    onClick={() => setActiveAssignmentId(candidate.assignmentId)}
+                    className="flex flex-col items-center flex-shrink-0 gap-1.5 focus:outline-none"
+                  >
+                    <div className={cn(
+                      "w-12 h-12 rounded-full flex items-center justify-center relative font-bold text-xs border-2 transition-all cursor-pointer",
+                      isSelected
+                        ? "border-primary ring-2 ring-primary/20 bg-primary/10 text-primary"
+                        : isDone
+                          ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                          : isDraft
+                            ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                            : "border-border bg-background text-muted-foreground"
+                    )}>
+                      {getCandidateInitials(candidate.student.name)}
+                      {/* Status dot */}
+                      <div className={cn(
+                        "w-3 h-3 rounded-full border border-background absolute bottom-0 right-0",
+                        isDone ? "bg-emerald-500" : isDraft ? "bg-indigo-500" : "bg-muted-foreground/30"
+                      )} />
+                    </div>
+                    <span className={cn(
+                      "text-[10px] font-semibold font-mono max-w-[68px] truncate",
+                      isSelected ? "text-primary font-bold" : "text-muted-foreground"
+                    )}>
+                      {candidate.student.staffId || "—"}
+                    </span>
+                  </button>
+                );
+              })}
+              {filteredCandidates.length === 0 && rosterSearch && (
+                <p className="text-xs text-muted-foreground py-2 px-1">No candidates match "{rosterSearch}"</p>
+              )}
+            </div>
           </div>
 
           {/* Desktop Left Roster Column */}
           <div className="hidden md:flex flex-col gap-2 md:col-span-1 max-h-[650px] overflow-y-auto pr-2 border-r border-border">
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 px-1">Candidates Roster</h3>
-            {candidatesList.map((candidate) => {
-              const isSelected = candidate.assignmentId === activeAssignmentId;
-              const isDone = candidate.scorecard?.isSubmitted;
-              const isDraft = candidate.scorecard && !candidate.scorecard.isSubmitted;
-              return (
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1 px-1">Candidates Roster</h3>
+            {/* Roster search */}
+            <div className="relative mb-1 px-0.5">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground/50" />
+              <input
+                type="text"
+                placeholder="Search index / name..."
+                value={rosterSearch}
+                onChange={(e) => setRosterSearch(e.target.value)}
+                className="w-full pl-7 pr-7 py-1.5 text-[11px] rounded-lg border border-border bg-background text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-all"
+                id="roster-search-input"
+              />
+              {rosterSearch && (
                 <button
-                  key={candidate.assignmentId}
-                  onClick={() => setActiveAssignmentId(candidate.assignmentId)}
-                  className={cn(
-                    "flex items-center gap-3 px-3.5 py-3 rounded-xl border text-left transition-all w-full cursor-pointer hover:bg-muted/30 select-none",
-                    isSelected
-                      ? "bg-primary/5 text-primary border-primary font-bold shadow-sm"
-                      : "bg-background text-foreground border-border"
-                  )}
+                  onClick={() => setRosterSearch("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 font-mono",
-                    isDone
-                      ? "bg-emerald-100 text-emerald-700"
-                      : isDraft
-                        ? "bg-indigo-100 text-indigo-700"
-                        : "bg-muted text-muted-foreground"
-                  )}>
-                    {getCandidateInitials(candidate.student.name)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold font-mono text-foreground truncate">
-                      {candidate.student.staffId || "—"}
-                    </p>
-                    <span className="text-[10px] font-medium text-muted-foreground block truncate mt-0.5">
-                      {candidate.student.name}
-                    </span>
-                  </div>
-                  {/* Small check badge */}
-                  {isDone ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                  ) : isDraft ? (
-                    <Clock className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-                  ) : null}
+                  <X className="w-3 h-3" />
                 </button>
-              );
-            })}
+              )}
+            </div>
+            {filteredCandidates.length === 0 && rosterSearch ? (
+              <div className="text-center py-6 px-2">
+                <Search className="w-5 h-5 mx-auto mb-1.5 text-muted-foreground/25" />
+                <p className="text-[11px] text-muted-foreground">No match for "{rosterSearch}"</p>
+              </div>
+            ) : (
+              filteredCandidates.map((candidate) => {
+                const isSelected = candidate.assignmentId === activeAssignmentId;
+                const isDone = candidate.scorecard?.isSubmitted;
+                const isDraft = candidate.scorecard && !candidate.scorecard.isSubmitted;
+                return (
+                  <button
+                    key={candidate.assignmentId}
+                    onClick={() => setActiveAssignmentId(candidate.assignmentId)}
+                    className={cn(
+                      "flex items-center gap-3 px-3.5 py-3 rounded-xl border text-left transition-all w-full cursor-pointer hover:bg-muted/30 select-none",
+                      isSelected
+                        ? "bg-primary/5 text-primary border-primary font-bold shadow-sm"
+                        : "bg-background text-foreground border-border"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 font-mono",
+                      isDone
+                        ? "bg-emerald-100 text-emerald-700"
+                        : isDraft
+                          ? "bg-indigo-100 text-indigo-700"
+                          : "bg-muted text-muted-foreground"
+                    )}>
+                      {getCandidateInitials(candidate.student.name)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold font-mono text-foreground truncate">
+                        {candidate.student.staffId || "—"}
+                      </p>
+                      <span className="text-[10px] font-medium text-muted-foreground block truncate mt-0.5">
+                        {candidate.student.name}
+                      </span>
+                    </div>
+                    {/* Small check badge */}
+                    {isDone ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    ) : isDraft ? (
+                      <Clock className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                    ) : null}
+                  </button>
+                );
+              })
+            )}
           </div>
 
           {/* Desktop Right Detail Scoring Panel */}

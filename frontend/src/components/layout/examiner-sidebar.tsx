@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, ClipboardList, CheckSquare, LogOut, Stethoscope, ChevronRight, Menu, X, Settings } from "lucide-react";
+import { LayoutDashboard, ClipboardList, CheckSquare, LogOut, Stethoscope, ChevronRight, Menu, X, Settings, Search } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 const navItems = [
   { href: "/examiner", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/examiner/stations", label: "My Stations", icon: ClipboardList },
+  { href: "/examiner/search", label: "Find Student", icon: Search },
   { href: "/examiner/care-plan", label: "Care Plan Entry", icon: Stethoscope },
   { href: "/examiner/submitted", label: "Submitted", icon: CheckSquare },
   { href: "/examiner/settings", label: "Settings", icon: Settings },
