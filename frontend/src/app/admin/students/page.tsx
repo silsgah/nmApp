@@ -1,14 +1,16 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 import {
   GraduationCap, Plus, Search, MoreHorizontal,
   UserCheck, UserX, Mail, Shield, Camera,
   ChevronDown, Pencil, RefreshCw, Upload, Trash2,
-  User, Lock
+  User, Lock, Download, FileSpreadsheet, AlertCircle,
+  CheckCircle2, X, FileUp, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -379,6 +381,400 @@ function EditStudentDialog({
   );
 }
 
+// ─── Excel Bulk Upload Dialog ────────────────────────────────────────────────
+
+interface ParsedStudent {
+  row: number;
+  full_name: string;
+  index_number: string;
+  programme: string;
+  email: string;
+  programmeId: string | null;
+  errors: string[];
+  isValid: boolean;
+}
+
+function BulkUploadDialog({ programmes }: { programmes: { id: string; name: string; fullName: string }[] }) {
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState<"upload" | "preview">("upload");
+  const [parsedStudents, setParsedStudents] = useState<ParsedStudent[]>([]);
+  const [fileName, setFileName] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // --- Download Template ---
+  const handleDownloadTemplate = useCallback(() => {
+    const wb = XLSX.utils.book_new();
+
+    // Main sheet with headers + 2 sample rows
+    const sampleData = [
+      { full_name: "Ama Serwaah", index_number: "RGN-0932", programme: "RGN", email: "ama.serwaah@student.edu.gh" },
+      { full_name: "Kwame Mensah", index_number: "RM-1047", programme: "RM", email: "kwame.mensah@student.edu.gh" },
+    ];
+    const ws = XLSX.utils.json_to_sheet(sampleData);
+
+    // Set column widths for readability
+    ws["!cols"] = [
+      { wch: 25 }, // full_name
+      { wch: 18 }, // index_number
+      { wch: 12 }, // programme
+      { wch: 35 }, // email
+    ];
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+
+    // Reference sheet listing available programmes
+    const progData = programmes.map((p) => ({
+      programme_code: p.name,
+      full_name: p.fullName,
+    }));
+    if (progData.length > 0) {
+      const wsProgs = XLSX.utils.json_to_sheet(progData);
+      wsProgs["!cols"] = [{ wch: 18 }, { wch: 35 }];
+      XLSX.utils.book_append_sheet(wb, wsProgs, "Available Programmes");
+    }
+
+    XLSX.writeFile(wb, "student_upload_template.xlsx");
+    toast.success("Template downloaded! Fill in student details and upload.");
+  }, [programmes]);
+
+  // --- Parse uploaded file ---
+  const parseFile = useCallback((file: File) => {
+    setFileName(file.name);
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { defval: "" });
+
+        if (json.length === 0) {
+          toast.error("The spreadsheet appears to be empty. Please add student records.");
+          return;
+        }
+
+        // Build a lookup map: programme name (case-insensitive) → programme id
+        const progMap = new Map<string, string>();
+        programmes.forEach((p) => {
+          progMap.set(p.name.toLowerCase(), p.id);
+          progMap.set(p.fullName.toLowerCase(), p.id);
+        });
+
+        const parsed: ParsedStudent[] = json.map((row, idx) => {
+          const fullName = String(row.full_name || row.fullname || row.name || row.Full_Name || row.FullName || row.Name || "").trim();
+          const indexNumber = String(row.index_number || row.indexnumber || row.index || row.Index_Number || row.IndexNumber || row.Index || "").trim();
+          const programme = String(row.programme || row.program || row.Programme || row.Program || "").trim();
+          const email = String(row.email || row.Email || row.EMAIL || "").trim();
+
+          const errors: string[] = [];
+          if (!fullName) errors.push("Missing full name");
+          if (!indexNumber) errors.push("Missing index number");
+          if (!programme) errors.push("Missing programme");
+          if (!email) errors.push("Missing email");
+          else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.push("Invalid email format");
+
+          const programmeId = progMap.get(programme.toLowerCase()) ?? null;
+          if (programme && !programmeId) errors.push(`Unknown programme "${programme}"`);
+
+          return {
+            row: idx + 2, // +2: 1 for header row, 1 for 0-index
+            full_name: fullName,
+            index_number: indexNumber,
+            programme,
+            email,
+            programmeId,
+            errors,
+            isValid: errors.length === 0,
+          };
+        });
+
+        setParsedStudents(parsed);
+        setStep("preview");
+      } catch (err) {
+        toast.error("Failed to parse the file. Please ensure it's a valid .xlsx or .xls file.");
+        console.error(err);
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
+  }, [programmes]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) parseFile(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      if (!file.name.match(/\.(xlsx|xls)$/i)) {
+        toast.error("Please upload an Excel file (.xlsx or .xls)");
+        return;
+      }
+      parseFile(file);
+    }
+  };
+
+  // --- Bulk import mutation ---
+  const validStudents = parsedStudents.filter((s) => s.isValid);
+  const invalidStudents = parsedStudents.filter((s) => !s.isValid);
+
+  const bulkMutation = useMutation({
+    mutationFn: () =>
+      api.post("/users/bulk-import", {
+        users: validStudents.map((s) => ({
+          name: s.full_name,
+          email: s.email,
+          staffId: s.index_number,
+          programmeId: s.programmeId,
+        })),
+      }),
+    onSuccess: (res) => {
+      const data = res.data;
+      queryClient.invalidateQueries({ queryKey: ["students"] });
+      toast.success(
+        `Import complete: ${data.created} created, ${data.skipped} skipped` +
+        (data.errors?.length ? `, ${data.errors.length} errors` : "")
+      );
+      handleClose();
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.error ?? "Bulk import failed");
+    },
+  });
+
+  const handleClose = () => {
+    setOpen(false);
+    setStep("upload");
+    setParsedStudents([]);
+    setFileName("");
+    setIsDragging(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  return (
+    <>
+      {/* Download Template Button */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleDownloadTemplate}
+        className="cursor-pointer"
+        id="download-template-btn"
+      >
+        <Download className="w-3.5 h-3.5 mr-1.5" /> Template
+      </Button>
+
+      {/* Upload Students Button */}
+      <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : handleClose())}>
+        <DialogTrigger
+          render={
+            <Button
+              variant="outline"
+              size="sm"
+              className="cursor-pointer border-primary/30 text-primary hover:bg-primary/5 hover:text-primary"
+              id="bulk-upload-btn"
+            >
+              <FileSpreadsheet className="w-3.5 h-3.5 mr-1.5" /> Upload Excel
+            </Button>
+          }
+        />
+        <DialogContent className="max-w-2xl rounded-2xl border border-border/80 shadow-2xl p-0 overflow-hidden">
+          {/* Header */}
+          <div className="px-6 pt-6 pb-4 bg-gradient-to-br from-primary/5 via-transparent to-teal-500/5">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-primary" />
+                {step === "upload" ? "Upload Student Excel File" : "Review & Confirm Import"}
+              </DialogTitle>
+              <DialogDescription className="text-xs text-muted-foreground">
+                {step === "upload"
+                  ? "Upload a populated Excel template to bulk-import students into the system."
+                  : `${validStudents.length} valid records ready to import from ${fileName}`}
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+
+          {step === "upload" ? (
+            /* ── Upload Step ── */
+            <div className="px-6 pb-6 space-y-4">
+              {/* Info banner */}
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-primary/5 border border-primary/10">
+                <FileSpreadsheet className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p className="font-semibold text-foreground">Expected columns</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {["full_name", "index_number", "programme", "email"].map((col) => (
+                      <span key={col} className="inline-flex items-center px-2 py-0.5 rounded-md bg-primary/10 text-primary font-mono text-[10px] font-bold">
+                        {col}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-muted-foreground/70">Don&apos;t have the template? <button type="button" onClick={handleDownloadTemplate} className="text-primary underline underline-offset-2 font-semibold cursor-pointer">Download it here</button></p>
+                </div>
+              </div>
+
+              {/* Drop zone */}
+              <div
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={cn(
+                  "relative flex flex-col items-center justify-center gap-3 py-12 px-6 rounded-xl border-2 border-dashed transition-all cursor-pointer group",
+                  isDragging
+                    ? "border-primary bg-primary/5 scale-[1.01]"
+                    : "border-border/60 hover:border-primary/40 hover:bg-muted/20"
+                )}
+              >
+                <div className={cn(
+                  "w-14 h-14 rounded-2xl flex items-center justify-center transition-all",
+                  isDragging ? "bg-primary/15 scale-110" : "bg-muted/40 group-hover:bg-primary/10"
+                )}>
+                  <FileUp className={cn(
+                    "w-7 h-7 transition-colors",
+                    isDragging ? "text-primary" : "text-muted-foreground/40 group-hover:text-primary/60"
+                  )} />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-foreground">
+                    {isDragging ? "Drop your file here" : "Drag & drop your Excel file"}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">or click to browse · .xlsx, .xls</p>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </div>
+            </div>
+          ) : (
+            /* ── Preview Step ── */
+            <div className="px-6 pb-6 space-y-4">
+              {/* Summary badges */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-50 border border-green-200">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                  <span className="text-xs font-bold text-green-700">{validStudents.length} Valid</span>
+                </div>
+                {invalidStudents.length > 0 && (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200">
+                    <AlertCircle className="w-3.5 h-3.5 text-red-500" />
+                    <span className="text-xs font-bold text-red-600">{invalidStudents.length} Errors</span>
+                  </div>
+                )}
+                <span className="text-xs text-muted-foreground ml-auto">{parsedStudents.length} total rows</span>
+              </div>
+
+              {/* Preview Table */}
+              <div className="rounded-xl border bg-card shadow-sm overflow-hidden max-h-[340px] overflow-y-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-muted/50 hover:bg-muted/50">
+                      <TableHead className="px-4 py-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider w-10">Row</TableHead>
+                      <TableHead className="px-4 py-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Status</TableHead>
+                      <TableHead className="px-4 py-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Full Name</TableHead>
+                      <TableHead className="px-4 py-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Index No.</TableHead>
+                      <TableHead className="px-4 py-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Programme</TableHead>
+                      <TableHead className="px-4 py-2.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Email</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {parsedStudents.map((s) => (
+                      <TableRow
+                        key={s.row}
+                        className={cn(
+                          "hover:bg-muted/10 transition-colors",
+                          !s.isValid && "bg-red-50/40"
+                        )}
+                      >
+                        <TableCell className="px-4 py-2 text-xs text-muted-foreground font-mono">{s.row}</TableCell>
+                        <TableCell className="px-4 py-2">
+                          {s.isValid ? (
+                            <CheckCircle2 className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <div className="flex items-center gap-1" title={s.errors.join(", ")}>
+                              <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell className="px-4 py-2 text-xs font-medium text-foreground max-w-[140px] truncate">{s.full_name || "—"}</TableCell>
+                        <TableCell className="px-4 py-2 text-xs font-mono text-muted-foreground">{s.index_number || "—"}</TableCell>
+                        <TableCell className="px-4 py-2">
+                          {s.programme ? (
+                            <Badge
+                              variant="secondary"
+                              className={cn(
+                                "text-[10px] font-medium shadow-sm",
+                                s.programmeId
+                                  ? "bg-teal-50 text-teal-700 border border-teal-200"
+                                  : "bg-red-50 text-red-600 border border-red-200"
+                              )}
+                            >
+                              {s.programme}
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="px-4 py-2 text-xs text-muted-foreground max-w-[180px] truncate">{s.email || "—"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Error details */}
+              {invalidStudents.length > 0 && (
+                <div className="rounded-xl border border-red-200 bg-red-50/30 p-3.5 space-y-2">
+                  <p className="text-xs font-bold text-red-700 flex items-center gap-1.5">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    {invalidStudents.length} row(s) have errors and will be skipped:
+                  </p>
+                  <div className="space-y-1 max-h-24 overflow-y-auto">
+                    {invalidStudents.map((s) => (
+                      <p key={s.row} className="text-[11px] text-red-600">
+                        <span className="font-mono font-bold">Row {s.row}:</span> {s.errors.join(", ")}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              <DialogFooter className="pt-2 border-t border-border/60 flex items-center gap-2">
+                <Button variant="outline" onClick={() => { setStep("upload"); setParsedStudents([]); setFileName(""); }} className="cursor-pointer">
+                  <X className="w-3.5 h-3.5 mr-1.5" /> Re-upload
+                </Button>
+                <Button
+                  className="gradient-primary border-0 text-white hover:opacity-90 cursor-pointer px-5 shadow-sm"
+                  onClick={() => bulkMutation.mutate()}
+                  disabled={validStudents.length === 0 || bulkMutation.isPending}
+                  id="confirm-bulk-upload-btn"
+                >
+                  {bulkMutation.isPending ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Importing...</>
+                  ) : (
+                    <><Upload className="w-4 h-4 mr-2" /> Import {validStudents.length} Student{validStudents.length !== 1 ? "s" : ""}</>
+                  )}
+                </Button>
+              </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 export default function StudentsPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -434,6 +830,7 @@ export default function StudentsPage() {
           <Button variant="outline" size="sm" onClick={() => queryClient.invalidateQueries({ queryKey: ["students"] })} className="cursor-pointer">
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Refresh
           </Button>
+          <BulkUploadDialog programmes={programmes ?? []} />
           <CreateStudentDialog programmes={programmes ?? []} />
         </div>
       </div>

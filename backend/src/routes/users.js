@@ -85,31 +85,54 @@ export default async function userRoutes(fastify) {
     return reply.code(201).send(user);
   });
 
-  // POST /users/bulk-import — import students from CSV/JSON
+  // POST /users/bulk-import — import students from Excel/CSV/JSON
   fastify.post('/bulk-import', adminOnly, async (request, reply) => {
-    const { users, programmeId } = request.body; // users: [{ name, email, staffId? }]
+    const { users, programmeId } = request.body; // users: [{ name, email, staffId?, programmeId? }]
+
+    if (!Array.isArray(users) || users.length === 0) {
+      return reply.code(400).send({ error: 'No student records provided' });
+    }
 
     const results = { created: 0, skipped: 0, errors: [] };
     const defaultPassword = await bcrypt.hash('NMPortal123!', 12);
 
-    for (const u of users) {
+    for (let i = 0; i < users.length; i++) {
+      const u = users[i];
+      const row = i + 1;
+
+      // Validate required fields
+      if (!u.name || !u.name.trim()) {
+        results.errors.push({ row, email: u.email || '', reason: 'Missing full name' });
+        continue;
+      }
+      if (!u.email || !u.email.trim()) {
+        results.errors.push({ row, name: u.name, reason: 'Missing email address' });
+        continue;
+      }
+
       try {
         const existing = await prisma.user.findUnique({ where: { email: u.email.toLowerCase() } });
-        if (existing) { results.skipped++; continue; }
+        if (existing) {
+          results.skipped++;
+          continue;
+        }
+
+        // Per-student programmeId takes priority, then fallback to global programmeId
+        const studentProgrammeId = u.programmeId || programmeId || null;
 
         await prisma.user.create({
           data: {
-            name: u.name,
-            email: u.email.toLowerCase(),
+            name: u.name.trim(),
+            email: u.email.toLowerCase().trim(),
             passwordHash: defaultPassword,
             role: u.role || 'STUDENT',
-            programmeId: programmeId || null,
-            staffId: u.staffId || null,
+            programmeId: studentProgrammeId,
+            staffId: u.staffId ? u.staffId.trim() : null,
           },
         });
         results.created++;
       } catch (err) {
-        results.errors.push({ email: u.email, error: err.message });
+        results.errors.push({ row, email: u.email, reason: err.message });
       }
     }
 
