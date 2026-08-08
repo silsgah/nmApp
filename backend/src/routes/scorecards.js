@@ -105,9 +105,23 @@ export default async function scorecardRoutes(fastify) {
     // Validate examiner assignment belongs to this examiner
     const examinerAssignment = await prisma.examinerAssignment.findFirst({
       where: { id: examinerAssignmentId, examinerId },
-      include: { station: { include: { task: true } } },
+      include: { station: { include: { task: true, session: true } } },
     });
     if (!examinerAssignment) return reply.code(403).send({ error: 'Unauthorized' });
+
+    // Lock scoring if session is completed or archived
+    const sessionStatus = examinerAssignment.station.session.status;
+    if (['COMPLETED', 'ARCHIVED'].includes(sessionStatus)) {
+      return reply.code(400).send({ error: 'This exam session is marked as completed/archived. Score modifications are locked.' });
+    }
+
+    // Check if scorecard already exists and is submitted
+    const existingScorecard = await prisma.scorecard.findUnique({
+      where: { studentAssignmentId_examinerAssignmentId: { studentAssignmentId, examinerAssignmentId } },
+    });
+    if (existingScorecard?.isSubmitted) {
+      return reply.code(400).send({ error: 'Scorecard is already submitted and cannot be modified.' });
+    }
 
     const maxPossibleScore = examinerAssignment.station.task.maxScore;
     const percentageScore = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
@@ -139,8 +153,15 @@ export default async function scorecardRoutes(fastify) {
   }, async (request, reply) => {
     const scorecard = await prisma.scorecard.findFirst({
       where: { id: request.params.id, examinerId: request.user.id },
+      include: { studentAssignment: { include: { station: { include: { session: true } } } } },
     });
     if (!scorecard) return reply.code(404).send({ error: 'Scorecard not found' });
+
+    const sessionStatus = scorecard.studentAssignment?.station?.session?.status;
+    if (['COMPLETED', 'ARCHIVED'].includes(sessionStatus)) {
+      return reply.code(400).send({ error: 'This exam session is marked as completed/archived.' });
+    }
+
     if (scorecard.isSubmitted) return reply.code(400).send({ error: 'Scorecard already submitted' });
 
     return prisma.scorecard.update({

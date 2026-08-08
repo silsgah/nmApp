@@ -68,37 +68,47 @@ function AddStationDialog({
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Add Station</DialogTitle>
-          <DialogDescription>Assign a task to a new examination station</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-2">
-          <div className="space-y-2">
-            <Label>Station Code</Label>
-            <Input placeholder="e.g. S01, A, 1" value={code} onChange={(e) => setCode(e.target.value)} />
+      <DialogContent className="w-[95vw] sm:max-w-md max-h-[85vh] flex flex-col rounded-2xl border border-border/80 shadow-2xl p-0 overflow-hidden">
+        {/* Pinned Header */}
+        <div className="px-6 pt-5 pb-4 border-b border-border/40 bg-muted/10 shrink-0">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold text-foreground">Add Examination Station</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">Assign a clinical task to a new station code for this session.</DialogDescription>
+          </DialogHeader>
+        </div>
+
+        {/* Scrollable Body */}
+        <div className="px-6 py-5 space-y-4 flex-1 overflow-y-auto min-h-0">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">Station Code *</Label>
+            <Input id="station-code-input" placeholder="e.g. S01, Station 1, A" value={code} onChange={(e) => setCode(e.target.value)} className="bg-muted/20 border-border/60 focus:bg-background" />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">Clinical Task *</Label>
             <SearchableSelect
               value={taskId}
               onValueChange={setTaskId}
               options={tasks.map((t) => ({ label: `${t.name} (Max Score: ${t.maxScore})`, value: t.id }))}
-              placeholder="Select a task..."
-              searchPlaceholder="Search clinical tasks..."
-              emptyMessage="No clinical tasks found."
+              placeholder="Select clinical task..."
+              searchPlaceholder="Search task by name..."
+              emptyMessage="No matching tasks found for this programme/year."
             />
           </div>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+
+        {/* Pinned Footer */}
+        <div className="px-6 py-3.5 border-t border-border/60 bg-muted/20 flex items-center justify-end gap-2 shrink-0">
+          <Button variant="outline" size="sm" onClick={onClose} className="cursor-pointer">Cancel</Button>
           <Button
-            className="gradient-primary border-0 text-white hover:opacity-90"
+            size="sm"
+            className="gradient-primary border-0 text-white hover:opacity-90 cursor-pointer px-5 shadow-sm"
             disabled={!taskId || !code || mutation.isPending}
             onClick={() => mutation.mutate()}
+            id="submit-add-station-btn"
           >
-            {mutation.isPending ? "Adding..." : "Add Station"}
+            {mutation.isPending ? "Adding Station..." : "Add Station"}
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
