@@ -93,9 +93,9 @@ export default function AssessmentMatrixPage() {
   });
 
   // Fetch Sessions
-  const { data: sessions } = useQuery({
-    queryKey: ["sessions-list"],
-    queryFn: () => api.get("/sessions").then((r) => r.data),
+  const { data: sessions } = useQuery<any[]>({
+    queryKey: ["sessions"],
+    queryFn: () => api.get("/sessions?activeOnly=true").then((r) => r.data),
   });
 
   // Fetch Assessment Matrix

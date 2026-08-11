@@ -5,16 +5,23 @@ export default async function sessionRoutes(fastify) {
   const { prisma } = fastify;
 
   fastify.get('/', { onRequest: [fastify.authenticate] }, async (request) => {
-    const { programmeId, status } = request.query;
+    const { programmeId, status, activeOnly } = request.query;
     const user = request.user;
+
+    let statusFilter;
+    if (status) {
+      statusFilter = status;
+    } else if (activeOnly === 'true' || activeOnly === true) {
+      statusFilter = { in: ['ACTIVE', 'MARKING', 'COMPLETED'] };
+    } else if (user.role === 'EXAMINER') {
+      statusFilter = { in: ['ACTIVE', 'MARKING'] };
+    } else if (user.role === 'STUDENT') {
+      statusFilter = { in: ['ACTIVE', 'MARKING', 'COMPLETED'] };
+    }
 
     const where = {
       ...(programmeId && { programmeId }),
-      ...(status && { status }),
-      // Students only see active/completed sessions for their programme
-      ...(user.role === 'STUDENT' && {
-        status: { in: ['ACTIVE', 'MARKING', 'COMPLETED'] },
-      }),
+      ...(statusFilter && { status: statusFilter }),
     };
 
     return prisma.examSession.findMany({

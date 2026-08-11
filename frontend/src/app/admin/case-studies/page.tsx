@@ -59,7 +59,7 @@ export default function AdminCaseStudiesPage() {
   // Fetch active / marking sessions
   const { data: sessions, isLoading: sessionsLoading } = useQuery<Session[]>({
     queryKey: ["admin-sessions"],
-    queryFn: () => api.get("/sessions").then((r) => r.data),
+    queryFn: () => api.get("/sessions?activeOnly=true").then((r) => r.data),
   });
 
   // Fetch case study evaluations for selected session

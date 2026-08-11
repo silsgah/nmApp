@@ -208,42 +208,46 @@ export default async function resultRoutes(fastify) {
         if (!catPassed) allCategoryPassed = false;
       }
 
-      // Fetch care plan scores for this student
+      // Fetch care plan scores for this student (only factor in if care plan scores were entered)
       const studentCarePlanScores = await prisma.carePlanScore.findMany({
         where: { studentId, sessionId },
+        include: { carePlanType: true },
       });
 
-      let carePlanScore = 0;
-      let carePlanMax = 0;
-      for (const type of carePlanTypes) {
-        const scoreObj = studentCarePlanScores.find(s => s.carePlanTypeId === type.id);
-        carePlanScore += scoreObj ? scoreObj.marks : 0;
-        carePlanMax += type.maxMarks;
+      if (studentCarePlanScores.length > 0) {
+        let carePlanScore = 0;
+        let carePlanMax = 0;
+        for (const scoreObj of studentCarePlanScores) {
+          const planType = scoreObj.carePlanType || carePlanTypes.find(t => t.id === scoreObj.carePlanTypeId);
+          const maxForType = planType ? planType.maxMarks : 10;
+          carePlanScore += scoreObj.marks;
+          carePlanMax += maxForType;
+        }
+
+        if (carePlanMax > 0) {
+          const carePlanPercent = (carePlanScore / carePlanMax) * 100;
+          const carePlanPassed = carePlanPercent >= config.overallPassMark;
+
+          categoryScores['CARE_PLAN'] = {
+            categoryName: 'Care Plan',
+            score: carePlanScore,
+            maxScore: carePlanMax,
+            percentage: Math.round(carePlanPercent * 100) / 100,
+            scaledScore: Math.round(carePlanScore * 100) / 100,
+            scaledMaxMarks: carePlanMax,
+            passed: carePlanPassed,
+          };
+
+          practicalScore += carePlanScore;
+          practicalMaxScore += carePlanMax;
+
+          if (!carePlanPassed) allCategoryPassed = false;
+        }
       }
 
-      if (carePlanMax > 0) {
-        const carePlanPercent = (carePlanScore / carePlanMax) * 100;
-        const carePlanPassed = carePlanPercent >= config.overallPassMark;
-
-        categoryScores['CARE_PLAN'] = {
-          categoryName: 'Care Plan',
-          score: carePlanScore,
-          maxScore: carePlanMax,
-          percentage: Math.round(carePlanPercent * 100) / 100,
-          scaledScore: Math.round(carePlanScore * 100) / 100,
-          scaledMaxMarks: carePlanMax,
-          passed: carePlanPassed,
-        };
-
-        practicalScore += carePlanScore;
-        practicalMaxScore += carePlanMax;
-
-        if (!carePlanPassed) allCategoryPassed = false;
-      }
-
-      // Fetch Case Study evaluation for this student
+      // Fetch Case Study evaluation for this student (only factor in if evaluation was submitted)
       const studentCaseStudyEval = await prisma.caseStudyEvaluation.findFirst({
-        where: { studentId, sessionId },
+        where: { studentId, sessionId, isSubmitted: true },
       });
 
       if (studentCaseStudyEval) {

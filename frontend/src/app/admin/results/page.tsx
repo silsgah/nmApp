@@ -68,7 +68,7 @@ export default function ResultsPage() {
 
   const { data: sessions } = useQuery<Session[]>({
     queryKey: ["sessions"],
-    queryFn: () => api.get("/sessions").then((r) => r.data),
+    queryFn: () => api.get("/sessions?activeOnly=true").then((r) => r.data),
   });
 
   const { data: results, isLoading: resultsLoading, refetch } = useQuery<StudentResult[]>({
