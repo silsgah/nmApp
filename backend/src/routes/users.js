@@ -15,7 +15,7 @@ export default async function userRoutes(fastify) {
 
   // GET /users — list users with filters
   fastify.get('/', adminOnly, async (request) => {
-    const { role, programmeId, search, page = 1, limit = 50 } = request.query;
+    const { role, programmeId, yearLevel, search, page = 1, limit = 50 } = request.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const where = {
@@ -23,6 +23,7 @@ export default async function userRoutes(fastify) {
         role: role.includes(',') ? { in: role.split(',') } : role,
       }),
       ...(programmeId && { programmeId }),
+      ...(yearLevel && { yearLevel: parseInt(yearLevel) }),
       ...(search && {
         OR: [
           { name: { contains: search, mode: 'insensitive' } },
@@ -37,7 +38,7 @@ export default async function userRoutes(fastify) {
         where,
         select: {
           id: true, name: true, email: true, role: true,
-          staffId: true, isActive: true, createdAt: true,
+          staffId: true, yearLevel: true, isActive: true, createdAt: true,
           profilePictureUrl: true,
           programme: { select: { id: true, name: true } },
         },
@@ -53,7 +54,7 @@ export default async function userRoutes(fastify) {
 
   // POST /users — create user
   fastify.post('/', adminOnly, async (request, reply) => {
-    const { name, email, password, role, programmeId, staffId, profilePictureUrl } = request.body;
+    const { name, email, password, role, programmeId, yearLevel, staffId, profilePictureUrl } = request.body;
 
     if (role === 'STUDENT' && (!staffId || !staffId.trim())) {
       return reply.code(400).send({ error: 'Student Index Number is required' });
@@ -71,12 +72,13 @@ export default async function userRoutes(fastify) {
         passwordHash,
         role,
         programmeId: programmeId || null,
+        yearLevel: yearLevel ? parseInt(yearLevel) : 2,
         staffId: staffId ? staffId.trim() : null,
         profilePictureUrl: profilePictureUrl || null,
       },
       select: {
         id: true, name: true, email: true, role: true,
-        staffId: true, isActive: true, createdAt: true,
+        staffId: true, yearLevel: true, isActive: true, createdAt: true,
         profilePictureUrl: true,
         programme: { select: { id: true, name: true } },
       },
@@ -87,7 +89,7 @@ export default async function userRoutes(fastify) {
 
   // POST /users/bulk-import — import students from Excel/CSV/JSON
   fastify.post('/bulk-import', adminOnly, async (request, reply) => {
-    const { users, programmeId } = request.body; // users: [{ name, email, staffId?, programmeId? }]
+    const { users, programmeId, yearLevel } = request.body; // users: [{ name, email, staffId?, programmeId?, yearLevel? }]
 
     if (!Array.isArray(users) || users.length === 0) {
       return reply.code(400).send({ error: 'No student records provided' });
@@ -117,8 +119,9 @@ export default async function userRoutes(fastify) {
           continue;
         }
 
-        // Per-student programmeId takes priority, then fallback to global programmeId
+        // Per-student programmeId and yearLevel take priority, fallback to global defaults
         const studentProgrammeId = u.programmeId || programmeId || null;
+        const studentYearLevel = u.yearLevel ? parseInt(u.yearLevel) : (yearLevel ? parseInt(yearLevel) : 2);
 
         await prisma.user.create({
           data: {
@@ -127,6 +130,7 @@ export default async function userRoutes(fastify) {
             passwordHash: defaultPassword,
             role: u.role || 'STUDENT',
             programmeId: studentProgrammeId,
+            yearLevel: studentYearLevel,
             staffId: u.staffId ? u.staffId.trim() : null,
           },
         });
@@ -193,7 +197,7 @@ export default async function userRoutes(fastify) {
 
   // PATCH /users/:id
   fastify.patch('/:id', adminOnly, async (request, reply) => {
-    const { name, email, role, programmeId, staffId, isActive, password, profilePictureUrl } = request.body;
+    const { name, email, role, programmeId, yearLevel, staffId, isActive, password, profilePictureUrl } = request.body;
 
     const existingUser = await prisma.user.findUnique({ where: { id: request.params.id } });
     if (!existingUser) return reply.code(404).send({ error: 'User not found' });
@@ -208,6 +212,7 @@ export default async function userRoutes(fastify) {
       ...(email && { email: email.toLowerCase() }),
       ...(role && { role }),
       ...(programmeId !== undefined && { programmeId }),
+      ...(yearLevel !== undefined && { yearLevel: yearLevel ? parseInt(yearLevel) : 2 }),
       ...(staffId !== undefined && { staffId: staffId ? staffId.trim() : null }),
       ...(isActive !== undefined && { isActive }),
       ...(profilePictureUrl !== undefined && { profilePictureUrl }),
@@ -223,7 +228,7 @@ export default async function userRoutes(fastify) {
         data,
         select: {
           id: true, name: true, email: true, role: true,
-          staffId: true, isActive: true,
+          staffId: true, yearLevel: true, isActive: true,
           profilePictureUrl: true,
           programme: { select: { id: true, name: true } },
         },

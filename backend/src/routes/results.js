@@ -241,6 +241,31 @@ export default async function resultRoutes(fastify) {
         if (!carePlanPassed) allCategoryPassed = false;
       }
 
+      // Fetch Case Study evaluation for this student
+      const studentCaseStudyEval = await prisma.caseStudyEvaluation.findFirst({
+        where: { studentId, sessionId },
+      });
+
+      if (studentCaseStudyEval) {
+        const csPercent = studentCaseStudyEval.percentage;
+        const csPassed = csPercent >= config.overallPassMark;
+
+        categoryScores['CASE_STUDY'] = {
+          categoryName: 'Case Study',
+          score: studentCaseStudyEval.totalScore,
+          maxScore: studentCaseStudyEval.maxScore,
+          percentage: studentCaseStudyEval.percentage,
+          scaledScore: studentCaseStudyEval.totalScore,
+          scaledMaxMarks: studentCaseStudyEval.maxScore,
+          passed: csPassed,
+        };
+
+        practicalScore += studentCaseStudyEval.totalScore;
+        practicalMaxScore += studentCaseStudyEval.maxScore;
+
+        if (!csPassed) allCategoryPassed = false;
+      }
+
       // Overall percentage for grading (scaled score as % of scaled max)
       const overallPercent = practicalMaxScore > 0 ? (practicalScore / practicalMaxScore) * 100 : 0;
       const overallPassed = overallPercent >= config.overallPassMark && allCategoryPassed;

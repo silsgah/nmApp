@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
   ArrowLeft, Settings2, Plus, Users, ClipboardList,
   CheckCircle2, Clock, PlayCircle, XCircle, BarChart3,
-  ChevronRight, Layers, UserCheck, RefreshCw, AlertCircle
+  ChevronRight, Layers, UserCheck, RefreshCw, AlertCircle, Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -120,6 +120,7 @@ export default function SessionDetailPage() {
   const sessionId = params.sessionId as string;
   const queryClient = useQueryClient();
   const [addStationOpen, setAddStationOpen] = useState(false);
+  const [noStationsDialogOpen, setNoStationsDialogOpen] = useState(false);
   const [selectedStation, setSelectedStation] = useState<any>(null);
 
   const { data: session, isLoading } = useQuery({
@@ -159,11 +160,13 @@ export default function SessionDetailPage() {
   const autoAssignMutation = useMutation({
     mutationFn: () => api.post(`/sessions/${sessionId}/auto-assign`),
     onSuccess: (res: any) => {
-      toast.success(res.data?.message || "Auto-assignment complete!");
+      toast.success(res.data?.message || "Schedule generated successfully!");
       queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
       queryClient.invalidateQueries({ queryKey: ["session-stats", sessionId] });
     },
-    onError: () => toast.error("Failed to auto-assign candidates & examiners"),
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.error || "Failed to generate schedule");
+    },
   });
 
   if (isLoading) {
@@ -310,12 +313,18 @@ export default function SessionDetailPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => autoAssignMutation.mutate()}
+              onClick={() => {
+                if (!session.stations?.length) {
+                  setNoStationsDialogOpen(true);
+                } else {
+                  autoAssignMutation.mutate();
+                }
+              }}
               disabled={session.status !== "DRAFT" || autoAssignMutation.isPending}
               id="auto-assign-btn"
-              title={session.status !== "DRAFT" ? "Auto-assignment is only allowed for draft sessions" : "Automatically distribute candidates and examiners"}
+              title={session.status !== "DRAFT" ? "Scheduling is only allowed for draft sessions" : "Generate exam schedule for candidates and examiners"}
             >
-              <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Auto-Assign
+              <Calendar className="w-3.5 h-3.5 mr-1.5 text-primary" /> {autoAssignMutation.isPending ? "Scheduling..." : "Schedule"}
             </Button>
             <Button
               variant="outline"
@@ -414,6 +423,34 @@ export default function SessionDetailPage() {
           }}
         />
       )}
+
+      {/* No Stations Warning Dialog */}
+      <Dialog open={noStationsDialogOpen} onOpenChange={setNoStationsDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-600">
+              <AlertCircle className="w-5 h-5 text-amber-600" /> No Stations Added Yet
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-sm text-muted-foreground">
+              You cannot generate a schedule because no clinical exam stations have been added to this exam session yet. Please add at least one station before scheduling candidates and examiners.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:justify-end mt-4">
+            <Button variant="outline" onClick={() => setNoStationsDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="gradient-primary text-white border-0"
+              onClick={() => {
+                setNoStationsDialogOpen(false);
+                setAddStationOpen(true);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1.5" /> Add First Station
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

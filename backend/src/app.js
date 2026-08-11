@@ -19,6 +19,7 @@ import assignmentRoutes from './routes/assignments.js';
 import scorecardRoutes from './routes/scorecards.js';
 import resultRoutes from './routes/results.js';
 import carePlanRoutes from './routes/careplans.js';
+import caseStudyRoutes from './routes/case-studies.js';
 
 // ── Build Fastify app ────────────────────────────────────────────────────────
 const app = Fastify({
@@ -118,6 +119,7 @@ await app.register(assignmentRoutes, { prefix: `${PREFIX}/assignments` });
 await app.register(scorecardRoutes,  { prefix: `${PREFIX}/scorecards` });
 await app.register(resultRoutes,     { prefix: `${PREFIX}/results` });
 await app.register(carePlanRoutes,   { prefix: `${PREFIX}/care-plans` });
+await app.register(caseStudyRoutes,  { prefix: `${PREFIX}/case-studies` });
 
 // Health / readiness probe (for load balancers / uptime monitors)
 app.get('/health', async () => ({

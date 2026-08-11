@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, BookOpen, ClipboardList,
   BarChart3, Settings, LogOut, Stethoscope, Calendar,
-  ChevronRight, ChevronDown, Bell, Menu, X, GraduationCap, Download, FileSpreadsheet, ShieldCheck
+  ChevronRight, ChevronDown, Bell, Menu, X, GraduationCap, Download, FileSpreadsheet, ShieldCheck, FileText
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -34,16 +34,15 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/programmes", label: "Programmes", icon: GraduationCap },
-  { href: "/admin/sessions", label: "Exam Sessions", icon: Calendar },
-  { href: "/admin/tasks", label: "Task Bank", icon: BookOpen },
-  { href: "/admin/students", label: "Student Management", icon: GraduationCap },
-  { href: "/admin/users", label: "Staff Management", icon: Users },
-  { href: "/admin/care-plans", label: "Care Plans", icon: Stethoscope },
   {
     label: "Administration",
     icon: ShieldCheck,
     children: [
+      { href: "/admin/programmes", label: "Programmes", icon: GraduationCap },
+      { href: "/admin/sessions", label: "Exam Sessions", icon: Calendar },
+      { href: "/admin/tasks", label: "Task Bank", icon: BookOpen },
+      { href: "/admin/students", label: "Student Management", icon: GraduationCap },
+      { href: "/admin/users", label: "Staff Management", icon: Users },
       { href: "/admin/assessment-matrix", label: "Assessment Matrix", icon: FileSpreadsheet },
     ],
   },
@@ -52,6 +51,8 @@ const navItems: NavItem[] = [
     icon: Download,
     children: [
       { href: "/admin/results", label: "Results Summary", icon: BarChart3 },
+      { href: "/admin/case-studies", label: "Case Studies", icon: FileText },
+      { href: "/admin/care-plans", label: "Care Plans", icon: Stethoscope },
     ],
   },
   { href: "/admin/settings", label: "Settings", icon: Settings },

@@ -44,7 +44,7 @@ const gradeConfig: Record<string, { label: string; color: string; bg: string }> 
 export default function StudentResultsPage() {
   const { user } = useAuthStore();
   const [selectedSession, setSelectedSession] = useState<string>("");
-  const [expandedCategories, setExpandedCategories] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
 
   const { data: sessions } = useQuery({

@@ -158,12 +158,29 @@ export default async function sessionRoutes(fastify) {
 
     if (!session) return reply.code(404).send({ error: 'Session not found' });
     if (session.status !== 'DRAFT') {
-      return reply.code(400).send({ error: 'Auto-assignment is only allowed for sessions in DRAFT status' });
+      return reply.code(400).send({ error: 'Scheduling is only allowed for sessions in DRAFT status' });
     }
+    if (!session.stations || session.stations.length === 0) {
+      return reply.code(400).send({ error: 'Cannot generate schedule for a session with no stations. Please add at least one station first.' });
+    }
+
+    // Filter students by matching programmeId AND yearLevel (if session has target yearLevel)
+    const studentWhere = {
+      role: 'STUDENT',
+      programmeId: session.programmeId,
+      isActive: true,
+      ...(session.yearLevel && {
+        OR: [
+          { yearLevel: session.yearLevel },
+          { yearLevel: null },
+        ],
+      }),
+    };
 
     const [students, examiners] = await Promise.all([
       prisma.user.findMany({
-        where: { role: 'STUDENT', programmeId: session.programmeId, isActive: true },
+        where: studentWhere,
+        orderBy: { staffId: 'asc' },
       }),
       prisma.user.findMany({
         where: { role: 'EXAMINER', programmeId: session.programmeId, isActive: true },
@@ -181,10 +198,12 @@ export default async function sessionRoutes(fastify) {
     for (let i = 0; i < session.stations.length; i++) {
       const station = session.stations[i];
 
-      // Assign all students sequentially
+      // Assign all students sequentially with candidate number (IndexNumber-C001)
       for (let j = 0; j < students.length; j++) {
         const student = students[j];
-        const candidateNumber = `C${String(j + 1).padStart(3, '0')}`;
+        const seqNum = `C${String(j + 1).padStart(3, '0')}`;
+        const indexNum = student.staffId ? student.staffId.trim() : null;
+        const candidateNumber = indexNum ? `${indexNum}-${seqNum}` : seqNum;
         await prisma.studentAssignment.create({
           data: { studentId: student.id, stationId: station.id, candidateNumber },
         });
@@ -203,7 +222,7 @@ export default async function sessionRoutes(fastify) {
       }
     }
 
-    return { message: 'Auto-assignment complete', studentsCount: students.length, stationsCount: session.stations.length };
+    return { message: 'Schedule generated successfully', studentsCount: students.length, stationsCount: session.stations.length };
   });
 
   // Session summary stats

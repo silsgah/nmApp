@@ -1,4 +1,5 @@
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
+import { AdminCopilot } from "@/components/admin/admin-copilot";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -20,6 +21,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </p>
         </footer>
       </main>
+      {/* Admin AI Copilot */}
+      <AdminCopilot />
     </div>
   );
 }

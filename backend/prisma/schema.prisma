@@ -52,6 +52,7 @@ model User {
   profilePictureUrl String?
   programme     Programme? @relation(fields: [programmeId], references: [id])
   programmeId   String?
+  yearLevel     Int?     @default(2) // Student academic year level (e.g. 2 or 3)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   isActive      Boolean  @default(true)
@@ -63,6 +64,8 @@ model User {
   studentResults      StudentResult[]
   carePlanScoresAsStudent  CarePlanScore[] @relation("CarePlanStudent")
   carePlanScoresAsExaminer CarePlanScore[] @relation("CarePlanExaminer")
+  caseStudyEvaluationsAsStudent  CaseStudyEvaluation[] @relation("CaseStudyStudent")
+  caseStudyEvaluationsAsExaminer CaseStudyEvaluation[] @relation("CaseStudyExaminer")
 
   @@map("users")
 }
@@ -194,6 +197,7 @@ model ExamSession {
   stations      Station[]
   results       StudentResult[]
   carePlanScores CarePlanScore[]
+  caseStudyEvaluations CaseStudyEvaluation[]
 
   @@map("exam_sessions")
 }
@@ -366,3 +370,47 @@ model CarePlanScore {
   @@unique([studentId, sessionId, carePlanTypeId])
   @@map("care_plan_scores")
 }
+
+// ─────────────────────────────────────────────
+// CASE STUDY (Structured Rubric Evaluation)
+// ─────────────────────────────────────────────
+
+model CaseStudyEvaluation {
+  id           String      @id @default(cuid())
+  student      User        @relation("CaseStudyStudent", fields: [studentId], references: [id])
+  studentId    String
+  session      ExamSession @relation(fields: [sessionId], references: [id])
+  sessionId    String
+  examiner     User        @relation("CaseStudyExaminer", fields: [examinerId], references: [id])
+  examinerId   String
+  type         String      @default("MIDWIFERY_CASE_STUDY") // e.g. MIDWIFERY_CASE_STUDY, OBSTETRIC_CASE_STUDY
+  totalScore   Float       @default(0) // Total out of max (e.g. 100)
+  maxScore     Float       @default(100)
+  percentage   Float       @default(0)
+  isSubmitted  Boolean     @default(false)
+  submittedAt  DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  itemScores   CaseStudyItemScore[]
+
+  @@unique([studentId, sessionId, type])
+  @@map("case_study_evaluations")
+}
+
+model CaseStudyItemScore {
+  id           String              @id @default(cuid())
+  evaluation   CaseStudyEvaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  evaluationId String
+  sectionKey   String              // e.g. DATA_GATHERING, UTILIZATION_OF_DATA, CARE_PLAN, MIDWIFERY_CONCEPTS, PRESENTATION_OF_PAPER, VIVA_VOCE
+  itemKey      String              // e.g. social, medical, surgical, present_ob, past_ob, etc.
+  itemName     String              // e.g. "Social (1)", "Identification of problems (2)"
+  marks        Float               @default(0)
+  maxMarks     Float
+  comment      String?
+  sortOrder    Int                 @default(0)
+
+  @@unique([evaluationId, sectionKey, itemKey])
+  @@map("case_study_item_scores")
+}
+
