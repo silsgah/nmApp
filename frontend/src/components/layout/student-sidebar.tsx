@@ -1,15 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, BarChart3, GraduationCap, LogOut, Stethoscope, ChevronRight, Menu, X, Settings } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
-import { api } from "@/lib/api";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { LogoutConfirmDialog } from "@/components/layout/logout-confirm-dialog";
 
 const navItems = [
   { href: "/student", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -19,16 +18,9 @@ const navItems = [
 
 export function StudentSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, clearAuth } = useAuthStore();
+  const { user } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  const handleLogout = async () => {
-    try { await api.post("/auth/logout"); } catch {}
-    clearAuth();
-    router.push("/login");
-    toast.success("Logged out");
-  };
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   const initials = user?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "ST";
   const isActive = (href: string, exact?: boolean) => exact ? pathname === href : pathname.startsWith(href);
@@ -77,7 +69,7 @@ export function StudentSidebar() {
             <p className="text-xs font-semibold text-sidebar-foreground truncate">{user?.name}</p>
             <p className="text-[10px] text-sidebar-foreground/50 truncate">{user?.programme?.name}</p>
           </div>
-          <button onClick={handleLogout} className="text-sidebar-foreground/40 hover:text-sidebar-foreground" id="student-logout-btn">
+          <button onClick={() => setLogoutConfirmOpen(true)} className="text-sidebar-foreground/40 hover:text-sidebar-foreground" title="Logout" id="student-logout-btn">
             <LogOut className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -107,6 +99,11 @@ export function StudentSidebar() {
           </aside>
         </>
       )}
+      <LogoutConfirmDialog
+        open={logoutConfirmOpen}
+        onOpenChange={setLogoutConfirmOpen}
+        portalName="student"
+      />
     </>
   );
 }

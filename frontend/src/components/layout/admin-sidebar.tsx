@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, BookOpen, ClipboardList,
   BarChart3, Settings, LogOut, Stethoscope, Calendar,
@@ -10,16 +10,11 @@ import {
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
-import { api } from "@/lib/api";
-import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { LogoutConfirmDialog } from "@/components/layout/logout-confirm-dialog";
 
 interface SubNavItem {
   href: string;
@@ -65,8 +60,7 @@ const navItems: NavItem[] = [
 
 export function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { user, clearAuth } = useAuthStore();
+  const { user } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
@@ -100,16 +94,6 @@ export function AdminSidebar() {
 
   const toggleMenu = (label: string) => {
     setExpandedMenus((prev) => ({ ...prev, [label]: !prev[label] }));
-  };
-
-  const handleLogout = async () => {
-    try {
-      await api.post("/auth/logout");
-    } catch {}
-    clearAuth();
-    setLogoutConfirmOpen(false);
-    router.push("/login");
-    toast.success("Logged out successfully");
   };
 
   const initials = user?.name
@@ -302,22 +286,11 @@ export function AdminSidebar() {
           </aside>
         </>
       )}
-      <AlertDialog open={logoutConfirmOpen} onOpenChange={setLogoutConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirm logout</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to log out of the admin portal?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Stay logged in</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout} className="bg-destructive text-white hover:bg-destructive/90">
-              <LogOut className="w-4 h-4 mr-2" /> Log out
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <LogoutConfirmDialog
+        open={logoutConfirmOpen}
+        onOpenChange={setLogoutConfirmOpen}
+        portalName="admin"
+      />
     </>
   );
 }
