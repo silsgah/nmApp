@@ -25,14 +25,14 @@ export default function ObstetricSetupPage() {
   const create = useMutation({
     mutationFn: () => api.post("/obstetric/options", { name, programmeId, parentId: parentId === "root" ? null : parentId, maxMarks }),
     onSuccess: () => { toast.success("Obstetric option added"); setName(""); queryClient.invalidateQueries({ queryKey: ["obstetric-options-admin", programmeId] }); },
-    onError: () => toast.error("Unable to add option"),
+    onError: (error: { response?: { data?: { error?: string; message?: string } } }) => toast.error(error.response?.data?.message || error.response?.data?.error || "Unable to add option"),
   });
   return <div className="p-6 lg:p-8 max-w-4xl mx-auto space-y-6">
     <div><h1 className="page-title">Obstetric Examination Setup</h1><p className="page-subtitle">Configure the first dropdown and its dependent second-dropdown procedures.</p></div>
     <Card><CardHeader><CardTitle>Option bank</CardTitle></CardHeader><CardContent className="space-y-4">
-      <div className="space-y-2"><Label>Programme</Label><Select value={programmeId} onValueChange={(value) => { setProgrammeId(value || ""); setParentId("root"); }}><SelectTrigger><SelectValue placeholder="Select programme" /></SelectTrigger><SelectContent>{programmes.map((programme) => <SelectItem key={programme.id} value={programme.id}>{programme.name} — {programme.fullName}</SelectItem>)}</SelectContent></Select></div>
+      <div className="space-y-2"><Label>Programme</Label><Select value={programmeId} items={programmes.map((programme) => ({ value: programme.id, label: `${programme.name} — ${programme.fullName}` }))} onValueChange={(value) => { setProgrammeId(value || ""); setParentId("root"); }}><SelectTrigger><SelectValue placeholder="Select programme" /></SelectTrigger><SelectContent>{programmes.map((programme) => <SelectItem key={programme.id} value={programme.id}>{programme.name} — {programme.fullName}</SelectItem>)}</SelectContent></Select></div>
       <div className="grid sm:grid-cols-3 gap-4">
-        <div className="space-y-2"><Label>Parent option</Label><Select value={parentId} onValueChange={(value) => setParentId(value || "root")} disabled={!programmeId}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="root">First-dropdown option</SelectItem>{roots.map((option) => <SelectItem key={option.id} value={option.id}>Child of: {option.name}</SelectItem>)}</SelectContent></Select></div>
+        <div className="space-y-2"><Label>Parent option</Label><Select value={parentId} items={[{ value: "root", label: "First-dropdown option" }, ...roots.map((option) => ({ value: option.id, label: `Child of: ${option.name}` }))]} onValueChange={(value) => setParentId(value || "root")} disabled={!programmeId}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="root">First-dropdown option</SelectItem>{roots.map((option) => <SelectItem key={option.id} value={option.id}>Child of: {option.name}</SelectItem>)}</SelectContent></Select></div>
         <div className="space-y-2"><Label>Option name</Label><Input value={name} onChange={(event) => setName(event.target.value)} /></div>
         <div className="space-y-2"><Label>Maximum marks</Label><Input type="number" min={1} value={maxMarks} onChange={(event) => setMaxMarks(Number(event.target.value))} /></div>
       </div>
