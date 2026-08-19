@@ -1,0 +1,2 @@
+-- Baseline marker for the production schema that existed before Prisma
+-- migrations were committed to source control. Intentionally empty.
