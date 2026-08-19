@@ -13,11 +13,11 @@ import { useCollapsibleSidebar } from "@/components/layout/use-collapsible-sideb
 
 const navItems = [
   { href: "/examiner", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/examiner/stations", label: "My Stations", icon: ClipboardList },
-  { href: "/examiner/search", label: "Find Student", icon: Search },
-  { href: "/examiner/case-study", label: "Case Study Entry", icon: FileText },
-  { href: "/examiner/care-plan", label: "Care Plan Entry", icon: Stethoscope },
-  { href: "/examiner/obstetric", label: "Obstetric Exam", icon: Stethoscope },
+  { href: "/examiner/stations", label: "Practical Exams", icon: ClipboardList },
+  { href: "/examiner/search", label: "Select Candidate", icon: Search },
+  { href: "/examiner/care-plan", label: "Add Care Plan", icon: Stethoscope },
+  { href: "/examiner/case-study", label: "Add Care Study", icon: FileText },
+  { href: "/examiner/obstetric", label: "Add Scores", icon: Stethoscope },
   { href: "/examiner/submitted", label: "Submitted", icon: CheckSquare },
   { href: "/examiner/settings", label: "Settings", icon: Settings },
 ];
