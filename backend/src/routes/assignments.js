@@ -1,3 +1,5 @@
+import { assertAttemptCanBeAdded, isUniqueConstraintConflict } from '../lib/task-attempt-policy.js';
+
 /**
  * Assignment Routes (Student & Examiner to Stations)
  */
@@ -55,10 +57,6 @@ export default async function assignmentRoutes(fastify) {
     if (request.user.role === 'EXAMINER' && !assignment.station.examinerAssignments.some((ea) => ea.examinerId === request.user.id)) {
       return reply.code(403).send({ error: 'You are not assigned to this station' });
     }
-    if (assignment.selectedTaskId && assignment.selectedTaskId !== request.body.taskId) {
-      return reply.code(409).send({ error: 'A task has already been selected for this candidate. An administrator must reset it.' });
-    }
-
     const task = await prisma.task.findFirst({
       where: {
         id: request.body.taskId,
@@ -70,22 +68,78 @@ export default async function assignmentRoutes(fastify) {
     });
     if (!task) return reply.code(400).send({ error: 'Task is not available for this student programme and year level' });
 
-    const selected = await prisma.studentAssignment.updateMany({
-      where: { id: assignment.id, OR: [{ selectedTaskId: null }, { selectedTaskId: task.id }] },
-      data: { selectedTaskId: task.id, taskSelectedById: request.user.id, taskSelectedAt: new Date() },
+    const latestAttempt = await prisma.taskAttempt.findFirst({
+      where: { studentAssignmentId: assignment.id, status: { in: ['ACTIVE', 'REOPENED'] } },
+      include: { scorecards: true },
+      orderBy: { sequence: 'desc' },
     });
-    if (selected.count !== 1) return reply.code(409).send({ error: 'Another examiner selected a task first. Refresh to continue with the shared task.' });
-    return { task };
+    if (latestAttempt) {
+      const expected = assignment.station.examinerAssignments.length;
+      const submitted = latestAttempt.scorecards.filter((scorecard) => scorecard.isSubmitted).length;
+      try { assertAttemptCanBeAdded({ assignedExaminerCount: expected, submittedExaminerCount: submitted, hasCurrentAttempt: true }); }
+      catch (error) { return reply.code(409).send({ error: error.message }); }
+    } else if (assignment.station.examinerAssignments.length < 1) {
+      return reply.code(409).send({ error: 'At least one examiner must be assigned before selecting a task.' });
+    }
+
+    try {
+      const attempt = await prisma.$transaction(async (tx) => {
+        const sequence = (await tx.taskAttempt.count({ where: { studentAssignmentId: assignment.id } })) + 1;
+        const created = await tx.taskAttempt.create({
+          data: {
+            studentAssignmentId: assignment.id,
+            taskId: task.id,
+            studentId: assignment.studentId,
+            sessionId: assignment.station.sessionId,
+            sequence,
+            categoryWeight: task.category?.weight ?? 1,
+            selectedById: request.user.id,
+          },
+          include: { task: { include: { steps: { orderBy: { stepNumber: 'asc' } }, category: true } } },
+        });
+        await tx.studentAssignment.update({
+          where: { id: assignment.id },
+          data: { selectedTaskId: task.id, taskSelectedById: request.user.id, taskSelectedAt: new Date() },
+        });
+        return created;
+      });
+      return { task: attempt.task, attempt };
+    } catch (error) {
+      if (isUniqueConstraintConflict(error)) return reply.code(409).send({ error: 'This student has already performed that task in this examination session, or another examiner selected an attempt at the same time. Refresh and continue.' });
+      throw error;
+    }
+  });
+
+  fastify.post('/task-attempts/:id/reopen', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
+    const reason = String(request.body?.reason || '').trim();
+    if (reason.length < 10) return reply.code(400).send({ error: 'A reopening reason of at least 10 characters is required' });
+    const attempt = await prisma.taskAttempt.findUnique({ where: { id: request.params.id }, include: { scorecards: true, task: true } });
+    if (!attempt) return reply.code(404).send({ error: 'Task attempt not found' });
+    return prisma.$transaction(async (tx) => {
+      await tx.assessmentAudit.create({ data: { taskAttemptId: attempt.id, action: 'REOPENED', reason, actorId: request.user.id, snapshot: { task: attempt.task, scorecards: attempt.scorecards } } });
+      const publishedResults = await tx.studentResult.findMany({ where: { sessionId: attempt.sessionId, status: 'PUBLISHED' }, select: { id: true, overallPercent: true, publishedAt: true } });
+      if (publishedResults.length > 0) {
+        await tx.resultPublicationAudit.create({ data: { sessionId: attempt.sessionId, action: 'AUTO_UNPUBLISHED_FOR_REOPEN', reason, actorId: request.user.id, snapshot: { taskAttemptId: attempt.id, results: publishedResults } } });
+        await tx.studentResult.updateMany({ where: { sessionId: attempt.sessionId }, data: { status: 'PENDING', publishedAt: null } });
+      }
+      await tx.scorecard.updateMany({ where: { taskAttemptId: attempt.id }, data: { isSubmitted: false, submittedAt: null } });
+      return tx.taskAttempt.update({ where: { id: attempt.id }, data: { status: 'REOPENED', reopenedAt: new Date() } });
+    });
+  });
+
+  fastify.post('/task-attempts/:id/archive', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
+    const reason = String(request.body?.reason || '').trim();
+    if (reason.length < 10) return reply.code(400).send({ error: 'An archive reason of at least 10 characters is required' });
+    const attempt = await prisma.taskAttempt.findUnique({ where: { id: request.params.id }, include: { scorecards: true, task: true } });
+    if (!attempt) return reply.code(404).send({ error: 'Task attempt not found' });
+    return prisma.$transaction(async (tx) => {
+      await tx.assessmentAudit.create({ data: { taskAttemptId: attempt.id, action: 'ARCHIVED', reason, actorId: request.user.id, snapshot: { task: attempt.task, scorecards: attempt.scorecards } } });
+      return tx.taskAttempt.update({ where: { id: attempt.id }, data: { status: 'ARCHIVED', archivedAt: new Date() } });
+    });
   });
 
   fastify.delete('/students/:id/selected-task', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
-    const scoreCount = await prisma.scorecard.count({ where: { studentAssignmentId: request.params.id } });
-    if (scoreCount > 0) return reply.code(409).send({ error: 'Remove or unsubmit existing scorecards before resetting the task' });
-    await prisma.studentAssignment.update({
-      where: { id: request.params.id },
-      data: { selectedTaskId: null, taskSelectedById: null, taskSelectedAt: null },
-    });
-    return { message: 'Selected task reset' };
+    return reply.code(410).send({ error: 'Use the audited archive or reopen action for a task attempt.' });
   });
 
   fastify.post('/students', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {

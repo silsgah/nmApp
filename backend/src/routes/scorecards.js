@@ -25,6 +25,14 @@ export default async function scorecardRoutes(fastify) {
       include: {
         student: { select: { id: true, name: true, email: true, staffId: true, programmeId: true, yearLevel: true } },
         selectedTask: { include: { steps: { orderBy: { stepNumber: 'asc' } }, category: true } },
+        taskAttempts: {
+          where: { status: { in: ['ACTIVE', 'REOPENED'] } },
+          include: {
+            task: { include: { steps: { orderBy: { stepNumber: 'asc' } }, category: true } },
+            scorecards: { where: { examinerId }, select: { id: true, totalScore: true, percentageScore: true, isSubmitted: true, remarks: true } },
+          },
+          orderBy: { sequence: 'asc' },
+        },
         scorecards: {
           where: { examinerId },
           select: { id: true, totalScore: true, percentageScore: true, isSubmitted: true, remarks: true },
@@ -40,6 +48,7 @@ export default async function scorecardRoutes(fastify) {
         candidateNumber: sa.candidateNumber,
         student: sa.student,
         selectedTask: sa.selectedTask,
+        taskAttempts: sa.taskAttempts,
         scorecard: sa.scorecards[0] || null,
       })),
     };
@@ -99,12 +108,13 @@ export default async function scorecardRoutes(fastify) {
           examinerAssignmentId: { type: 'string' },
           totalScore: { type: 'number', minimum: 0 },
           remarks: { type: 'string' },
+          taskAttemptId: { type: 'string' },
         },
       },
     },
   }, async (request, reply) => {
     const examinerId = request.user.id;
-    const { studentAssignmentId, examinerAssignmentId, totalScore, remarks } = request.body;
+    const { studentAssignmentId, examinerAssignmentId, totalScore, remarks, taskAttemptId } = request.body;
 
     // Validate examiner assignment belongs to this examiner
     const examinerAssignment = await prisma.examinerAssignment.findFirst({
@@ -115,10 +125,13 @@ export default async function scorecardRoutes(fastify) {
 
     const studentAssignment = await prisma.studentAssignment.findFirst({
       where: { id: studentAssignmentId, stationId: examinerAssignment.stationId },
-      include: { selectedTask: true },
+      include: { selectedTask: true, taskAttempts: { where: { status: { in: ['ACTIVE', 'REOPENED'] } }, include: { task: true }, orderBy: { sequence: 'desc' } } },
     });
     if (!studentAssignment) return reply.code(400).send({ error: 'Candidate is not assigned to this station' });
-    const scoringTask = studentAssignment.selectedTask || examinerAssignment.station.task;
+    const attempt = taskAttemptId
+      ? studentAssignment.taskAttempts.find((candidate) => candidate.id === taskAttemptId)
+      : studentAssignment.taskAttempts[0];
+    const scoringTask = attempt?.task || studentAssignment.selectedTask || examinerAssignment.station.task;
     if (!scoringTask) return reply.code(400).send({ error: 'Select a task for this candidate before scoring' });
 
     // Lock scoring if session is completed or archived
@@ -128,9 +141,8 @@ export default async function scorecardRoutes(fastify) {
     }
 
     // Check if scorecard already exists and is submitted
-    const existingScorecard = await prisma.scorecard.findUnique({
-      where: { studentAssignmentId_examinerAssignmentId: { studentAssignmentId, examinerAssignmentId } },
-    });
+    if (!attempt) return reply.code(400).send({ error: 'A valid task attempt is required before scoring' });
+    const existingScorecard = await prisma.scorecard.findUnique({ where: { taskAttemptId_examinerAssignmentId: { taskAttemptId: attempt.id, examinerAssignmentId } } });
     if (existingScorecard?.isSubmitted) {
       return reply.code(400).send({ error: 'Scorecard is already submitted and cannot be modified.' });
     }
@@ -141,11 +153,12 @@ export default async function scorecardRoutes(fastify) {
     const percentageScore = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
 
     const scorecard = await prisma.scorecard.upsert({
-      where: { studentAssignmentId_examinerAssignmentId: { studentAssignmentId, examinerAssignmentId } },
+      where: { taskAttemptId_examinerAssignmentId: { taskAttemptId: attempt.id, examinerAssignmentId } },
       create: {
         studentAssignmentId,
         examinerAssignmentId,
         examinerId,
+        taskAttemptId: attempt.id,
         totalScore,
         maxPossibleScore,
         percentageScore,
@@ -188,20 +201,14 @@ export default async function scorecardRoutes(fastify) {
   fastify.post('/:id/unsubmit', {
     onRequest: [fastify.requireRole('ADMIN')],
   }, async (request, reply) => {
-    return prisma.scorecard.update({
-      where: { id: request.params.id },
-      data: { isSubmitted: false, submittedAt: null },
-    });
+    return reply.code(410).send({ error: 'Use the audited reopen examination action for this task attempt.' });
   });
 
   // DELETE /scorecards/:id (admin override — deletes scorecard permanently)
   fastify.delete('/:id', {
     onRequest: [fastify.requireRole('ADMIN')],
   }, async (request, reply) => {
-    await prisma.scorecard.delete({
-      where: { id: request.params.id },
-    });
-    return reply.send({ message: 'Scorecard deleted successfully' });
+    return reply.code(410).send({ error: 'Permanent score deletion is disabled. Archive or reopen the task attempt with an audit reason.' });
   });
 
   // GET /assessment-matrix — per student, index, task, assigned examiner(s), assessment completion status & score
@@ -219,6 +226,15 @@ export default async function scorecardRoutes(fastify) {
       where,
       include: {
         selectedTask: { select: { id: true, name: true, maxScore: true } },
+        taskAttempts: {
+          where: { status: { in: ['ACTIVE', 'REOPENED'] } },
+          include: {
+            task: { select: { id: true, name: true, maxScore: true } },
+            scorecards: { include: { examiner: { select: { id: true, name: true } } }, orderBy: { submittedAt: 'desc' } },
+            audits: { orderBy: { createdAt: 'desc' }, take: 5 },
+          },
+          orderBy: { sequence: 'asc' },
+        },
         student: { select: { id: true, name: true, email: true, staffId: true } },
         station: {
           include: {
@@ -244,17 +260,20 @@ export default async function scorecardRoutes(fastify) {
       ],
     });
 
-    return studentAssignments.map(sa => {
-      const submittedScorecard = sa.scorecards.find(s => s.isSubmitted) || sa.scorecards[0] || null;
+    return studentAssignments.flatMap(sa => sa.taskAttempts.map(attempt => {
+      const submittedScorecard = attempt.scorecards.find(s => s.isSubmitted) || attempt.scorecards[0] || null;
       return {
         assignmentId: sa.id,
+        taskAttemptId: attempt.id,
+        attemptSequence: attempt.sequence,
+        auditHistory: attempt.audits,
         candidateNumber: sa.candidateNumber,
         student: sa.student,
         session: sa.station.session,
         station: {
           id: sa.station.id,
           stationCode: sa.station.stationCode,
-          task: sa.selectedTask || sa.station.task,
+          task: attempt.task,
         },
         assignedExaminers: sa.station.examinerAssignments.map(ea => ea.examiner),
         scorecard: submittedScorecard ? {
@@ -267,6 +286,6 @@ export default async function scorecardRoutes(fastify) {
           examinerName: submittedScorecard.examiner?.name || null,
         } : null,
       };
-    });
+    }));
   });
 }

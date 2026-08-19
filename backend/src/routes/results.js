@@ -49,7 +49,13 @@ export default async function resultRoutes(fastify) {
       include: {
         task: { select: { name: true } },
         examinerAssignments: { include: { examiner: { select: { name: true, email: true } } } },
-        studentAssignments: { include: { student: { select: { name: true } }, selectedTask: { select: { name: true } } } },
+        studentAssignments: { include: {
+          student: { select: { name: true } },
+          taskAttempts: {
+            where: { status: { in: ['ACTIVE', 'REOPENED'] } },
+            include: { task: { select: { name: true } }, scorecards: { where: { isSubmitted: true }, select: { examinerId: true } } },
+          },
+        } },
       },
     });
 
@@ -57,7 +63,7 @@ export default async function resultRoutes(fastify) {
 
     for (const station of stations) {
       for (const sa of station.studentAssignments) {
-        if (!sa.selectedTask && !station.task) {
+        if (sa.taskAttempts.length === 0) {
           pendingExaminations.push({
             studentName: sa.student.name,
             stationCode: station.stationCode,
@@ -71,32 +77,24 @@ export default async function resultRoutes(fastify) {
           pendingExaminations.push({
             studentName: sa.student.name,
             stationCode: station.stationCode,
-            taskName: sa.selectedTask?.name || station.task?.name,
+            taskName: sa.taskAttempts.map((attempt) => attempt.task.name).join(', '),
             examinerName: 'No examiner assigned',
             examinerEmail: null,
           });
           continue;
         }
-        // Load all submitted scorecards for this student assignment
-        const scorecards = await prisma.scorecard.findMany({
-          where: {
-            studentAssignmentId: sa.id,
-            isSubmitted: true,
-          },
-          select: { examinerId: true },
-        });
-
-        const submittedExaminerIds = new Set(scorecards.map(sc => sc.examinerId));
-
-        for (const ea of station.examinerAssignments) {
-          if (!submittedExaminerIds.has(ea.examinerId)) {
-            pendingExaminations.push({
-              studentName: sa.student.name,
-              stationCode: station.stationCode,
-              taskName: sa.selectedTask?.name || station.task?.name || 'Task not selected',
-              examinerName: ea.examiner.name,
-              examinerEmail: ea.examiner.email,
-            });
+        for (const attempt of sa.taskAttempts) {
+          const submittedExaminerIds = new Set(attempt.scorecards.map((scorecard) => scorecard.examinerId));
+          for (const ea of station.examinerAssignments) {
+            if (!submittedExaminerIds.has(ea.examinerId)) {
+              pendingExaminations.push({
+                studentName: sa.student.name,
+                stationCode: station.stationCode,
+                taskName: attempt.task.name,
+                examinerName: ea.examiner.name,
+                examinerEmail: ea.examiner.email,
+              });
+            }
           }
         }
       }
@@ -113,16 +111,18 @@ export default async function resultRoutes(fastify) {
     const studentAssignments = await prisma.studentAssignment.findMany({
       where: { station: { sessionId } },
       include: {
-        selectedTask: { include: { category: true } },
+        taskAttempts: {
+          where: { status: { in: ['ACTIVE', 'REOPENED'] } },
+          include: {
+            task: { include: { category: true } },
+            scorecards: { where: { isSubmitted: true }, include: { examiner: { select: { id: true, name: true } } } },
+          },
+        },
         station: {
           include: {
             task: true,
             stationCategories: { include: { category: true } },
           },
-        },
-        scorecards: {
-          where: { isSubmitted: true },
-          include: { examiner: { select: { id: true, name: true } } },
         },
       },
     });
@@ -145,15 +145,16 @@ export default async function resultRoutes(fastify) {
       const categoryMap = {};
 
       for (const sa of assignments) {
-        const categories = sa.selectedTask?.category
-          ? [sa.selectedTask.category]
+        for (const attempt of sa.taskAttempts) {
+        const categories = attempt.task.category
+          ? [attempt.task.category]
           : sa.station.stationCategories.map(sc => sc.category);
-        const assessmentTask = sa.selectedTask || sa.station.task;
+        const assessmentTask = attempt.task;
         if (!assessmentTask) continue;
         const taskMax = assessmentTask.maxScore;
 
         // Aggregate examiner scores for this task
-        const taskScore = aggregateExaminerScores(sa.scorecards.map((scorecard) => scorecard.totalScore), config.scoreAggregation);
+        const taskScore = aggregateExaminerScores(attempt.scorecards.map((scorecard) => scorecard.totalScore), config.scoreAggregation);
 
         // Map to each category this station belongs to
         for (const cat of categories) {
@@ -186,6 +187,7 @@ export default async function resultRoutes(fastify) {
           categoryMap[key].totalScore += taskScore;
           categoryMap[key].maxScore += taskMax;
           categoryMap[key].tasks += 1;
+        }
         }
       }
 
@@ -315,6 +317,8 @@ export default async function resultRoutes(fastify) {
           overallMaxScore: practicalMaxScore,
           overallPercent: Math.round(overallPercent * 100) / 100,
           passed: overallPassed, grade,
+          status: 'PENDING',
+          publishedAt: null,
           computedAt: new Date(),
         },
       });
@@ -332,11 +336,32 @@ export default async function resultRoutes(fastify) {
   fastify.post('/publish/:sessionId', {
     onRequest: [fastify.requireRole('ADMIN')],
   }, async (request, reply) => {
-    await prisma.studentResult.updateMany({
-      where: { sessionId: request.params.sessionId },
-      data: { status: 'PUBLISHED', publishedAt: new Date() },
+    const sessionId = request.params.sessionId;
+    const results = await prisma.studentResult.findMany({ where: { sessionId }, select: { id: true, status: true, overallPercent: true } });
+    if (results.length === 0) return reply.code(409).send({ error: 'Compute and review results before publication.' });
+    await prisma.$transaction(async (tx) => {
+      await tx.resultPublicationAudit.create({ data: {
+        sessionId, action: 'PUBLISHED', reason: String(request.body?.reason || 'Results approved for publication'), actorId: request.user.id,
+        snapshot: { resultCount: results.length, results },
+      } });
+      await tx.studentResult.updateMany({ where: { sessionId }, data: { status: 'PUBLISHED', publishedAt: new Date() } });
     });
-    return { message: 'Results published' };
+    return { message: 'Results published', count: results.length };
+  });
+
+  fastify.post('/unpublish/:sessionId', {
+    onRequest: [fastify.requireRole('ADMIN')],
+  }, async (request, reply) => {
+    const sessionId = request.params.sessionId;
+    const reason = String(request.body?.reason || '').trim();
+    if (reason.length < 10) return reply.code(400).send({ error: 'An unpublishing reason of at least 10 characters is required.' });
+    const results = await prisma.studentResult.findMany({ where: { sessionId, status: 'PUBLISHED' }, select: { id: true, overallPercent: true, publishedAt: true } });
+    if (results.length === 0) return reply.code(409).send({ error: 'There are no published results for this session.' });
+    await prisma.$transaction(async (tx) => {
+      await tx.resultPublicationAudit.create({ data: { sessionId, action: 'UNPUBLISHED', reason, actorId: request.user.id, snapshot: { resultCount: results.length, results } } });
+      await tx.studentResult.updateMany({ where: { sessionId }, data: { status: 'PENDING', publishedAt: null } });
+    });
+    return { message: 'Results returned to pending review', count: results.length };
   });
 
   // GET results for a session (admin view)
@@ -482,8 +507,13 @@ export default async function resultRoutes(fastify) {
         station: { sessionId: result.sessionId },
       },
       include: {
-        selectedTask: {
-          include: { steps: { orderBy: { stepNumber: 'asc' } } },
+        taskAttempts: {
+          where: { status: { in: ['ACTIVE', 'REOPENED'] } },
+          include: {
+            task: { include: { steps: { orderBy: { stepNumber: 'asc' } } } },
+            scorecards: { where: { isSubmitted: true }, include: { examiner: { select: { name: true, staffId: true } } } },
+          },
+          orderBy: { sequence: 'asc' },
         },
         station: {
           include: {
@@ -494,25 +524,20 @@ export default async function resultRoutes(fastify) {
             },
           },
         },
-        scorecards: {
-          where: { isSubmitted: true },
-          include: {
-            examiner: { select: { name: true, staffId: true } },
-          },
-        },
       },
       orderBy: { station: { stationCode: 'asc' } },
     });
 
     return {
       result,
-      components: studentAssignments.map((sa) => {
-        const task = sa.selectedTask || sa.station.task;
+      components: studentAssignments.flatMap((sa) => sa.taskAttempts.map((attempt) => {
+        const task = attempt.task;
         return {
           stationCode: sa.station.stationCode,
           candidateNumber: sa.candidateNumber,
+          attemptSequence: attempt.sequence,
           task: task ? { name: task.name, description: task.description, ratingScale: task.ratingScale, maxScore: task.maxScore, steps: task.steps } : null,
-          scorecards: sa.scorecards.map((sc) => ({
+          scorecards: attempt.scorecards.map((sc) => ({
             examinerName: sc.examiner.name,
             examinerStaffId: sc.examiner.staffId,
             totalScore: sc.totalScore,
@@ -522,7 +547,7 @@ export default async function resultRoutes(fastify) {
             submittedAt: sc.submittedAt,
           })),
         };
-      }),
+      })),
     };
   });
 

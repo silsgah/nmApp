@@ -38,6 +38,12 @@ enum ResultStatus {
   PUBLISHED
 }
 
+enum TaskAttemptStatus {
+  ACTIVE
+  REOPENED
+  ARCHIVED
+}
+
 // ─────────────────────────────────────────────
 // USERS & AUTHENTICATION
 // ─────────────────────────────────────────────
@@ -139,6 +145,7 @@ model Task {
   steps                  TaskStep[]
   stations               Station[]
   selectedForAssignments StudentAssignment[] @relation("SelectedAssignmentTask")
+  taskAttempts           TaskAttempt[]
 
   @@map("tasks")
 }
@@ -200,11 +207,26 @@ model ExamSession {
 
   stations             Station[]
   results              StudentResult[]
+  resultAudits         ResultPublicationAudit[]
   carePlanScores       CarePlanScore[]
   caseStudyEvaluations CaseStudyEvaluation[]
   obstetricEvaluations ObstetricEvaluation[]
 
   @@map("exam_sessions")
+}
+
+model ResultPublicationAudit {
+  id        String      @id @default(cuid())
+  session   ExamSession @relation(fields: [sessionId], references: [id])
+  sessionId String
+  action    String
+  reason    String
+  actorId   String
+  snapshot  Json
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
+  @@map("result_publication_audits")
 }
 
 model ExamConfig {
@@ -275,9 +297,47 @@ model StudentAssignment {
   createdAt        DateTime  @default(now())
 
   scorecards Scorecard[]
+  taskAttempts TaskAttempt[]
 
   @@unique([studentId, stationId])
   @@map("student_assignments")
+}
+
+model TaskAttempt {
+  id                  String            @id @default(cuid())
+  studentAssignment   StudentAssignment @relation(fields: [studentAssignmentId], references: [id])
+  studentAssignmentId String
+  task                Task              @relation(fields: [taskId], references: [id])
+  taskId              String
+  studentId           String
+  sessionId           String
+  sequence            Int
+  categoryWeight      Float             @default(1.0)
+  status              TaskAttemptStatus @default(ACTIVE)
+  selectedById        String
+  selectedAt          DateTime          @default(now())
+  reopenedAt          DateTime?
+  archivedAt          DateTime?
+  scorecards          Scorecard[]
+  audits              AssessmentAudit[]
+
+  @@unique([studentId, sessionId, taskId])
+  @@unique([studentAssignmentId, sequence])
+  @@map("task_attempts")
+}
+
+model AssessmentAudit {
+  id            String      @id @default(cuid())
+  taskAttempt   TaskAttempt @relation(fields: [taskAttemptId], references: [id])
+  taskAttemptId String
+  action        String
+  reason        String
+  actorId       String
+  snapshot      Json
+  createdAt     DateTime    @default(now())
+
+  @@index([taskAttemptId, createdAt])
+  @@map("assessment_audits")
 }
 
 // Configurable option bank for the independent Obstetric examination.
@@ -361,6 +421,8 @@ model Scorecard {
   examinerAssignmentId String
   examiner             User               @relation(fields: [examinerId], references: [id])
   examinerId           String
+  taskAttempt           TaskAttempt?       @relation(fields: [taskAttemptId], references: [id])
+  taskAttemptId         String?
   totalScore           Float // Score entered by examiner for this task
   maxPossibleScore     Float // Max score for the task
   percentageScore      Float // totalScore / maxPossibleScore * 100
@@ -370,7 +432,7 @@ model Scorecard {
   createdAt            DateTime           @default(now())
   updatedAt            DateTime           @updatedAt
 
-  @@unique([studentAssignmentId, examinerAssignmentId])
+  @@unique([taskAttemptId, examinerAssignmentId])
   @@map("scorecards")
 }
 

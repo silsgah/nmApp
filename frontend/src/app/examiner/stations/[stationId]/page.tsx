@@ -38,6 +38,15 @@ interface Candidate {
   scorecard: {
     id: string; totalScore: number; percentageScore: number; isSubmitted: boolean; remarks: string;
   } | null;
+  taskAttempts: TaskAttempt[];
+}
+
+interface TaskAttempt {
+  id: string;
+  sequence: number;
+  status: "ACTIVE" | "REOPENED";
+  task: Candidate["selectedTask"] extends infer T ? Exclude<T, null> : never;
+  scorecards: NonNullable<Candidate["scorecard"]>[];
 }
 
 interface StationData {
@@ -58,7 +67,7 @@ interface EligibleTask {
 
 function ScoreEntryCard({
   candidate, stationId, maxScore, examinerAssignmentId, ratingScale, steps, onNextCandidate,
-  onInsertRemark,
+  onInsertRemark, taskAttemptId,
 }: {
   candidate: Candidate;
   stationId: string;
@@ -66,6 +75,7 @@ function ScoreEntryCard({
   examinerAssignmentId: string;
   ratingScale: string;
   steps: { id: string; stepNumber: number; description: string; isKeyStep?: boolean }[];
+  taskAttemptId: string;
   onNextCandidate?: () => void;
   // Registrar pattern: parent passes a fn that receives this card's insert handler
   onInsertRemark?: (registerFn: (text: string) => void) => void;
@@ -123,6 +133,7 @@ function ScoreEntryCard({
     mutationFn: () => api.post("/scorecards", {
       studentAssignmentId: candidate.assignmentId,
       examinerAssignmentId,
+      taskAttemptId,
       totalScore: totalScoreVal,
       remarks: JSON.stringify({ ratings, text: remarks }),
     }),
@@ -608,7 +619,7 @@ export default function ExaminerStationPage() {
   );
 
   const candidatesList = data?.candidates ?? [];
-  const submitted = candidatesList.filter((c) => c.scorecard?.isSubmitted).length;
+  const submitted = candidatesList.filter((c) => c.taskAttempts.length > 0 && c.taskAttempts.every((attempt) => attempt.scorecards[0]?.isSubmitted)).length;
   const total = candidatesList.length;
 
   // Filter candidates by search term (index number or name)
@@ -638,7 +649,7 @@ export default function ExaminerStationPage() {
   const { data: eligibleTasks = [] } = useQuery<EligibleTask[]>({
     queryKey: ["eligible-tasks", activeCandidate?.student.programmeId, activeCandidate?.student.yearLevel],
     queryFn: () => api.get(`/tasks?programmeId=${activeCandidate?.student.programmeId}&yearLevel=${activeCandidate?.student.yearLevel}&isActive=true`).then((r) => r.data),
-    enabled: !!activeCandidate && !activeCandidate.selectedTask,
+    enabled: !!activeCandidate,
   });
   const eligibleCategories = Array.from(new Map(
     eligibleTasks.filter((task) => task.category).map((task) => [task.category!.id, task.category!]),
@@ -788,8 +799,9 @@ export default function ExaminerStationPage() {
             <div className="flex gap-3.5 overflow-x-auto pb-3 border-b border-border scrollbar-none">
               {filteredCandidates.map((candidate) => {
                 const isSelected = candidate.assignmentId === activeAssignmentId;
-                const isDone = candidate.scorecard?.isSubmitted;
-                const isDraft = candidate.scorecard && !candidate.scorecard.isSubmitted;
+                const attemptScores = candidate.taskAttempts.flatMap((attempt) => attempt.scorecards);
+                const isDone = candidate.taskAttempts.length > 0 && attemptScores.length === candidate.taskAttempts.length && attemptScores.every((scorecard) => scorecard.isSubmitted);
+                const isDraft = attemptScores.some((scorecard) => !scorecard.isSubmitted);
                 return (
                   <button
                     key={candidate.assignmentId}
@@ -859,8 +871,9 @@ export default function ExaminerStationPage() {
             ) : (
               filteredCandidates.map((candidate) => {
                 const isSelected = candidate.assignmentId === activeAssignmentId;
-                const isDone = candidate.scorecard?.isSubmitted;
-                const isDraft = candidate.scorecard && !candidate.scorecard.isSubmitted;
+                const attemptScores = candidate.taskAttempts.flatMap((attempt) => attempt.scorecards);
+                const isDone = candidate.taskAttempts.length > 0 && attemptScores.length === candidate.taskAttempts.length && attemptScores.every((scorecard) => scorecard.isSubmitted);
+                const isDraft = attemptScores.some((scorecard) => !scorecard.isSubmitted);
                 return (
                   <button
                     key={candidate.assignmentId}
@@ -905,25 +918,28 @@ export default function ExaminerStationPage() {
           {/* Desktop Right Detail Scoring Panel */}
           <div className="md:col-span-3">
             {activeCandidate ? (
-              activeCandidate.selectedTask ? (
-                <div className="space-y-3">
-                  <div className="rounded-xl border bg-muted/20 px-4 py-3">
-                    <p className="text-xs font-semibold text-muted-foreground">Shared assessment task</p>
-                    <p className="font-bold">{activeCandidate.selectedTask.name} {activeCandidate.selectedTask.category && <Badge variant="outline" className="ml-2">{activeCandidate.selectedTask.category.name}</Badge>}</p>
-                  </div>
-                  <ScoreEntryCard
-                    key={`${activeCandidate.assignmentId}-${activeCandidate.selectedTask.id}`}
-                    candidate={activeCandidate}
-                    stationId={stationId}
-                    maxScore={activeCandidate.selectedTask.maxScore}
-                    examinerAssignmentId={examinerAssignment?.id ?? ""}
-                    ratingScale={activeCandidate.selectedTask.ratingScale}
-                    steps={activeCandidate.selectedTask.steps}
-                    onNextCandidate={hasNextCandidate ? handleNextCandidate : undefined}
-                    onInsertRemark={(fn) => { insertRemarkRef.current = fn; }}
-                  />
-                </div>
-              ) : (
+                <div className="space-y-5">
+                  {activeCandidate.taskAttempts.map((attempt) => {
+                    const attemptCandidate = { ...activeCandidate, selectedTask: attempt.task, scorecard: attempt.scorecards[0] || null };
+                    return <div className="space-y-3" key={attempt.id}>
+                      <div className="rounded-xl border bg-muted/20 px-4 py-3">
+                        <p className="text-xs font-semibold text-muted-foreground">Shared task attempt {attempt.sequence}</p>
+                        <p className="font-bold">{attempt.task.name} {attempt.task.category && <Badge variant="outline" className="ml-2">{attempt.task.category.name}</Badge>}</p>
+                      </div>
+                      <ScoreEntryCard
+                        candidate={attemptCandidate}
+                        stationId={stationId}
+                        taskAttemptId={attempt.id}
+                        maxScore={attempt.task.maxScore}
+                        examinerAssignmentId={examinerAssignment?.id ?? ""}
+                        ratingScale={attempt.task.ratingScale}
+                        steps={attempt.task.steps}
+                        onNextCandidate={hasNextCandidate ? handleNextCandidate : undefined}
+                        onInsertRemark={(fn) => { insertRemarkRef.current = fn; }}
+                      />
+                    </div>;
+                  })}
+                  {(activeCandidate.taskAttempts.length === 0 || activeCandidate.taskAttempts.every((attempt) => attempt.scorecards[0]?.isSubmitted)) && (
                 <div className="rounded-xl border bg-card p-6 space-y-5">
                   <div>
                     <h2 className="text-lg font-bold">Choose the examination</h2>
@@ -964,7 +980,8 @@ export default function ExaminerStationPage() {
                   </div>}
                   {!eligibleTasks.length && <p className="text-sm text-amber-700">No active tasks are mapped to this candidate&apos;s programme and level.</p>}
                 </div>
-              )
+                  )}
+                </div>
             ) : (
               <div className="rounded-xl border border-dashed p-14 text-center">
                 <p className="text-muted-foreground">Select a student above to begin the examination.</p>
@@ -978,9 +995,9 @@ export default function ExaminerStationPage() {
       <ExaminerCopilot
         stationContext={{
           stationCode: data?.station.stationCode,
-          taskName: activeCandidate?.selectedTask?.name,
-          ratingScale: activeCandidate?.selectedTask?.ratingScale === "SCALE_0_4" ? "0-4" : "0-2",
-          maxScore: activeCandidate?.selectedTask?.maxScore,
+          taskName: activeCandidate?.taskAttempts.at(-1)?.task.name,
+          ratingScale: activeCandidate?.taskAttempts.at(-1)?.task.ratingScale === "SCALE_0_4" ? "0-4" : "0-2",
+          maxScore: activeCandidate?.taskAttempts.at(-1)?.task.maxScore,
           candidateNumber: activeCandidate?.student?.staffId || activeCandidate?.candidateNumber,
         }}
         onInsertRemark={handleCopilotInsert}

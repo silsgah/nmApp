@@ -6,8 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import {
   FileSpreadsheet, Search, RefreshCw, Filter, CheckCircle2,
-  Clock, Users, Award, BookOpen, Download, RotateCcw, Trash2,
-  AlertTriangle
+  Clock, Users, Award, BookOpen, Download, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +33,8 @@ import { cn } from "@/lib/utils";
 
 interface AssessmentMatrixRecord {
   assignmentId: string;
+  taskAttemptId: string;
+  attemptSequence: number;
   candidateNumber: string;
   student: {
     id: string;
@@ -84,7 +85,7 @@ export default function AssessmentMatrixPage() {
 
   // Modal dialog states for resetting / deleting scorecards
   const [resetTarget, setResetTarget] = useState<AssessmentMatrixRecord | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<AssessmentMatrixRecord | null>(null);
+  const [reopenReason, setReopenReason] = useState("");
 
   // Fetch Programmes
   const { data: programmes } = useQuery({
@@ -109,29 +110,17 @@ export default function AssessmentMatrixPage() {
     },
   });
 
-  // Mutation: Reset (unsubmit) scorecard
+  // Controlled reopening preserves the prior score in the audit history.
   const resetMutation = useMutation({
-    mutationFn: (scorecardId: string) => api.post(`/scorecards/${scorecardId}/unsubmit`),
+    mutationFn: ({ attemptId, reason }: { attemptId: string; reason: string }) => api.post(`/assignments/task-attempts/${attemptId}/reopen`, { reason }),
     onSuccess: () => {
       toast.success("Assessment reset to Pending! Examiner can now re-assess candidate.", { icon: "🔄" });
       setResetTarget(null);
+      setReopenReason("");
       queryClient.invalidateQueries({ queryKey: ["assessment-matrix"] });
     },
     onError: (err: any) => {
       toast.error("Failed to reset assessment: " + (err.response?.data?.error || err.message));
-    },
-  });
-
-  // Mutation: Delete scorecard permanently
-  const deleteMutation = useMutation({
-    mutationFn: (scorecardId: string) => api.delete(`/scorecards/${scorecardId}`),
-    onSuccess: () => {
-      toast.success("Scorecard permanently deleted! Candidate station restored to fresh state.", { icon: "🗑️" });
-      setDeleteTarget(null);
-      queryClient.invalidateQueries({ queryKey: ["assessment-matrix"] });
-    },
-    onError: (err: any) => {
-      toast.error("Failed to delete assessment: " + (err.response?.data?.error || err.message));
     },
   });
 
@@ -509,7 +498,7 @@ export default function AssessmentMatrixPage() {
                       )}
                     </TableCell>
 
-                    {/* Admin Control (Reset / Delete) */}
+                    {/* Audited admin control */}
                     <TableCell className="px-5 py-3.5 text-right whitespace-nowrap">
                       {r.scorecard ? (
                         <div className="flex items-center justify-end gap-1.5">
@@ -524,15 +513,6 @@ export default function AssessmentMatrixPage() {
                               <RotateCcw className="w-3 h-3 mr-1" /> Reset
                             </Button>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setDeleteTarget(r)}
-                            className="h-7 w-7 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 cursor-pointer"
-                            title="Delete scorecard permanently"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
                         </div>
                       ) : (
                         <span className="text-xs text-muted-foreground/40 italic">—</span>
@@ -563,6 +543,7 @@ export default function AssessmentMatrixPage() {
               <p className="font-semibold">Current Marks: {resetTarget.scorecard?.totalScore} / {resetTarget.station.task.maxScore} ({Math.round(resetTarget.scorecard?.percentageScore ?? 0)}%)</p>
               <p className="mt-0.5 text-[11px] opacity-80">Assessed by: {resetTarget.scorecard?.examinerName || "Examiner"}</p>
             </div>
+            <Input value={reopenReason} onChange={(event) => setReopenReason(event.target.value)} placeholder="Reason for reopening (minimum 10 characters)" />
 
             <DialogFooter className="gap-2 sm:gap-0 mt-2">
               <Button variant="outline" size="sm" onClick={() => setResetTarget(null)}>
@@ -571,11 +552,9 @@ export default function AssessmentMatrixPage() {
               <Button
                 size="sm"
                 className="bg-amber-600 hover:bg-amber-700 text-white border-0"
-                disabled={resetMutation.isPending}
+                disabled={resetMutation.isPending || reopenReason.trim().length < 10}
                 onClick={() => {
-                  if (resetTarget.scorecard?.id) {
-                    resetMutation.mutate(resetTarget.scorecard.id);
-                  }
+                  resetMutation.mutate({ attemptId: resetTarget.taskAttemptId, reason: reopenReason.trim() });
                 }}
               >
                 {resetMutation.isPending ? "Resetting..." : "Yes, Reset Assessment"}
@@ -585,39 +564,6 @@ export default function AssessmentMatrixPage() {
         </Dialog>
       )}
 
-      {/* ── Modal Dialog: Delete Scorecard ── */}
-      {deleteTarget && (
-        <Dialog open onOpenChange={() => setDeleteTarget(null)}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-red-600">
-                <AlertTriangle className="w-5 h-5" /> Delete Scorecard Permanently?
-              </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground mt-1">
-                Are you sure you want to permanently delete the scorecard for <strong>{deleteTarget.student.name}</strong> at Station <strong>{deleteTarget.station.stationCode} ({deleteTarget.station.task.name})</strong>? This action cannot be undone.
-              </DialogDescription>
-            </DialogHeader>
-
-            <DialogFooter className="gap-2 sm:gap-0 mt-2">
-              <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)}>
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={deleteMutation.isPending}
-                onClick={() => {
-                  if (deleteTarget.scorecard?.id) {
-                    deleteMutation.mutate(deleteTarget.scorecard.id);
-                  }
-                }}
-              >
-                {deleteMutation.isPending ? "Deleting..." : "Permanently Delete Scorecard"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 }
