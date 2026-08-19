@@ -47,6 +47,15 @@ interface StationData {
   candidates: Candidate[];
 }
 
+interface EligibleTask {
+  id: string;
+  name: string;
+  maxScore: number;
+  ratingScale: string;
+  category: { id: string; name: string } | null;
+  _count?: { steps: number };
+}
+
 function ScoreEntryCard({
   candidate, stationId, maxScore, examinerAssignmentId, ratingScale, steps, onNextCandidate,
   onInsertRemark,
@@ -102,12 +111,13 @@ function ScoreEntryCard({
     }
   }, [handleInsertRemark, onInsertRemark]);
 
-  const totalScoreVal = steps.reduce((sum, step) => sum + (ratings[step.id] ?? 0), 0);
+  const safeSteps = Array.isArray(steps) ? steps : [];
+  const totalScoreVal = safeSteps.reduce((sum, step) => sum + (ratings[step.id] ?? 0), 0);
   const percentage = maxScore > 0 ? Math.round((totalScoreVal / maxScore) * 100) : 0;
   const isSubmitted = candidate.scorecard?.isSubmitted;
 
-  const answeredCount = steps.filter(step => ratings[step.id] !== undefined).length;
-  const isAllRated = answeredCount === steps.length;
+  const answeredCount = safeSteps.filter(step => ratings[step.id] !== undefined).length;
+  const isAllRated = safeSteps.length > 0 && answeredCount === safeSteps.length;
 
   const saveMutation = useMutation({
     mutationFn: () => api.post("/scorecards", {
@@ -150,7 +160,7 @@ function ScoreEntryCard({
       [stepId]: value
     }));
     // Auto-advance wizard if in step mode and not on the last step
-    if (viewMode === "step" && activeStepIndex < steps.length - 1) {
+    if (viewMode === "step" && activeStepIndex < safeSteps.length - 1) {
       setTimeout(() => {
         setActiveStepIndex(prev => prev + 1);
       }, 220);
@@ -283,7 +293,7 @@ function ScoreEntryCard({
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="outline" className="text-xs font-bold bg-background text-foreground border-border">
-                {answeredCount} of {steps.length} steps marked
+                {answeredCount} of {safeSteps.length} steps marked
               </Badge>
             </div>
           </div>
@@ -291,7 +301,7 @@ function ScoreEntryCard({
           {/* Stepper Progress dots */}
           {viewMode === "step" && (
             <div className="px-6 py-3 bg-background border-b border-border overflow-x-auto flex gap-1 items-center">
-              {steps.map((step, idx) => {
+              {safeSteps.map((step, idx) => {
                 const isStepRated = ratings[step.id] !== undefined;
                 const isActive = activeStepIndex === idx;
                 return (
@@ -320,7 +330,7 @@ function ScoreEntryCard({
             <div className="p-6 transition-all duration-200">
               {/* Step info */}
               {(() => {
-                const step = steps[activeStepIndex];
+                const step = safeSteps[activeStepIndex];
                 if (!step) return null;
                 const selectedValue = ratings[step.id];
                 const isStepRated = selectedValue !== undefined;
@@ -328,7 +338,7 @@ function ScoreEntryCard({
                   <div className="space-y-4">
                     <div className="flex items-center justify-between gap-4">
                       <h4 className="text-sm font-bold text-primary uppercase tracking-wider">
-                        Step {activeStepIndex + 1} of {steps.length}
+                        Step {activeStepIndex + 1} of {safeSteps.length}
                       </h4>
                       {isStepRated && (
                         <Badge className="bg-primary/10 text-primary border-primary/20 text-xs font-bold px-2 py-0.5">
@@ -382,13 +392,13 @@ function ScoreEntryCard({
                         ← Previous
                       </Button>
                       <span className="text-xs text-muted-foreground font-semibold">
-                        Progress: {Math.round((answeredCount / steps.length) * 100)}%
+                        Progress: {safeSteps.length ? Math.round((answeredCount / safeSteps.length) * 100) : 0}%
                       </span>
                       <Button
                         size="sm"
                         variant="outline"
-                        disabled={activeStepIndex === steps.length - 1}
-                        onClick={() => setActiveStepIndex(p => Math.min(steps.length - 1, p + 1))}
+                        disabled={activeStepIndex === safeSteps.length - 1}
+                        onClick={() => setActiveStepIndex(p => Math.min(safeSteps.length - 1, p + 1))}
                         className="cursor-pointer"
                       >
                         Next →
@@ -401,7 +411,7 @@ function ScoreEntryCard({
           ) : (
             /* Full checklist view list */
             <div className="divide-y divide-border/80">
-              {steps.map((step, index) => {
+              {safeSteps.map((step, index) => {
                 const selectedValue = ratings[step.id];
                 const isStepRated = selectedValue !== undefined;
                 return (
@@ -625,17 +635,17 @@ export default function ExaminerStationPage() {
 
   const activeCandidate = candidatesList.find((c) => c.assignmentId === activeAssignmentId);
 
-  const { data: eligibleTasks = [] } = useQuery<Candidate["selectedTask"][]>({
+  const { data: eligibleTasks = [] } = useQuery<EligibleTask[]>({
     queryKey: ["eligible-tasks", activeCandidate?.student.programmeId, activeCandidate?.student.yearLevel],
     queryFn: () => api.get(`/tasks?programmeId=${activeCandidate?.student.programmeId}&yearLevel=${activeCandidate?.student.yearLevel}&isActive=true`).then((r) => r.data),
     enabled: !!activeCandidate && !activeCandidate.selectedTask,
   });
   const eligibleCategories = Array.from(new Map(
-    eligibleTasks.filter((task) => task?.category).map((task) => [task!.category!.id, task!.category!]),
+    eligibleTasks.filter((task) => task.category).map((task) => [task.category!.id, task.category!]),
   ).values());
   const activeCategoryId = eligibleCategories.some((category) => category.id === selectedCategoryId) ? selectedCategoryId : "";
-  const categoryTasks = eligibleTasks.filter((task) => task?.category?.id === activeCategoryId);
-  const activePendingTaskId = categoryTasks.some((task) => task?.id === pendingTaskId) ? pendingTaskId : "";
+  const categoryTasks = eligibleTasks.filter((task) => task.category?.id === activeCategoryId);
+  const activePendingTaskId = categoryTasks.some((task) => task.id === pendingTaskId) ? pendingTaskId : "";
 
   const selectTaskMutation = useMutation({
     mutationFn: (taskId: string) => api.post(`/assignments/students/${activeCandidate?.assignmentId}/select-task`, { taskId }),
@@ -934,15 +944,15 @@ export default function ExaminerStationPage() {
                     <Label>Step 3 — Select task</Label>
                     <Select
                       value={activePendingTaskId}
-                      items={categoryTasks.filter(Boolean).map((task) => ({ value: task!.id, label: task!.name }))}
+                      items={categoryTasks.map((task) => ({ value: task.id, label: task.name }))}
                       onValueChange={(value) => setPendingTaskId(value || "")}
                     >
                       <SelectTrigger><SelectValue placeholder="Select an associated task" /></SelectTrigger>
-                      <SelectContent>{categoryTasks.map((task) => task && <SelectItem key={task.id} value={task.id}>{task.name}</SelectItem>)}</SelectContent>
+                      <SelectContent>{categoryTasks.map((task) => <SelectItem key={task.id} value={task.id}>{task.name}</SelectItem>)}</SelectContent>
                     </Select>
                     {activePendingTaskId && (() => {
-                      const task = categoryTasks.find((item) => item?.id === activePendingTaskId);
-                      return task ? <p className="text-xs text-muted-foreground">{task.steps.length} checklist steps · maximum score {task.maxScore}</p> : null;
+                      const task = categoryTasks.find((item) => item.id === activePendingTaskId);
+                      return task ? <p className="text-xs text-muted-foreground">{task._count?.steps ?? 0} checklist steps · maximum score {task.maxScore}</p> : null;
                     })()}
                     <Button className="w-full sm:w-auto" disabled={!activePendingTaskId || selectTaskMutation.isPending} onClick={() => selectTaskMutation.mutate(activePendingTaskId)}>
                       {selectTaskMutation.isPending ? "Opening scoring form…" : "Confirm task and begin scoring"}
