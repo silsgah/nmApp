@@ -24,6 +24,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ExaminerCopilot } from "@/components/examiner/examiner-copilot";
@@ -568,6 +570,7 @@ export default function ExaminerStationPage() {
 
   const [activeAssignmentId, setActiveAssignmentId] = useState<string | null>(null);
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
+  const [pendingTaskId, setPendingTaskId] = useState("");
   const [rosterSearch, setRosterSearch] = useState("");
   // Ref to route AI copilot insert into the currently active ScoreEntryCard's remarks
   const insertRemarkRef = useRef<((text: string) => void) | null>(null);
@@ -618,9 +621,6 @@ export default function ExaminerStationPage() {
         return;
       }
     }
-    if (candidatesList.length > 0 && !activeAssignmentId) {
-      setActiveAssignmentId(candidatesList[0].assignmentId);
-    }
   }, [candidatesList, activeAssignmentId, highlightStudentId]);
 
   const activeCandidate = candidatesList.find((c) => c.assignmentId === activeAssignmentId);
@@ -634,6 +634,8 @@ export default function ExaminerStationPage() {
     eligibleTasks.filter((task) => task?.category).map((task) => [task!.category!.id, task!.category!]),
   ).values());
   const activeCategoryId = eligibleCategories.some((category) => category.id === selectedCategoryId) ? selectedCategoryId : "";
+  const categoryTasks = eligibleTasks.filter((task) => task?.category?.id === activeCategoryId);
+  const activePendingTaskId = categoryTasks.some((task) => task?.id === pendingTaskId) ? pendingTaskId : "";
 
   const selectTaskMutation = useMutation({
     mutationFn: (taskId: string) => api.post(`/assignments/students/${activeCandidate?.assignmentId}/select-task`, { taskId }),
@@ -705,6 +707,34 @@ export default function ExaminerStationPage() {
           </div>
           <Progress value={(submitted / total) * 100} className="h-2" />
         </div>
+      )}
+
+      {!isLoading && candidatesList.length > 0 && (
+        <Card className="border-primary/20 shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Step 1 — Select student</CardTitle>
+            <CardDescription>
+              The student&apos;s programme and level determine which categories and tasks are available.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SearchableSelect
+              value={activeAssignmentId ?? ""}
+              onValueChange={(value) => {
+                setActiveAssignmentId(value);
+                setSelectedCategoryId("");
+                setPendingTaskId("");
+              }}
+              options={candidatesList.map((candidate) => ({
+                value: candidate.assignmentId,
+                label: `${candidate.student.staffId || candidate.candidateNumber} — ${candidate.student.name}`,
+              }))}
+              placeholder="Select student by index number or name"
+              searchPlaceholder="Search student..."
+              emptyMessage="No assigned student found"
+            />
+          </CardContent>
+        </Card>
       )}
 
       {/* Roster & Grading Panel Split Pane */}
@@ -886,31 +916,44 @@ export default function ExaminerStationPage() {
               ) : (
                 <div className="rounded-xl border bg-card p-6 space-y-5">
                   <div>
-                    <h2 className="text-lg font-bold">Select the candidate&apos;s task</h2>
-                    <p className="text-sm text-muted-foreground">This choice is shared with every examiner and locks once selected.</p>
+                    <h2 className="text-lg font-bold">Choose the examination</h2>
+                    <p className="text-sm text-muted-foreground">Categories and tasks below are filtered automatically using this student&apos;s programme and level.</p>
                   </div>
                   <div className="space-y-2">
-                    <Label>1. Select task category</Label>
-                    <div className="flex flex-wrap gap-2">
-                      {eligibleCategories.map((category) => <Button key={category.id} variant={activeCategoryId === category.id ? "default" : "outline"} onClick={() => setSelectedCategoryId(category.id)}>{category.name}</Button>)}
-                    </div>
+                    <Label>Step 2 — Select category</Label>
+                    <Select
+                      value={activeCategoryId}
+                      items={eligibleCategories.map((category) => ({ value: category.id, label: category.name }))}
+                      onValueChange={(value) => { setSelectedCategoryId(value || ""); setPendingTaskId(""); }}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Select Medical, Nursing, Major, Minor, or another configured category" /></SelectTrigger>
+                      <SelectContent>{eligibleCategories.map((category) => <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>)}</SelectContent>
+                    </Select>
                   </div>
                   {activeCategoryId && <div className="space-y-2">
-                    <Label>2. Select task</Label>
-                    <div className="grid gap-2">
-                      {eligibleTasks.filter((task) => task?.category?.id === activeCategoryId).map((task) => task && (
-                        <Button key={task.id} variant="outline" className="justify-start h-auto py-3" disabled={selectTaskMutation.isPending} onClick={() => selectTaskMutation.mutate(task.id)}>
-                          <span className="text-left"><span className="block font-semibold">{task.name}</span><span className="text-xs text-muted-foreground">{task.steps.length} steps · maximum {task.maxScore}</span></span>
-                        </Button>
-                      ))}
-                    </div>
+                    <Label>Step 3 — Select task</Label>
+                    <Select
+                      value={activePendingTaskId}
+                      items={categoryTasks.filter(Boolean).map((task) => ({ value: task!.id, label: task!.name }))}
+                      onValueChange={(value) => setPendingTaskId(value || "")}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Select an associated task" /></SelectTrigger>
+                      <SelectContent>{categoryTasks.map((task) => task && <SelectItem key={task.id} value={task.id}>{task.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                    {activePendingTaskId && (() => {
+                      const task = categoryTasks.find((item) => item?.id === activePendingTaskId);
+                      return task ? <p className="text-xs text-muted-foreground">{task.steps.length} checklist steps · maximum score {task.maxScore}</p> : null;
+                    })()}
+                    <Button className="w-full sm:w-auto" disabled={!activePendingTaskId || selectTaskMutation.isPending} onClick={() => selectTaskMutation.mutate(activePendingTaskId)}>
+                      {selectTaskMutation.isPending ? "Opening scoring form…" : "Confirm task and begin scoring"}
+                    </Button>
                   </div>}
                   {!eligibleTasks.length && <p className="text-sm text-amber-700">No active tasks are mapped to this candidate&apos;s programme and level.</p>}
                 </div>
               )
             ) : (
               <div className="rounded-xl border border-dashed p-14 text-center">
-                <p className="text-muted-foreground">Select a candidate from the roster to begin grading.</p>
+                <p className="text-muted-foreground">Select a student above to begin the examination.</p>
               </div>
             )}
           </div>
