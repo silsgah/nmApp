@@ -408,6 +408,7 @@ export default async function resultRoutes(fastify) {
   fastify.get('/my-sessions', {
     onRequest: [fastify.authenticate],
   }, async (request) => {
+    if (request.user.role === 'EXAMINER') return [];
     const studentId = request.user.role === 'STUDENT'
       ? request.user.id
       : request.query.studentId;
@@ -429,6 +430,8 @@ export default async function resultRoutes(fastify) {
     const { sessionId } = request.query;
 
     if (!sessionId) return reply.code(400).send({ error: 'sessionId query param required' });
+    if (request.user.role === 'STUDENT' && studentId !== request.user.id) return reply.code(403).send({ error: 'Forbidden' });
+    if (request.user.role === 'EXAMINER') return reply.code(403).send({ error: 'Forbidden' });
 
     const result = await prisma.studentResult.findUnique({
       where: { studentId_sessionId: { studentId, sessionId } },
@@ -445,6 +448,8 @@ export default async function resultRoutes(fastify) {
     });
 
     if (!result) return reply.code(404).send({ error: 'Result not found' });
+
+    if (request.user.role === 'EXAMINER') return reply.code(403).send({ error: 'Forbidden' });
 
     // Students can only see published results
     if (request.user.role === 'STUDENT' && result.status !== 'PUBLISHED') {
@@ -469,6 +474,8 @@ export default async function resultRoutes(fastify) {
     });
 
     if (!result) return reply.code(404).send({ error: 'Result not found' });
+
+    if (request.user.role === 'EXAMINER') return reply.code(403).send({ error: 'Forbidden' });
 
     // Guard: students can only view their own published results
     if (request.user.role === 'STUDENT') {
@@ -548,6 +555,7 @@ export default async function resultRoutes(fastify) {
     if (!result) return reply.code(404).send({ error: 'Result not found' });
 
     // Guard: students can only download their own published results
+    if (request.user.role === 'EXAMINER') return reply.code(403).send({ error: 'Forbidden' });
     if (request.user.role === 'STUDENT') {
       if (result.studentId !== request.user.id) return reply.code(403).send({ error: 'Forbidden' });
       if (result.status !== 'PUBLISHED') return reply.code(403).send({ error: 'Result not yet published' });

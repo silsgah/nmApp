@@ -134,6 +134,9 @@ export default async function scorecardRoutes(fastify) {
     }
 
     const maxPossibleScore = scoringTask.maxScore;
+    if (totalScore > maxPossibleScore) {
+      return reply.code(400).send({ error: `Total score cannot exceed ${maxPossibleScore}` });
+    }
     const percentageScore = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
 
     const scorecard = await prisma.scorecard.upsert({

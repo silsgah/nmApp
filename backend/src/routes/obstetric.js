@@ -1,3 +1,5 @@
+import { requireAssessmentAccess, requireOpenSession } from '../lib/assessment-access.js';
+
 /** Independent Obstetric examination: configurable dependent options and scoring. */
 export default async function obstetricRoutes(fastify) {
   const { prisma } = fastify;
@@ -18,6 +20,7 @@ export default async function obstetricRoutes(fastify) {
   });
 
   fastify.get('/evaluations/:sessionId/student/:studentId', { onRequest: [fastify.requireRole('ADMIN', 'EXAMINER')] }, async (request, reply) => {
+    if (!await requireAssessmentAccess(prisma, request, reply, { sessionId: request.params.sessionId, studentId: request.params.studentId })) return;
     const evaluation = await prisma.obstetricEvaluation.findUnique({
       where: { studentId_sessionId_examinerId: { studentId: request.params.studentId, sessionId: request.params.sessionId, examinerId: request.user.id } },
       include: { selections: { include: { option: true }, orderBy: { slot: 'asc' } } },
@@ -28,6 +31,8 @@ export default async function obstetricRoutes(fastify) {
   fastify.post('/evaluations', { onRequest: [fastify.requireRole('ADMIN', 'EXAMINER')] }, async (request, reply) => {
     const { studentId, sessionId, anatomyMarks, abnormalPregnancyMarks, selections, isSubmitted = true } = request.body;
     if (!studentId || !sessionId || !Array.isArray(selections) || selections.length !== 2) return reply.code(400).send({ error: 'Student, session, and exactly two optional selections are required' });
+    if (!await requireAssessmentAccess(prisma, request, reply, { sessionId, studentId })) return;
+    if (!await requireOpenSession(prisma, reply, sessionId)) return;
     const compulsory = [Number(anatomyMarks), Number(abnormalPregnancyMarks)];
     if (compulsory.some((mark) => !Number.isFinite(mark) || mark < 0 || mark > 15)) return reply.code(400).send({ error: 'Each compulsory mark must be between 0 and 15' });
     if (new Set(selections.map((selection) => selection.optionId)).size !== 2) return reply.code(400).send({ error: 'Select two different optional items' });

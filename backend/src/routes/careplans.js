@@ -13,6 +13,8 @@
  *   POST   /api/v1/care-plans/scores   (upsert a score)
  *   POST   /api/v1/care-plans/scores/batch  (submit all types for a student at once)
  */
+import { requireAssessmentAccess, requireOpenSession } from '../lib/assessment-access.js';
+
 export default async function carePlanRoutes(fastify) {
   const { prisma } = fastify;
 
@@ -68,7 +70,7 @@ export default async function carePlanRoutes(fastify) {
   // ── Care Plan Scores ──
 
   // Get all care plan scores for a session (admin view)
-  fastify.get('/scores/:sessionId', { onRequest: [fastify.authenticate] }, async (request) => {
+  fastify.get('/scores/:sessionId', { onRequest: [fastify.requireRole('ADMIN')] }, async (request) => {
     const { sessionId } = request.params;
     return prisma.carePlanScore.findMany({
       where: { sessionId },
@@ -82,8 +84,9 @@ export default async function carePlanRoutes(fastify) {
   });
 
   // Get a specific student's care plan scores for a session
-  fastify.get('/scores/:sessionId/student/:studentId', { onRequest: [fastify.authenticate] }, async (request) => {
+  fastify.get('/scores/:sessionId/student/:studentId', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     const { sessionId, studentId } = request.params;
+    if (!await requireAssessmentAccess(prisma, request, reply, { sessionId, studentId, allowStudent: true })) return;
     return prisma.carePlanScore.findMany({
       where: { sessionId, studentId },
       include: {
@@ -102,10 +105,14 @@ export default async function carePlanRoutes(fastify) {
     if (!studentId || !sessionId || !carePlanTypeId || marks == null) {
       return reply.code(400).send({ error: 'studentId, sessionId, carePlanTypeId, and marks are required' });
     }
+    if (!await requireAssessmentAccess(prisma, request, reply, { sessionId, studentId })) return;
+    const session = await requireOpenSession(prisma, reply, sessionId);
+    if (!session) return;
 
     // Validate marks don't exceed maxMarks
     const planType = await prisma.carePlanType.findUnique({ where: { id: carePlanTypeId } });
     if (!planType) return reply.code(404).send({ error: 'Care plan type not found' });
+    if (planType.programmeId !== session.programmeId) return reply.code(400).send({ error: 'Care plan type is not configured for this session programme' });
     if (marks < 0 || marks > planType.maxMarks) {
       return reply.code(400).send({ error: `Marks must be between 0 and ${planType.maxMarks}` });
     }
@@ -131,6 +138,9 @@ export default async function carePlanRoutes(fastify) {
     if (!studentId || !sessionId || !scores?.length) {
       return reply.code(400).send({ error: 'studentId, sessionId, and scores array are required' });
     }
+    if (!await requireAssessmentAccess(prisma, request, reply, { sessionId, studentId })) return;
+    const session = await requireOpenSession(prisma, reply, sessionId);
+    if (!session) return;
 
     // Validate all scores
     const typeIds = scores.map(s => s.carePlanTypeId);
@@ -140,6 +150,7 @@ export default async function carePlanRoutes(fastify) {
     for (const s of scores) {
       const planType = typeMap[s.carePlanTypeId];
       if (!planType) return reply.code(400).send({ error: `Invalid care plan type: ${s.carePlanTypeId}` });
+      if (planType.programmeId !== session.programmeId) return reply.code(400).send({ error: `${planType.name} is not configured for this session programme` });
       if (s.marks < 0 || s.marks > planType.maxMarks) {
         return reply.code(400).send({ error: `${planType.name}: marks must be between 0 and ${planType.maxMarks}` });
       }

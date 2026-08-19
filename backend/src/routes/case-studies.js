@@ -216,6 +216,8 @@ export const CASE_STUDY_RUBRICS = {
   },
 };
 
+import { requireAssessmentAccess, requireOpenSession } from '../lib/assessment-access.js';
+
 export default async function caseStudyRoutes(fastify) {
   const { prisma } = fastify;
 
@@ -231,6 +233,7 @@ export default async function caseStudyRoutes(fastify) {
   // Get Case Study evaluation for a student in a session
   fastify.get('/evaluations/:sessionId/student/:studentId', { onRequest: [fastify.authenticate] }, async (request, reply) => {
     const { sessionId, studentId } = request.params;
+    if (!await requireAssessmentAccess(prisma, request, reply, { sessionId, studentId, allowStudent: true })) return;
     const { type = 'MIDWIFERY_CASE_STUDY' } = request.query;
 
     const evaluation = await prisma.caseStudyEvaluation.findUnique({
@@ -265,6 +268,8 @@ export default async function caseStudyRoutes(fastify) {
     if (!studentId || !sessionId || !Array.isArray(itemScores)) {
       return reply.code(400).send({ error: 'studentId, sessionId, and itemScores array are required' });
     }
+    if (!await requireAssessmentAccess(prisma, request, reply, { sessionId, studentId })) return;
+    if (!await requireOpenSession(prisma, reply, sessionId)) return;
 
     const rubric = CASE_STUDY_RUBRICS[type] || CASE_STUDY_RUBRICS['MIDWIFERY_CASE_STUDY'];
 
@@ -273,13 +278,19 @@ export default async function caseStudyRoutes(fastify) {
     const validatedItems = [];
 
     for (const item of itemScores) {
-      const { sectionKey, itemKey, itemName, marks, maxMarks, comment, sortOrder } = item;
+      const { sectionKey, itemKey, itemName, marks, comment, sortOrder } = item;
       if (!sectionKey || !itemKey) {
         return reply.code(400).send({ error: 'Each item must specify sectionKey and itemKey' });
       }
 
       const numMarks = parseFloat(marks) || 0;
-      const numMax = parseFloat(maxMarks) || 0;
+      const rubricItem = rubric.sections
+        .flatMap((section) => section.subgroups.flatMap((group) => group.items.map((entry) => ({ ...entry, sectionKey: section.key }))))
+        .find((entry) => entry.key === itemKey);
+      if (!rubricItem || rubricItem.sectionKey !== sectionKey) {
+        return reply.code(400).send({ error: `Invalid rubric item: ${itemKey}` });
+      }
+      const numMax = Number(rubricItem.maxMarks);
 
       if (numMarks < 0 || numMarks > numMax) {
         return reply.code(400).send({ error: `Marks for ${itemName || itemKey} must be between 0 and ${numMax}` });
@@ -354,7 +365,7 @@ export default async function caseStudyRoutes(fastify) {
   });
 
   // Admin list all Case Study evaluations for a session
-  fastify.get('/evaluations/:sessionId', { onRequest: [fastify.authenticate] }, async (request) => {
+  fastify.get('/evaluations/:sessionId', { onRequest: [fastify.requireRole('ADMIN')] }, async (request) => {
     const { sessionId } = request.params;
     const { type } = request.query;
 
