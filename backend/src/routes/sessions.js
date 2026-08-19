@@ -5,7 +5,7 @@ export default async function sessionRoutes(fastify) {
   const { prisma } = fastify;
 
   fastify.get('/', { onRequest: [fastify.authenticate] }, async (request) => {
-    const { programmeId, status, activeOnly } = request.query;
+    const { programmeId, status, activeOnly, page, limit, search } = request.query;
     const user = request.user;
 
     let statusFilter;
@@ -22,17 +22,35 @@ export default async function sessionRoutes(fastify) {
     const where = {
       ...(programmeId && { programmeId }),
       ...(statusFilter && { status: statusFilter }),
+      ...(search && {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { academicYear: { contains: search, mode: 'insensitive' } },
+          { programme: { name: { contains: search, mode: 'insensitive' } } },
+        ],
+      }),
     };
 
-    return prisma.examSession.findMany({
+    const include = {
+      programme: { select: { id: true, name: true, fullName: true } },
+      config: true,
+      _count: { select: { stations: true } },
+    };
+
+    // Preserve the existing array response for consumers that do not request pagination.
+    if (!page && !limit) return prisma.examSession.findMany({
       where,
-      include: {
-        programme: { select: { id: true, name: true, fullName: true } },
-        config: true,
-        _count: { select: { stations: true } },
-      },
+      include,
       orderBy: { createdAt: 'desc' },
     });
+
+    const currentPage = Math.max(parseInt(page || '1'), 1);
+    const pageSize = Math.min(Math.max(parseInt(limit || '9'), 1), 100);
+    const [data, total] = await prisma.$transaction([
+      prisma.examSession.findMany({ where, include, orderBy: { createdAt: 'desc' }, skip: (currentPage - 1) * pageSize, take: pageSize }),
+      prisma.examSession.count({ where }),
+    ]);
+    return { data, pagination: { page: currentPage, limit: pageSize, total, totalPages: Math.max(Math.ceil(total / pageSize), 1) } };
   });
 
   fastify.get('/:id', { onRequest: [fastify.authenticate] }, async (request, reply) => {
@@ -103,6 +121,25 @@ export default async function sessionRoutes(fastify) {
     } catch {
       return reply.code(404).send({ error: 'Session not found' });
     }
+  });
+
+  fastify.delete('/:id', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
+    const session = await prisma.examSession.findUnique({
+      where: { id: request.params.id },
+      include: {
+        _count: { select: { stations: true, results: true, carePlanScores: true, caseStudyEvaluations: true, obstetricEvaluations: true } },
+      },
+    });
+    if (!session) return reply.code(404).send({ error: 'Session not found' });
+    const hasRecords = Object.values(session._count).some((count) => count > 0);
+    if (hasRecords) {
+      return reply.code(409).send({ error: 'This session contains stations or examination records and cannot be deleted. Archive it instead to preserve the audit trail.' });
+    }
+    await prisma.$transaction([
+      prisma.examConfig.deleteMany({ where: { sessionId: session.id } }),
+      prisma.examSession.delete({ where: { id: session.id } }),
+    ]);
+    return reply.send({ message: 'Session deleted successfully' });
   });
 
   // Update exam config

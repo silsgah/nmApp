@@ -1,14 +1,14 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import {
   Calendar, Plus, Search, Filter, MoreHorizontal,
   Play, CheckCircle, Archive, Pencil, BarChart3,
-  AlertCircle, Eye
+  AlertCircle, Eye, Trash2, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +36,7 @@ interface ExamSession {
   config: { examinerCount: number; overallPassMark: number } | null;
   _count: { stations: number };
 }
+interface SessionsResponse { data: ExamSession[]; pagination: { page: number; limit: number; total: number; totalPages: number } }
 
 const statusConfig: Record<string, { label: string; className: string; dot: string }> = {
   DRAFT: { label: "Draft", className: "bg-muted text-muted-foreground border-border", dot: "bg-muted-foreground" },
@@ -49,11 +50,16 @@ export default function SessionsPage() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [actionSession, setActionSession] = useState<{ id: string; name: string; action: string } | null>(null);
+  const [deleteSession, setDeleteSession] = useState<ExamSession | null>(null);
+  const [page, setPage] = useState(1);
+  const pageSize = 9;
 
-  const { data: sessions, isLoading } = useQuery<ExamSession[]>({
-    queryKey: ["sessions"],
-    queryFn: () => api.get("/sessions").then((r) => r.data),
+  const { data: response, isLoading } = useQuery<SessionsResponse>({
+    queryKey: ["sessions", page, search],
+    queryFn: () => api.get(`/sessions?page=${page}&limit=${pageSize}&search=${encodeURIComponent(search)}`).then((r) => r.data),
   });
+  const sessions = response?.data;
+  useEffect(() => { setPage(1); }, [search]);
 
   const statusMutation = useMutation({
     mutationFn: ({ id, action }: { id: string; action: string }) =>
@@ -66,11 +72,17 @@ export default function SessionsPage() {
     onError: () => toast.error("Failed to update session"),
   });
 
-  const filtered = sessions?.filter(
-    (s) =>
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.programme?.name.toLowerCase().includes(search.toLowerCase())
-  ) ?? [];
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/sessions/${id}`),
+    onSuccess: () => {
+      toast.success("Session deleted successfully");
+      setDeleteSession(null);
+      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+    },
+    onError: (error: any) => toast.error(error.response?.data?.error || "Failed to delete session"),
+  });
+
+  const filtered = sessions ?? [];
 
   const nextAction: Record<string, { label: string; action: string; icon: React.ElementType }> = {
     DRAFT: { label: "Activate", action: "activate", icon: Play },
@@ -189,6 +201,10 @@ export default function SessionsPage() {
                         >
                           <BarChart3 className="w-3.5 h-3.5 mr-2" /> Results
                         </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => setDeleteSession(session)} className="text-destructive focus:text-destructive">
+                          <Trash2 className="w-3.5 h-3.5 mr-2" /> Delete Session
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
@@ -239,6 +255,17 @@ export default function SessionsPage() {
         </div>
       )}
 
+      {!isLoading && response && response.pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between border-t pt-4">
+          <p className="text-xs text-muted-foreground">Showing {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, response.pagination.total)} of {response.pagination.total} sessions</p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((value) => value - 1)}><ChevronLeft className="mr-1 h-4 w-4" /> Previous</Button>
+            <span className="text-xs font-medium">Page {page} of {response.pagination.totalPages}</span>
+            <Button variant="outline" size="sm" disabled={page === response.pagination.totalPages} onClick={() => setPage((value) => value + 1)}>Next <ChevronRight className="ml-1 h-4 w-4" /></Button>
+          </div>
+        </div>
+      )}
+
       {/* Confirm dialog */}
       <AlertDialog open={!!actionSession} onOpenChange={() => setActionSession(null)}>
         <AlertDialogContent>
@@ -257,6 +284,23 @@ export default function SessionsPage() {
               className="gradient-primary border-0 text-white"
             >
               Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!deleteSession} onOpenChange={(open) => !open && setDeleteSession(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete examination session?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>{deleteSession?.name}</strong>. Sessions containing stations or examination records are protected and must be archived instead.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" disabled={deleteMutation.isPending} onClick={() => deleteSession && deleteMutation.mutate(deleteSession.id)}>
+              <Trash2 className="mr-2 h-4 w-4" /> {deleteMutation.isPending ? "Deleting…" : "Delete permanently"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
