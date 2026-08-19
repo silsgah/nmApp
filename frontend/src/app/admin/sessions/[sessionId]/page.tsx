@@ -9,6 +9,7 @@ import {
   ArrowLeft, Settings2, Plus, Users, ClipboardList,
   CheckCircle2, Clock, PlayCircle, XCircle, BarChart3,
   ChevronRight, Layers, UserCheck, RefreshCw, AlertCircle, Calendar
+  , ShieldAlert
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -111,6 +112,9 @@ export default function SessionDetailPage() {
   const [addStationOpen, setAddStationOpen] = useState(false);
   const [noStationsDialogOpen, setNoStationsDialogOpen] = useState(false);
   const [selectedStation, setSelectedStation] = useState<any>(null);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [resetReason, setResetReason] = useState("");
+  const [resetConfirmation, setResetConfirmation] = useState("");
 
   const { data: session, isLoading } = useQuery({
     queryKey: ["session", sessionId],
@@ -148,6 +152,17 @@ export default function SessionDetailPage() {
     onError: (err: any) => {
       toast.error(err?.response?.data?.error || "Failed to generate schedule");
     },
+  });
+
+  const resetExaminationsMutation = useMutation({
+    mutationFn: () => api.post(`/sessions/${sessionId}/reset-examinations`, { reason: resetReason.trim(), confirmation: resetConfirmation }),
+    onSuccess: (response) => {
+      toast.success(response.data?.message || "Examination data cleared");
+      setResetDialogOpen(false); setResetReason(""); setResetConfirmation("");
+      queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
+      queryClient.invalidateQueries({ queryKey: ["session-stats", sessionId] });
+    },
+    onError: (error: any) => toast.error(error.response?.data?.error || "Unable to reset examination data"),
   });
 
   if (isLoading) {
@@ -281,6 +296,21 @@ export default function SessionDetailPage() {
           </div>
           <Progress value={stats.completionRate} className="h-2" />
         </div>
+      )}
+
+      {stats && Object.values(stats.examinationRecords || {}).some((count) => Number(count) > 0) && (
+        <Card className="border-red-200 bg-red-50/40 dark:border-red-900 dark:bg-red-950/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-sm text-red-700 dark:text-red-400"><ShieldAlert className="h-4 w-4" /> Reset examination data</CardTitle>
+            <CardDescription>This preserves the session setup, stations, candidates and examiners, but permanently clears all practical attempts, scorecards, computed results, Care Plan, Case Study and Obstetric examination records.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-muted-foreground">
+              {stats.examinationRecords.taskAttempts} task attempts · {stats.examinationRecords.scorecards} submitted scorecards · {stats.examinationRecords.results} computed results · {stats.examinationRecords.carePlans} care plans · {stats.examinationRecords.caseStudies} case studies · {stats.examinationRecords.obstetric} obstetric
+            </p>
+            <Button variant="destructive" size="sm" onClick={() => setResetDialogOpen(true)}><Trash2 className="mr-1.5 h-3.5 w-3.5" /> Reset for fresh exams</Button>
+          </CardContent>
+        </Card>
       )}
 
       {/* Stations list */}
@@ -427,6 +457,25 @@ export default function SessionDetailPage() {
               }}
             >
               <Plus className="w-4 h-4 mr-1.5" /> Add First Station
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={resetDialogOpen} onOpenChange={setResetDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600"><ShieldAlert className="h-5 w-5" /> Permanently reset examination data?</DialogTitle>
+            <DialogDescription>This cannot be undone. An audit entry containing the administrator, reason and deleted record counts will be retained. The session will return to Active for fresh examinations.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5"><Label>Reason for reset</Label><Input value={resetReason} onChange={(event) => setResetReason(event.target.value)} placeholder="Minimum 10 characters" /></div>
+            <div className="space-y-1.5"><Label>Type the exact session name to confirm</Label><p className="rounded bg-muted px-2 py-1 text-xs font-semibold">{session.name}</p><Input value={resetConfirmation} onChange={(event) => setResetConfirmation(event.target.value)} placeholder={session.name} /></div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetDialogOpen(false)}>Cancel</Button>
+            <Button variant="destructive" disabled={resetReason.trim().length < 10 || resetConfirmation !== session.name || resetExaminationsMutation.isPending} onClick={() => resetExaminationsMutation.mutate()}>
+              {resetExaminationsMutation.isPending ? "Resetting…" : "Permanently clear examination data"}
             </Button>
           </DialogFooter>
         </DialogContent>

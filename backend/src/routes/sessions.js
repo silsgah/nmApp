@@ -1,3 +1,5 @@
+import { validateExaminationReset } from '../lib/examination-reset-policy.js';
+
 /**
  * Exam Session Routes
  */
@@ -269,16 +271,58 @@ export default async function sessionRoutes(fastify) {
     return { message: 'Schedule generated successfully', studentsCount: students.length, stationsCount: session.stations.length };
   });
 
+  // Destructive but controlled: clear examination work while preserving the
+  // session structure, station roster and examiner/student assignments.
+  fastify.post('/:id/reset-examinations', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
+    const sessionId = request.params.id;
+    const reason = String(request.body?.reason || '').trim();
+    const confirmation = String(request.body?.confirmation || '').trim();
+    const session = await prisma.examSession.findUnique({ where: { id: sessionId }, select: { id: true, name: true, status: true } });
+    if (!session) return reply.code(404).send({ error: 'Session not found' });
+    try { validateExaminationReset({ expectedSessionName: session.name, confirmation, reason }); }
+    catch (error) { return reply.code(400).send({ error: error.message }); }
+
+    const [taskAttempts, scorecards, results, carePlans, caseStudies, obstetric] = await Promise.all([
+      prisma.taskAttempt.count({ where: { sessionId } }),
+      prisma.scorecard.count({ where: { studentAssignment: { station: { sessionId } } } }),
+      prisma.studentResult.count({ where: { sessionId } }),
+      prisma.carePlanScore.count({ where: { sessionId } }),
+      prisma.caseStudyEvaluation.count({ where: { sessionId } }),
+      prisma.obstetricEvaluation.count({ where: { sessionId } }),
+    ]);
+    const snapshot = { previousStatus: session.status, taskAttempts, scorecards, results, carePlans, caseStudies, obstetric };
+
+    await prisma.$transaction(async (tx) => {
+      await tx.resultPublicationAudit.create({ data: { sessionId, action: 'EXAMINATION_DATA_RESET', reason, actorId: request.user.id, snapshot } });
+      await tx.assessmentAudit.deleteMany({ where: { taskAttempt: { sessionId } } });
+      await tx.scorecard.deleteMany({ where: { studentAssignment: { station: { sessionId } } } });
+      await tx.taskAttempt.deleteMany({ where: { sessionId } });
+      await tx.studentResult.deleteMany({ where: { sessionId } });
+      await tx.carePlanScore.deleteMany({ where: { sessionId } });
+      await tx.caseStudyEvaluation.deleteMany({ where: { sessionId } });
+      await tx.obstetricEvaluation.deleteMany({ where: { sessionId } });
+      await tx.studentAssignment.updateMany({ where: { station: { sessionId } }, data: { selectedTaskId: null, taskSelectedById: null, taskSelectedAt: null } });
+      await tx.examSession.update({ where: { id: sessionId }, data: { status: 'ACTIVE' } });
+    });
+
+    return { message: 'Examination data cleared. Session is ready for fresh examinations.', deleted: snapshot };
+  });
+
   // Session summary stats
   fastify.get('/:id/stats', { onRequest: [fastify.requireRole('ADMIN', 'EXAMINER')] }, async (request, reply) => {
     const sessionId = request.params.id;
 
-    const [stations, studentCount, examinerCount, submittedCount, publishedResults] = await Promise.all([
+    const [stations, studentCount, examinerCount, submittedCount, publishedResults, taskAttempts, results, carePlans, caseStudies, obstetric] = await Promise.all([
       prisma.station.findMany({ where: { sessionId }, select: { _count: { select: { studentAssignments: true, examinerAssignments: true } } } }),
       prisma.studentAssignment.count({ where: { station: { sessionId } } }),
       prisma.examinerAssignment.count({ where: { station: { sessionId } } }),
       prisma.scorecard.count({ where: { studentAssignment: { station: { sessionId } }, isSubmitted: true } }),
       prisma.studentResult.count({ where: { sessionId, status: 'PUBLISHED' } }),
+      prisma.taskAttempt.count({ where: { sessionId } }),
+      prisma.studentResult.count({ where: { sessionId } }),
+      prisma.carePlanScore.count({ where: { sessionId } }),
+      prisma.caseStudyEvaluation.count({ where: { sessionId } }),
+      prisma.obstetricEvaluation.count({ where: { sessionId } }),
     ]);
 
     const stationCount = stations.length;
@@ -297,6 +341,7 @@ export default async function sessionRoutes(fastify) {
         ? Math.round((submittedCount / totalExpectedScorecards) * 100) 
         : 0,
       publishedResults,
+      examinationRecords: { taskAttempts, scorecards: submittedCount, results, carePlans, caseStudies, obstetric },
     };
   });
 }
