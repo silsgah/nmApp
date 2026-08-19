@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { aggregateExaminerScores, assertScoreWithinBounds, combineWeightedTaskPercentages } from '../src/lib/scoring-policy.js';
+import { aggregateExaminerScores, assertScoreWithinBounds, combineWeightedTaskPercentages, scaleTaskContribution } from '../src/lib/scoring-policy.js';
 
 test('score bounds reject negative, excessive and non-finite marks', () => {
   assert.equal(assertScoreWithinBounds(40, 40), 40);
@@ -31,4 +31,11 @@ test('a Major task with full weight preserves its percentage', () => {
 test('invalid percentages and zero total weight are rejected', () => {
   assert.throws(() => combineWeightedTaskPercentages([{ percentage: 101, weight: 1 }]), RangeError);
   assert.throws(() => combineWeightedTaskPercentages([{ percentage: 50, weight: 0 }]), RangeError);
+});
+
+test('one major task and two minor tasks have equivalent configured marks', () => {
+  const major = scaleTaskContribution(30, 40, 80);
+  const minors = scaleTaskContribution(15, 20, 40) + scaleTaskContribution(15, 20, 40);
+  assert.equal(major, 60);
+  assert.equal(minors, 60);
 });

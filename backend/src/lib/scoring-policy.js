@@ -27,3 +27,11 @@ export function combineWeightedTaskPercentages(attempts) {
     return total + percentage * weight;
   }, 0) / totalWeight;
 }
+
+export function scaleTaskContribution(score, taskMaximum, contributionMarks) {
+  assertScoreWithinBounds(Number(score), Number(taskMaximum));
+  if (!Number.isFinite(Number(contributionMarks)) || Number(contributionMarks) <= 0) {
+    throw new RangeError('Contribution marks must be greater than zero');
+  }
+  return (Number(score) / Number(taskMaximum)) * Number(contributionMarks);
+}

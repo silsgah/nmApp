@@ -3,24 +3,25 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import type { AxiosError } from "axios";
 import { toast } from "sonner";
 import {
-  Settings2, Percent, Layers, Info,
-  Save, Trash2, Camera, Lock, User
+  Settings2, Layers, Info, Plus,
+  Save, Trash2, Camera, Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface Programme { id: string; name: string; fullName: string }
-interface Category { id: string; name: string; weight: number; scaledMaxMarks: number; minPassScore: number; sortOrder: number; programmeId: string }
+interface Category { id: string; name: string; weight: number; scaledMaxMarks: number; minPassScore: number; sortOrder: number; programmeId: string; _count?: { tasks: number } }
+const apiError = (error: unknown, fallback: string) => (error as AxiosError<{ error?: string }>)?.response?.data?.error || fallback;
 
 function CategoryRow({
   cat, onUpdate, onDelete,
@@ -30,20 +31,9 @@ function CategoryRow({
   onDelete: (id: string) => void;
 }) {
   return (
-    <div className="grid grid-cols-[1.2fr_70px_100px_90px_40px] gap-3 items-center py-2">
+    <div className="grid grid-cols-[1.2fr_130px_110px_40px] gap-3 items-center py-2">
       <div>
         <p className="text-sm font-medium text-foreground">{cat.name}</p>
-      </div>
-      <div>
-        <Input
-          type="number"
-          min={0}
-          max={100}
-          value={Math.round(cat.weight * 100)}
-          onChange={(e) => onUpdate(cat.id, { weight: (parseInt(e.target.value) || 0) / 100 })}
-          className="h-8 text-sm text-center"
-          title="Weight %"
-        />
       </div>
       <div>
         <Input
@@ -53,7 +43,7 @@ function CategoryRow({
           value={cat.scaledMaxMarks ?? 80}
           onChange={(e) => onUpdate(cat.id, { scaledMaxMarks: parseInt(e.target.value) || 0 })}
           className="h-8 text-sm text-center"
-          title="Scaled Max Marks"
+          title="Contribution marks for each completed task"
         />
       </div>
       <div>
@@ -70,7 +60,8 @@ function CategoryRow({
       <button
         onClick={() => onDelete(cat.id)}
         className="text-muted-foreground hover:text-red-500 transition-colors cursor-pointer"
-        title="Remove category"
+        title={cat._count?.tasks ? "Categories used by tasks cannot be removed" : "Remove category"}
+        disabled={Boolean(cat._count?.tasks)}
       >
         <Trash2 className="w-3.5 h-3.5" />
       </button>
@@ -88,6 +79,9 @@ export default function SettingsPage() {
   const [selectedProg, setSelectedProg] = useState<string>("");
   const [localCats, setLocalCats] = useState<Category[]>([]);
   const [catsDirty, setCatsDirty] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryMarks, setNewCategoryMarks] = useState("80");
+  const [newCategoryPass, setNewCategoryPass] = useState("50");
 
   // Profile settings state
   const [password, setPassword] = useState("");
@@ -108,6 +102,8 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (categories) {
+      // The editable copy intentionally resets when the selected programme query changes.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLocalCats(categories);
       setCatsDirty(false);
     }
@@ -116,7 +112,6 @@ export default function SettingsPage() {
   const saveCatsMutation = useMutation({
     mutationFn: () => Promise.all(
       localCats.map((c) => api.patch(`/categories/${c.id}`, {
-        weight: c.weight,
         scaledMaxMarks: c.scaledMaxMarks,
         minPassScore: c.minPassScore,
       }))
@@ -127,6 +122,26 @@ export default function SettingsPage() {
       setCatsDirty(false);
     },
     onError: () => toast.error("Failed to save settings"),
+  });
+
+  const addCategoryMutation = useMutation({
+    mutationFn: () => api.post("/categories", {
+      name: newCategoryName.trim(), programmeId: selectedProg,
+      scaledMaxMarks: Number(newCategoryMarks), minPassScore: Number(newCategoryPass),
+      weight: 1, sortOrder: localCats.length,
+    }),
+    onSuccess: () => {
+      toast.success("Practical category added");
+      setNewCategoryName(""); setNewCategoryMarks("80"); setNewCategoryPass("50");
+      queryClient.invalidateQueries({ queryKey: ["categories", selectedProg] });
+    },
+    onError: (error: unknown) => toast.error(apiError(error, "Unable to add category")),
+  });
+
+  const deleteCategoryMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/categories/${id}`),
+    onSuccess: () => { toast.success("Category removed"); queryClient.invalidateQueries({ queryKey: ["categories", selectedProg] }); },
+    onError: (error: unknown) => toast.error(apiError(error, "This category cannot be removed")),
   });
 
   const updateCat = (id: string, data: Partial<Category>) => {
@@ -153,8 +168,8 @@ export default function SettingsPage() {
           setAuth({ ...user, profilePictureUrl: res.data.profilePictureUrl }, token || "");
         }
         toast.success("Profile photo updated successfully");
-      } catch (err: any) {
-        toast.error(err.response?.data?.error || "Failed to update profile photo");
+      } catch (err: unknown) {
+        toast.error(apiError(err, "Failed to update profile photo"));
       } finally {
         setUploadingPhoto(false);
       }
@@ -170,8 +185,8 @@ export default function SettingsPage() {
         setAuth({ ...user, profilePictureUrl: null }, token || "");
       }
       toast.success("Profile photo removed successfully");
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Failed to remove profile photo");
+    } catch (err: unknown) {
+      toast.error(apiError(err, "Failed to remove profile photo"));
     } finally {
       setUploadingPhoto(false);
     }
@@ -197,15 +212,13 @@ export default function SettingsPage() {
       toast.success("Password changed successfully");
       setPassword("");
       setConfirmPassword("");
-    } catch (err: any) {
-      toast.error(err.response?.data?.error || "Failed to update password");
+    } catch (err: unknown) {
+      toast.error(apiError(err, "Failed to update password"));
     } finally {
       setSavingPassword(false);
     }
   };
 
-  const totalWeight = localCats.reduce((sum, c) => sum + c.weight, 0);
-  const weightOk = Math.abs(totalWeight - 1.0) < 0.01;
   const initials = user?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "AD";
 
   return (
@@ -252,8 +265,8 @@ export default function SettingsPage() {
                 Assessment Category Configuration
               </CardTitle>
               <CardDescription className="text-xs">
-                Set the weight and minimum pass score for each category per programme.
-                Weights must sum to 100%.
+                Configure practical categories for each programme. Contribution marks apply to each completed task:
+                for example, one 80-mark Major or two 40-mark Minor tasks both contribute 80 practical marks.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -281,10 +294,9 @@ export default function SettingsPage() {
               {selectedProg && (
                 <>
                   {/* Column headers */}
-                  <div className="grid grid-cols-[1.2fr_70px_100px_90px_40px] gap-3 pb-1 border-b">
+                  <div className="grid grid-cols-[1.2fr_130px_110px_40px] gap-3 pb-1 border-b">
                     <p className="text-xs font-semibold text-muted-foreground">Category</p>
-                    <p className="text-xs font-semibold text-muted-foreground text-center">Weight %</p>
-                    <p className="text-xs font-semibold text-muted-foreground text-center">Scaled Max</p>
+                    <p className="text-xs font-semibold text-muted-foreground text-center">Marks per task</p>
                     <p className="text-xs font-semibold text-muted-foreground text-center">Min Pass %</p>
                     <span />
                   </div>
@@ -301,27 +313,31 @@ export default function SettingsPage() {
                           key={cat.id}
                           cat={cat}
                           onUpdate={updateCat}
-                          onDelete={(id) => {
-                            setLocalCats((cats) => cats.filter((c) => c.id !== id));
-                            setCatsDirty(true);
-                          }}
+                          onDelete={(id) => deleteCategoryMutation.mutate(id)}
                         />
                       ))}
                     </div>
                   )}
 
-                  {/* Weight total indicator */}
-                  <div className={cn(
-                    "flex items-center gap-2 text-xs rounded-lg px-3 py-2",
-                    weightOk
-                      ? "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
-                      : "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
-                  )}>
-                    <Percent className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>
-                      Total weight: <strong>{Math.round(totalWeight * 100)}%</strong>
-                      {!weightOk && " — weights must sum to exactly 100%"}
-                    </span>
+                  <div className="rounded-xl border bg-muted/20 p-3 space-y-3">
+                    <p className="text-xs font-semibold">Add a practical category for this programme</p>
+                    <div className="grid gap-2 sm:grid-cols-[1fr_130px_110px_auto]">
+                      <Input value={newCategoryName} onChange={(event) => setNewCategoryName(event.target.value)} placeholder="e.g. Major or Minor" />
+                      <Input type="number" min="1" max="200" value={newCategoryMarks} onChange={(event) => setNewCategoryMarks(event.target.value)} placeholder="Marks per task" />
+                      <Input type="number" min="0" max="100" value={newCategoryPass} onChange={(event) => setNewCategoryPass(event.target.value)} placeholder="Pass %" />
+                      <Button variant="outline" disabled={!newCategoryName.trim() || Number(newCategoryMarks) <= 0 || addCategoryMutation.isPending} onClick={() => addCategoryMutation.mutate()}>
+                        <Plus className="w-3.5 h-3.5 mr-1" /> Add
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs leading-relaxed text-blue-950 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-100">
+                    <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <div className="space-y-1">
+                      <p><strong>Practical calculation:</strong> examiner scores are averaged for each task, converted to a percentage, then multiplied by that category&apos;s marks per task.</p>
+                      <p>One 80-mark Major and two 40-mark Minor tasks have equal possible marks. The practical overall is earned contribution marks ÷ possible contribution marks.</p>
+                      <p><strong>Independent examinations:</strong> Care Plan, Case Study and Obstetric results are graded separately and never alter this practical overall.</p>
+                    </div>
                   </div>
 
                   {/* Save button */}
@@ -329,7 +345,7 @@ export default function SettingsPage() {
                     <Button
                       className="gradient-primary border-0 text-white hover:opacity-90 cursor-pointer h-9 px-5 shadow-sm"
                       onClick={() => saveCatsMutation.mutate()}
-                      disabled={!catsDirty || !weightOk || saveCatsMutation.isPending}
+                      disabled={!catsDirty || saveCatsMutation.isPending}
                       id="save-categories-btn"
                     >
                       <Save className="w-3.5 h-3.5 mr-2" />

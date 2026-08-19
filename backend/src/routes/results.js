@@ -2,7 +2,7 @@
  * Results Routes — Grading engine + results publication
  */
 import { generateResultPdf, generateSessionBroadsheetPdf } from '../lib/pdf.js';
-import { aggregateExaminerScores } from '../lib/scoring-policy.js';
+import { aggregateExaminerScores, scaleTaskContribution } from '../lib/scoring-policy.js';
 
 export default async function resultRoutes(fastify) {
   const { prisma } = fastify;
@@ -21,27 +21,6 @@ export default async function resultRoutes(fastify) {
     if (!session) return reply.code(404).send({ error: 'Session not found' });
 
     const config = session.config || { examinerCount: 3, overallPassMark: 50, scoreAggregation: 'AVERAGE' };
-
-    // Load assessment categories for this programme to get their weights
-    const programmeCategories = await prisma.assessmentCategory.findMany({
-      where: { programmeId: session.programmeId },
-      orderBy: { sortOrder: 'asc' },
-    });
-
-    // Load care plan types for this programme
-    const carePlanTypes = await prisma.carePlanType.findMany({
-      where: { programmeId: session.programmeId },
-      orderBy: { sortOrder: 'asc' },
-    });
-
-    // Build a weight lookup: categoryId → weight
-    // Session-level categoryWeights override (from ExamConfig) takes precedence,
-    // then falls back to the category's own weight field
-    const configWeightOverrides = config.categoryWeights || {};
-    const categoryWeightLookup = {};
-    for (const cat of programmeCategories) {
-      categoryWeightLookup[cat.id] = configWeightOverrides[cat.id] ?? cat.weight ?? 1.0;
-    }
 
     // Validate that all assigned examiners have submitted their scorecards for all station candidates
     const stations = await prisma.station.findMany({
@@ -163,12 +142,16 @@ export default async function resultRoutes(fastify) {
               category: cat,
               totalScore: 0,
               maxScore: 0,
-              scaledMaxMarks: cat.scaledMaxMarks ?? 80,
+              scaledScore: 0,
+              scaledMaxMarks: 0,
               tasks: 0,
             };
           }
           categoryMap[cat.id].totalScore += taskScore;
           categoryMap[cat.id].maxScore += taskMax;
+          const attemptMarks = cat.scaledMaxMarks ?? 80;
+          categoryMap[cat.id].scaledScore += scaleTaskContribution(taskScore, taskMax, attemptMarks);
+          categoryMap[cat.id].scaledMaxMarks += attemptMarks;
           categoryMap[cat.id].tasks += 1;
         }
 
@@ -180,12 +163,15 @@ export default async function resultRoutes(fastify) {
               category: { id: 'UNCATEGORIZED', name: 'Uncategorized', minPassScore: 50, scaledMaxMarks: 80 },
               totalScore: 0,
               maxScore: 0,
-              scaledMaxMarks: 80,
+              scaledScore: 0,
+              scaledMaxMarks: 0,
               tasks: 0,
             };
           }
           categoryMap[key].totalScore += taskScore;
           categoryMap[key].maxScore += taskMax;
+          categoryMap[key].scaledScore += scaleTaskContribution(taskScore, taskMax, 80);
+          categoryMap[key].scaledMaxMarks += 80;
           categoryMap[key].tasks += 1;
         }
         }
@@ -199,7 +185,7 @@ export default async function resultRoutes(fastify) {
 
       for (const [catId, catData] of Object.entries(categoryMap)) {
         // Category percentage (how well did the student do in raw terms)
-        const percent = catData.maxScore > 0 ? (catData.totalScore / catData.maxScore) * 100 : 0;
+        const percent = catData.scaledMaxMarks > 0 ? (catData.scaledScore / catData.scaledMaxMarks) * 100 : 0;
 
         // Per-category pass check using the category's minPassScore
         const catMinPass = catData.category.minPassScore ?? config.overallPassMark;
@@ -209,7 +195,7 @@ export default async function resultRoutes(fastify) {
         // e.g. Major at 75% → (75/100) × 80 = 60 marks
         // e.g. Minor at 75% → (75/100) × 40 = 30 marks
         const scaledMaxMarks = catData.scaledMaxMarks;
-        const scaledScore = (percent / 100) * scaledMaxMarks;
+        const scaledScore = catData.scaledScore;
 
         practicalScore += scaledScore;
         practicalMaxScore += scaledMaxMarks;
@@ -227,67 +213,8 @@ export default async function resultRoutes(fastify) {
         if (!catPassed) allCategoryPassed = false;
       }
 
-      // Fetch care plan scores for this student (only factor in if care plan scores were entered)
-      const studentCarePlanScores = await prisma.carePlanScore.findMany({
-        where: { studentId, sessionId },
-        include: { carePlanType: true },
-      });
-
-      if (studentCarePlanScores.length > 0) {
-        let carePlanScore = 0;
-        let carePlanMax = 0;
-        for (const scoreObj of studentCarePlanScores) {
-          const planType = scoreObj.carePlanType || carePlanTypes.find(t => t.id === scoreObj.carePlanTypeId);
-          const maxForType = planType ? planType.maxMarks : 10;
-          carePlanScore += scoreObj.marks;
-          carePlanMax += maxForType;
-        }
-
-        if (carePlanMax > 0) {
-          const carePlanPercent = (carePlanScore / carePlanMax) * 100;
-          const carePlanPassed = carePlanPercent >= config.overallPassMark;
-
-          categoryScores['CARE_PLAN'] = {
-            categoryName: 'Care Plan',
-            score: carePlanScore,
-            maxScore: carePlanMax,
-            percentage: Math.round(carePlanPercent * 100) / 100,
-            scaledScore: Math.round(carePlanScore * 100) / 100,
-            scaledMaxMarks: carePlanMax,
-            passed: carePlanPassed,
-          };
-
-          practicalScore += carePlanScore;
-          practicalMaxScore += carePlanMax;
-
-          if (!carePlanPassed) allCategoryPassed = false;
-        }
-      }
-
-      // Fetch Case Study evaluation for this student (only factor in if evaluation was submitted)
-      const studentCaseStudyEval = await prisma.caseStudyEvaluation.findFirst({
-        where: { studentId, sessionId, isSubmitted: true },
-      });
-
-      if (studentCaseStudyEval) {
-        const csPercent = studentCaseStudyEval.percentage;
-        const csPassed = csPercent >= config.overallPassMark;
-
-        categoryScores['CASE_STUDY'] = {
-          categoryName: 'Case Study',
-          score: studentCaseStudyEval.totalScore,
-          maxScore: studentCaseStudyEval.maxScore,
-          percentage: studentCaseStudyEval.percentage,
-          scaledScore: studentCaseStudyEval.totalScore,
-          scaledMaxMarks: studentCaseStudyEval.maxScore,
-          passed: csPassed,
-        };
-
-        practicalScore += studentCaseStudyEval.totalScore;
-        practicalMaxScore += studentCaseStudyEval.maxScore;
-
-        if (!csPassed) allCategoryPassed = false;
-      }
+      // Care Plan, Case Study and Obstetric examinations are intentionally
+      // excluded: each has its own independent grading and publication flow.
 
       // Overall percentage for grading (scaled score as % of scaled max)
       const overallPercent = practicalMaxScore > 0 ? (practicalScore / practicalMaxScore) * 100 : 0;
