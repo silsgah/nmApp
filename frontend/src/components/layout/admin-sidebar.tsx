@@ -41,6 +41,7 @@ const navItems: NavItem[] = [
       { href: "/admin/programmes", label: "Programmes", icon: GraduationCap },
       { href: "/admin/sessions", label: "Exam Sessions", icon: Calendar },
       { href: "/admin/tasks", label: "Task Bank", icon: BookOpen },
+      { href: "/admin/obstetric", label: "Obstetric Setup", icon: Stethoscope },
       { href: "/admin/students", label: "Student Management", icon: GraduationCap },
       { href: "/admin/users", label: "Staff Management", icon: Users },
       { href: "/admin/assessment-matrix", label: "Assessment Matrix", icon: FileSpreadsheet },

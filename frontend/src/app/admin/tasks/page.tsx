@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { PageLessonBanner } from "@/components/admin/page-lesson-banner";
 import {
   Table,
   TableBody,
@@ -88,6 +89,8 @@ export default function TaskBankPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      {/* Context-aware Page Lesson Banner */}
+      <PageLessonBanner />
       {/* Header */}
       <div className="page-header flex items-center justify-between">
         <div>

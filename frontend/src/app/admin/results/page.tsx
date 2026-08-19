@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { PageLessonBanner } from "@/components/admin/page-lesson-banner";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -203,6 +204,8 @@ export default function ResultsPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      {/* Context-aware Page Lesson Banner */}
+      <PageLessonBanner />
       {/* Header */}
       <div className="page-header flex items-center justify-between flex-wrap gap-4">
         <div>

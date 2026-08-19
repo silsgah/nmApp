@@ -23,6 +23,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ExaminerCopilot } from "@/components/examiner/examiner-copilot";
@@ -30,7 +31,8 @@ import { ExaminerCopilot } from "@/components/examiner/examiner-copilot";
 interface Candidate {
   assignmentId: string;
   candidateNumber: string;
-  student: { id: string; name: string; email: string; staffId: string | null };
+  student: { id: string; name: string; email: string; staffId: string | null; programmeId: string; yearLevel: number | null };
+  selectedTask: { id: string; name: string; maxScore: number; ratingScale: string; category: { id: string; name: string } | null; steps: { id: string; stepNumber: number; description: string; isKeyStep?: boolean }[] } | null;
   scorecard: {
     id: string; totalScore: number; percentageScore: number; isSubmitted: boolean; remarks: string;
   } | null;
@@ -39,7 +41,6 @@ interface Candidate {
 interface StationData {
   station: {
     id: string; stationCode: string;
-    task: { id: string; name: string; maxScore: number; ratingScale: string; steps: { id: string; stepNumber: number; description: string }[] };
   };
   candidates: Candidate[];
 }
@@ -556,6 +557,7 @@ function ScoreEntryCard({
 }
 
 export default function ExaminerStationPage() {
+  const queryClient = useQueryClient();
   const params = useParams();
   const searchParams = useSearchParams();
   const stationId = params.stationId as string;
@@ -565,6 +567,7 @@ export default function ExaminerStationPage() {
   const highlightStudentId = searchParams.get("studentId");
 
   const [activeAssignmentId, setActiveAssignmentId] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [rosterSearch, setRosterSearch] = useState("");
   // Ref to route AI copilot insert into the currently active ScoreEntryCard's remarks
   const insertRemarkRef = useRef<((text: string) => void) | null>(null);
@@ -622,6 +625,25 @@ export default function ExaminerStationPage() {
 
   const activeCandidate = candidatesList.find((c) => c.assignmentId === activeAssignmentId);
 
+  const { data: eligibleTasks = [] } = useQuery<Candidate["selectedTask"][]>({
+    queryKey: ["eligible-tasks", activeCandidate?.student.programmeId, activeCandidate?.student.yearLevel],
+    queryFn: () => api.get(`/tasks?programmeId=${activeCandidate?.student.programmeId}&yearLevel=${activeCandidate?.student.yearLevel}&isActive=true`).then((r) => r.data),
+    enabled: !!activeCandidate && !activeCandidate.selectedTask,
+  });
+  const eligibleCategories = Array.from(new Map(
+    eligibleTasks.filter((task) => task?.category).map((task) => [task!.category!.id, task!.category!]),
+  ).values());
+  const activeCategoryId = eligibleCategories.some((category) => category.id === selectedCategoryId) ? selectedCategoryId : "";
+
+  const selectTaskMutation = useMutation({
+    mutationFn: (taskId: string) => api.post(`/assignments/students/${activeCandidate?.assignmentId}/select-task`, { taskId }),
+    onSuccess: () => {
+      toast.success("Task selected and shared with all assigned examiners");
+      queryClient.invalidateQueries({ queryKey: ["station-candidates", stationId] });
+    },
+    onError: (error: { response?: { data?: { error?: string } } }) => toast.error(error.response?.data?.error || "Unable to select task"),
+  });
+
   const activeIndex = candidatesList.findIndex((c) => c.assignmentId === activeAssignmentId);
   const hasNextCandidate = activeIndex !== -1 && activeIndex < candidatesList.length - 1;
   const nextCandidateAssignmentId = hasNextCandidate ? candidatesList[activeIndex + 1].assignmentId : null;
@@ -657,12 +679,10 @@ export default function ExaminerStationPage() {
                 <div className="gradient-primary w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
                   <span className="text-white text-xs font-bold">{data?.station.stationCode}</span>
                 </div>
-                <h1 className="page-title truncate">{data?.station.task.name}</h1>
+                <h1 className="page-title truncate">Station {data?.station.stationCode}</h1>
               </div>
               <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground pl-11">
-                <span>Max score: {data?.station.task.maxScore}</span>
-                <span>·</span>
-                <span>{data?.station.task.ratingScale === "SCALE_0_4" ? "0–4 scale" : "0–2 scale"}</span>
+                <span>Task selected per candidate</span>
                 <span>·</span>
                 <span className={cn(
                   "font-medium",
@@ -845,17 +865,49 @@ export default function ExaminerStationPage() {
           {/* Desktop Right Detail Scoring Panel */}
           <div className="md:col-span-3">
             {activeCandidate ? (
-              <ScoreEntryCard
-                key={activeCandidate.assignmentId}
-                candidate={activeCandidate}
-                stationId={stationId}
-                maxScore={data?.station.task.maxScore ?? 0}
-                examinerAssignmentId={examinerAssignment?.id ?? ""}
-                ratingScale={data?.station.task.ratingScale ?? ""}
-                steps={data?.station.task.steps ?? []}
-                onNextCandidate={hasNextCandidate ? handleNextCandidate : undefined}
-                onInsertRemark={(fn) => { insertRemarkRef.current = fn; }}
-              />
+              activeCandidate.selectedTask ? (
+                <div className="space-y-3">
+                  <div className="rounded-xl border bg-muted/20 px-4 py-3">
+                    <p className="text-xs font-semibold text-muted-foreground">Shared assessment task</p>
+                    <p className="font-bold">{activeCandidate.selectedTask.name} {activeCandidate.selectedTask.category && <Badge variant="outline" className="ml-2">{activeCandidate.selectedTask.category.name}</Badge>}</p>
+                  </div>
+                  <ScoreEntryCard
+                    key={`${activeCandidate.assignmentId}-${activeCandidate.selectedTask.id}`}
+                    candidate={activeCandidate}
+                    stationId={stationId}
+                    maxScore={activeCandidate.selectedTask.maxScore}
+                    examinerAssignmentId={examinerAssignment?.id ?? ""}
+                    ratingScale={activeCandidate.selectedTask.ratingScale}
+                    steps={activeCandidate.selectedTask.steps}
+                    onNextCandidate={hasNextCandidate ? handleNextCandidate : undefined}
+                    onInsertRemark={(fn) => { insertRemarkRef.current = fn; }}
+                  />
+                </div>
+              ) : (
+                <div className="rounded-xl border bg-card p-6 space-y-5">
+                  <div>
+                    <h2 className="text-lg font-bold">Select the candidate&apos;s task</h2>
+                    <p className="text-sm text-muted-foreground">This choice is shared with every examiner and locks once selected.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>1. Select task category</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {eligibleCategories.map((category) => <Button key={category.id} variant={activeCategoryId === category.id ? "default" : "outline"} onClick={() => setSelectedCategoryId(category.id)}>{category.name}</Button>)}
+                    </div>
+                  </div>
+                  {activeCategoryId && <div className="space-y-2">
+                    <Label>2. Select task</Label>
+                    <div className="grid gap-2">
+                      {eligibleTasks.filter((task) => task?.category?.id === activeCategoryId).map((task) => task && (
+                        <Button key={task.id} variant="outline" className="justify-start h-auto py-3" disabled={selectTaskMutation.isPending} onClick={() => selectTaskMutation.mutate(task.id)}>
+                          <span className="text-left"><span className="block font-semibold">{task.name}</span><span className="text-xs text-muted-foreground">{task.steps.length} steps · maximum {task.maxScore}</span></span>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>}
+                  {!eligibleTasks.length && <p className="text-sm text-amber-700">No active tasks are mapped to this candidate&apos;s programme and level.</p>}
+                </div>
+              )
             ) : (
               <div className="rounded-xl border border-dashed p-14 text-center">
                 <p className="text-muted-foreground">Select a candidate from the roster to begin grading.</p>
@@ -869,9 +921,9 @@ export default function ExaminerStationPage() {
       <ExaminerCopilot
         stationContext={{
           stationCode: data?.station.stationCode,
-          taskName: data?.station.task.name,
-          ratingScale: data?.station.task.ratingScale === "SCALE_0_4" ? "0-4" : "0-2",
-          maxScore: data?.station.task.maxScore,
+          taskName: activeCandidate?.selectedTask?.name,
+          ratingScale: activeCandidate?.selectedTask?.ratingScale === "SCALE_0_4" ? "0-4" : "0-2",
+          maxScore: activeCandidate?.selectedTask?.maxScore,
           candidateNumber: activeCandidate?.student?.staffId || activeCandidate?.candidateNumber,
         }}
         onInsertRemark={handleCopilotInsert}

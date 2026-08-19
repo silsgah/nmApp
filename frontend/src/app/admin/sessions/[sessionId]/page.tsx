@@ -45,19 +45,16 @@ const statusConfig = {
 
 function AddStationDialog({
   sessionId,
-  tasks,
   onClose,
 }: {
   sessionId: string;
-  tasks: { id: string; name: string; maxScore: number; category?: { name: string } }[];
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
-  const [taskId, setTaskId] = useState("");
   const [code, setCode] = useState("");
 
   const mutation = useMutation({
-    mutationFn: () => api.post("/stations", { sessionId, taskId, stationCode: code }),
+    mutationFn: () => api.post("/stations", { sessionId, stationCode: code }),
     onSuccess: () => {
       toast.success("Station added");
       queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
@@ -73,7 +70,7 @@ function AddStationDialog({
         <div className="px-6 pt-5 pb-4 border-b border-border/40 bg-muted/10 shrink-0">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-foreground">Add Examination Station</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">Assign a clinical task to a new station code for this session.</DialogDescription>
+            <DialogDescription className="text-xs text-muted-foreground">Create a station. The task is selected for each candidate during examination.</DialogDescription>
           </DialogHeader>
         </div>
 
@@ -83,17 +80,9 @@ function AddStationDialog({
             <Label className="text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">Station Code *</Label>
             <Input id="station-code-input" placeholder="e.g. S01, Station 1, A" value={code} onChange={(e) => setCode(e.target.value)} className="bg-muted/20 border-border/60 focus:bg-background" />
           </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs font-bold text-muted-foreground/80 uppercase tracking-wider">Clinical Task *</Label>
-            <SearchableSelect
-              value={taskId}
-              onValueChange={setTaskId}
-              options={tasks.map((t) => ({ label: `${t.name} (Max Score: ${t.maxScore})`, value: t.id }))}
-              placeholder="Select clinical task..."
-              searchPlaceholder="Search task by name..."
-              emptyMessage="No matching tasks found for this programme/year."
-            />
-          </div>
+          <p className="rounded-lg border bg-blue-50 p-3 text-xs text-blue-700 dark:bg-blue-950/30 dark:text-blue-300">
+            Examiners will first select one of the candidate&apos;s programme categories, then a task mapped to the candidate&apos;s programme and level.
+          </p>
         </div>
 
         {/* Pinned Footer */}
@@ -102,7 +91,7 @@ function AddStationDialog({
           <Button
             size="sm"
             className="gradient-primary border-0 text-white hover:opacity-90 cursor-pointer px-5 shadow-sm"
-            disabled={!taskId || !code || mutation.isPending}
+            disabled={!code.trim() || mutation.isPending}
             onClick={() => mutation.mutate()}
             id="submit-add-station-btn"
           >
@@ -134,14 +123,6 @@ export default function SessionDetailPage() {
     refetchInterval: 15_000,
   });
 
-  const { data: tasks } = useQuery({
-    queryKey: ["tasks-session-filter", session?.programmeId, session?.yearLevel],
-    queryFn: () => {
-      if (!session?.programmeId) return [];
-      return api.get(`/tasks?programmeId=${session.programmeId}&yearLevel=${session.yearLevel}`).then((r) => r.data?.data ?? r.data);
-    },
-    enabled: !!session?.programmeId,
-  });
 
   const transitionMutation = useMutation({
     mutationFn: (action: string) => api.post(`/sessions/${sessionId}/${action}`),
@@ -366,7 +347,7 @@ export default function SessionDetailPage() {
                 {session.stations.map((station: {
                   id: string;
                   stationCode: string;
-                  task: { name: string; maxScore: number; category?: { name: string } };
+                  task: { name: string; maxScore: number; category?: { name: string } } | null;
                   _count: { studentAssignments: number; examinerAssignments: number };
                 }) => (
                   <TableRow
@@ -381,11 +362,11 @@ export default function SessionDetailPage() {
                     </TableCell>
                     <TableCell className="px-6 py-3.5">
                       <span className="text-sm font-semibold text-foreground hover:text-primary transition-colors line-clamp-1">
-                        {station.task.name}
+                        {station.task?.name || "Selected during examination"}
                       </span>
                     </TableCell>
                     <TableCell className="px-6 py-3.5 text-xs text-muted-foreground whitespace-nowrap">
-                      {station.task.category?.name ?? "General"}
+                      {station.task?.category?.name ?? "Per candidate"}
                     </TableCell>
                     <TableCell className="px-6 py-3.5 whitespace-nowrap">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -394,7 +375,7 @@ export default function SessionDetailPage() {
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-3.5 text-sm font-bold text-foreground text-right whitespace-nowrap">
-                      {station.task.maxScore}
+                      {station.task?.maxScore ?? "—"}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -408,7 +389,6 @@ export default function SessionDetailPage() {
       {addStationOpen && (
         <AddStationDialog
           sessionId={sessionId}
-          tasks={tasks ?? []}
           onClose={() => setAddStationOpen(false)}
         />
       )}
@@ -561,7 +541,7 @@ function ManageStationDialog({
             <span>Manage Station Assignments</span>
           </DialogTitle>
           <DialogDescription>
-            {station.task.name} (Max Score: {station.task.maxScore})
+            {station.task ? `${station.task.name} (Max Score: ${station.task.maxScore})` : "Task selected per candidate during examination"}
           </DialogDescription>
         </DialogHeader>
 

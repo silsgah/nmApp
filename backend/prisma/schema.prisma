@@ -29,8 +29,8 @@ enum SessionStatus {
 }
 
 enum RatingScale {
-  SCALE_0_2   // Health Assessment tasks
-  SCALE_0_4   // RGN / RM component tasks
+  SCALE_0_2 // Health Assessment tasks
+  SCALE_0_4 // RGN / RM component tasks
 }
 
 enum ResultStatus {
@@ -43,29 +43,31 @@ enum ResultStatus {
 // ─────────────────────────────────────────────
 
 model User {
-  id            String   @id @default(cuid())
-  name          String
-  email         String   @unique
-  passwordHash  String
-  role          Role
-  staffId       String?  // For examiners (rank/ID)
+  id                String     @id @default(cuid())
+  name              String
+  email             String     @unique
+  passwordHash      String
+  role              Role
+  staffId           String? // For examiners (rank/ID)
   profilePictureUrl String?
-  programme     Programme? @relation(fields: [programmeId], references: [id])
-  programmeId   String?
-  yearLevel     Int?     @default(2) // Student academic year level (e.g. 2 or 3)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  isActive      Boolean  @default(true)
+  programme         Programme? @relation(fields: [programmeId], references: [id])
+  programmeId       String?
+  yearLevel         Int?       @default(2) // Student academic year level (e.g. 2 or 3)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  isActive          Boolean    @default(true)
 
   // Relations
-  examinerAssignments ExaminerAssignment[]
-  studentAssignments  StudentAssignment[]
-  scorecards          Scorecard[]
-  studentResults      StudentResult[]
-  carePlanScoresAsStudent  CarePlanScore[] @relation("CarePlanStudent")
-  carePlanScoresAsExaminer CarePlanScore[] @relation("CarePlanExaminer")
+  examinerAssignments            ExaminerAssignment[]
+  studentAssignments             StudentAssignment[]
+  scorecards                     Scorecard[]
+  studentResults                 StudentResult[]
+  carePlanScoresAsStudent        CarePlanScore[]       @relation("CarePlanStudent")
+  carePlanScoresAsExaminer       CarePlanScore[]       @relation("CarePlanExaminer")
   caseStudyEvaluationsAsStudent  CaseStudyEvaluation[] @relation("CaseStudyStudent")
   caseStudyEvaluationsAsExaminer CaseStudyEvaluation[] @relation("CaseStudyExaminer")
+  obstetricEvaluationsAsStudent  ObstetricEvaluation[] @relation("ObstetricStudent")
+  obstetricEvaluationsAsExaminer ObstetricEvaluation[] @relation("ObstetricExaminer")
 
   @@map("users")
 }
@@ -76,16 +78,17 @@ model User {
 
 model Programme {
   id          String   @id @default(cuid())
-  name        String   @unique  // e.g. "RGN", "RM"
-  fullName    String            // e.g. "Registered General Nurse"
+  name        String   @unique // e.g. "RGN", "RM"
+  fullName    String // e.g. "Registered General Nurse"
   description String?
   createdAt   DateTime @default(now())
 
-  users             User[]
-  taskProgrammes    TaskProgramme[]
-  examSessions      ExamSession[]
+  users                User[]
+  taskProgrammes       TaskProgramme[]
+  examSessions         ExamSession[]
   assessmentCategories AssessmentCategory[]
-  carePlanTypes     CarePlanType[]
+  carePlanTypes        CarePlanType[]
+  obstetricOptions     ObstetricOption[]
 
   @@map("programmes")
 }
@@ -95,19 +98,19 @@ model Programme {
 // ─────────────────────────────────────────────
 
 model AssessmentCategory {
-  id             String   @id @default(cuid())
-  name           String            // e.g. "Basic", "Major", "Minor", "Health Assessment"
+  id             String    @id @default(cuid())
+  name           String // e.g. "Basic", "Major", "Minor", "Health Assessment"
   description    String?
   programme      Programme @relation(fields: [programmeId], references: [id])
   programmeId    String
-  weight         Float    @default(1.0)  // Relative weight in final score (configurable)
-  scaledMaxMarks Float    @default(80.0) // Max marks this category scales to: Major=80, Minor=40
-  minPassScore   Float    @default(50.0) // Minimum % to pass this category (configurable)
-  sortOrder      Int      @default(0)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  weight         Float     @default(1.0) // Relative weight in final score (configurable)
+  scaledMaxMarks Float     @default(80.0) // Max marks this category scales to: Major=80, Minor=40
+  minPassScore   Float     @default(50.0) // Minimum % to pass this category (configurable)
+  sortOrder      Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  tasks        Task[]
+  tasks             Task[]
   stationCategories StationCategory[]
 
   @@unique([name, programmeId])
@@ -119,22 +122,23 @@ model AssessmentCategory {
 // ─────────────────────────────────────────────
 
 model Task {
-  id           String      @id @default(cuid())
-  name         String
-  description  String?
-  ratingScale  RatingScale @default(SCALE_0_4)
-  maxScore     Int         // Computed: steps × max_rating (e.g. 16 steps × 4 = 64)
-  category     AssessmentCategory? @relation(fields: [categoryId], references: [id])
-  categoryId   String?
-  isActive     Boolean     @default(true)
-  sortOrder    Int         @default(0)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id          String              @id @default(cuid())
+  name        String
+  description String?
+  ratingScale RatingScale         @default(SCALE_0_4)
+  maxScore    Int // Computed: steps × max_rating (e.g. 16 steps × 4 = 64)
+  category    AssessmentCategory? @relation(fields: [categoryId], references: [id])
+  categoryId  String?
+  isActive    Boolean             @default(true)
+  sortOrder   Int                 @default(0)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 
-  programmes TaskProgramme[]
-  yearLevels TaskYearLevel[]
-  steps      TaskStep[]
-  stations   Station[]
+  programmes             TaskProgramme[]
+  yearLevels             TaskYearLevel[]
+  steps                  TaskStep[]
+  stations               Station[]
+  selectedForAssignments StudentAssignment[] @relation("SelectedAssignmentTask")
 
   @@map("tasks")
 }
@@ -152,21 +156,21 @@ model TaskProgramme {
 
 // Junction: Task ↔ Year Level (which year levels a task applies to)
 model TaskYearLevel {
-  task       Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  taskId     String
-  yearLevel  Int    // e.g. 2 or 3
+  task      Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    String
+  yearLevel Int // e.g. 2 or 3
 
   @@id([taskId, yearLevel])
   @@map("task_year_levels")
 }
 
 model TaskStep {
-  id          String  @id @default(cuid())
-  task        Task    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  task        Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   taskId      String
   stepNumber  Int
   description String
-  isKeyStep   Boolean @default(false) // Optional: mark critical steps
+  isKeyStep   Boolean  @default(false) // Optional: mark critical steps
   createdAt   DateTime @default(now())
 
   @@unique([taskId, stepNumber])
@@ -178,41 +182,42 @@ model TaskStep {
 // ─────────────────────────────────────────────
 
 model ExamSession {
-  id            String        @id @default(cuid())
-  name          String        // e.g. "2024 Semester 2 RGN Practicals"
-  semester      String        // e.g. "Semester 2"
-  academicYear  String        // e.g. "2024/2025"
-  programme     Programme     @relation(fields: [programmeId], references: [id])
-  programmeId   String
-  yearLevel     Int?          // e.g. 2 or 3 — which student year level this exam targets
-  status        SessionStatus @default(DRAFT)
-  startDate     DateTime?
-  endDate       DateTime?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id           String        @id @default(cuid())
+  name         String // e.g. "2024 Semester 2 RGN Practicals"
+  semester     String // e.g. "Semester 2"
+  academicYear String // e.g. "2024/2025"
+  programme    Programme     @relation(fields: [programmeId], references: [id])
+  programmeId  String
+  yearLevel    Int? // e.g. 2 or 3 — which student year level this exam targets
+  status       SessionStatus @default(DRAFT)
+  startDate    DateTime?
+  endDate      DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
   // Configurable exam settings
-  config        ExamConfig?
+  config ExamConfig?
 
-  stations      Station[]
-  results       StudentResult[]
-  carePlanScores CarePlanScore[]
+  stations             Station[]
+  results              StudentResult[]
+  carePlanScores       CarePlanScore[]
   caseStudyEvaluations CaseStudyEvaluation[]
+  obstetricEvaluations ObstetricEvaluation[]
 
   @@map("exam_sessions")
 }
 
 model ExamConfig {
-  id               String      @id @default(cuid())
-  session          ExamSession @relation(fields: [sessionId], references: [id])
-  sessionId        String      @unique
-  examinerCount    Int         @default(3)          // Configurable: default 3
-  overallPassMark  Float       @default(50.0)       // Overall pass percentage
-  practicalMaxMarks Float      @default(80.0)       // Practical component max marks (out of 100 total; Care Plan is the rest)
-  scoreAggregation String      @default("AVERAGE")  // AVERAGE | SUM | HIGHEST
-  categoryWeights  Json?       // JSON: { categoryId: weight }
-  categoryPassMarks Json?      // JSON: { categoryId: minPass% }
-  updatedAt        DateTime    @updatedAt
+  id                String      @id @default(cuid())
+  session           ExamSession @relation(fields: [sessionId], references: [id])
+  sessionId         String      @unique
+  examinerCount     Int         @default(3) // Configurable: default 3
+  overallPassMark   Float       @default(50.0) // Overall pass percentage
+  practicalMaxMarks Float       @default(80.0) // Practical component max marks (out of 100 total; Care Plan is the rest)
+  scoreAggregation  String      @default("AVERAGE") // AVERAGE | SUM | HIGHEST
+  categoryWeights   Json? // JSON: { categoryId: weight }
+  categoryPassMarks Json? // JSON: { categoryId: minPass% }
+  updatedAt         DateTime    @updatedAt
 
   @@map("exam_configs")
 }
@@ -225,9 +230,11 @@ model Station {
   id          String      @id @default(cuid())
   session     ExamSession @relation(fields: [sessionId], references: [id])
   sessionId   String
-  task        Task        @relation(fields: [taskId], references: [id])
-  taskId      String
-  stationCode String      // e.g. "A1", "B3"
+  // Legacy/default task. New stations are task-neutral; the examiner selects
+  // the shared task on StudentAssignment when the candidate is assessed.
+  task        Task?       @relation(fields: [taskId], references: [id])
+  taskId      String?
+  stationCode String // e.g. "A1", "B3"
   notes       String?
   createdAt   DateTime    @default(now())
 
@@ -241,10 +248,10 @@ model Station {
 
 // Junction: Station → AssessmentCategory (which category this station belongs to for this session)
 model StationCategory {
-  station     Station            @relation(fields: [stationId], references: [id])
-  stationId   String
-  category    AssessmentCategory @relation(fields: [categoryId], references: [id])
-  categoryId  String
+  station    Station            @relation(fields: [stationId], references: [id])
+  stationId  String
+  category   AssessmentCategory @relation(fields: [categoryId], references: [id])
+  categoryId String
 
   @@id([stationId, categoryId])
   @@map("station_categories")
@@ -255,13 +262,17 @@ model StationCategory {
 // ─────────────────────────────────────────────
 
 model StudentAssignment {
-  id               String  @id @default(cuid())
-  student          User    @relation(fields: [studentId], references: [id])
+  id               String    @id @default(cuid())
+  student          User      @relation(fields: [studentId], references: [id])
   studentId        String
-  station          Station @relation(fields: [stationId], references: [id])
+  station          Station   @relation(fields: [stationId], references: [id])
   stationId        String
-  candidateNumber  String  // Official exam candidate number
-  createdAt        DateTime @default(now())
+  candidateNumber  String // Official exam candidate number
+  selectedTask     Task?     @relation("SelectedAssignmentTask", fields: [selectedTaskId], references: [id])
+  selectedTaskId   String?
+  taskSelectedById String?
+  taskSelectedAt   DateTime?
+  createdAt        DateTime  @default(now())
 
   scorecards Scorecard[]
 
@@ -269,13 +280,68 @@ model StudentAssignment {
   @@map("student_assignments")
 }
 
+// Configurable option bank for the independent Obstetric examination.
+// parentId supports dependent dropdowns; root options populate the first
+// dropdown and their children populate the second.
+model ObstetricOption {
+  id          String               @id @default(cuid())
+  name        String
+  programme   Programme            @relation(fields: [programmeId], references: [id])
+  programmeId String
+  parent      ObstetricOption?     @relation("ObstetricOptionTree", fields: [parentId], references: [id])
+  parentId    String?
+  children    ObstetricOption[]    @relation("ObstetricOptionTree")
+  maxMarks    Float                @default(15)
+  sortOrder   Int                  @default(0)
+  isActive    Boolean              @default(true)
+  selections  ObstetricSelection[]
+
+  @@unique([programmeId, parentId, name])
+  @@map("obstetric_options")
+}
+
+model ObstetricEvaluation {
+  id                     String               @id @default(cuid())
+  student                User                 @relation("ObstetricStudent", fields: [studentId], references: [id])
+  studentId              String
+  session                ExamSession          @relation(fields: [sessionId], references: [id])
+  sessionId              String
+  examiner               User                 @relation("ObstetricExaminer", fields: [examinerId], references: [id])
+  examinerId             String
+  anatomyMarks           Float                @default(0)
+  abnormalPregnancyMarks Float                @default(0)
+  totalScore             Float                @default(0)
+  maxScore               Float                @default(60)
+  isSubmitted            Boolean              @default(false)
+  submittedAt            DateTime?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  selections             ObstetricSelection[]
+
+  @@unique([studentId, sessionId, examinerId])
+  @@map("obstetric_evaluations")
+}
+
+model ObstetricSelection {
+  id           String              @id @default(cuid())
+  evaluation   ObstetricEvaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+  evaluationId String
+  slot         Int
+  option       ObstetricOption     @relation(fields: [optionId], references: [id])
+  optionId     String
+  marks        Float               @default(0)
+
+  @@unique([evaluationId, slot])
+  @@map("obstetric_selections")
+}
+
 model ExaminerAssignment {
-  id          String  @id @default(cuid())
-  examiner    User    @relation(fields: [examinerId], references: [id])
-  examinerId  String
-  station     Station @relation(fields: [stationId], references: [id])
-  stationId   String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  examiner   User     @relation(fields: [examinerId], references: [id])
+  examinerId String
+  station    Station  @relation(fields: [stationId], references: [id])
+  stationId  String
+  createdAt  DateTime @default(now())
 
   scorecards Scorecard[]
 
@@ -288,21 +354,21 @@ model ExaminerAssignment {
 // ─────────────────────────────────────────────
 
 model Scorecard {
-  id                   String            @id @default(cuid())
-  studentAssignment    StudentAssignment @relation(fields: [studentAssignmentId], references: [id])
+  id                   String             @id @default(cuid())
+  studentAssignment    StudentAssignment  @relation(fields: [studentAssignmentId], references: [id])
   studentAssignmentId  String
   examinerAssignment   ExaminerAssignment @relation(fields: [examinerAssignmentId], references: [id])
   examinerAssignmentId String
-  examiner             User              @relation(fields: [examinerId], references: [id])
+  examiner             User               @relation(fields: [examinerId], references: [id])
   examinerId           String
-  totalScore           Float             // Score entered by examiner for this task
-  maxPossibleScore     Float             // Max score for the task
-  percentageScore      Float             // totalScore / maxPossibleScore * 100
-  remarks              String?           // Optional examiner remarks
+  totalScore           Float // Score entered by examiner for this task
+  maxPossibleScore     Float // Max score for the task
+  percentageScore      Float // totalScore / maxPossibleScore * 100
+  remarks              String? // Optional examiner remarks
   submittedAt          DateTime?
-  isSubmitted          Boolean           @default(false)
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
+  isSubmitted          Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
 
   @@unique([studentAssignmentId, examinerAssignmentId])
   @@map("scorecards")
@@ -313,21 +379,21 @@ model Scorecard {
 // ─────────────────────────────────────────────
 
 model StudentResult {
-  id              String        @id @default(cuid())
-  student         User          @relation(fields: [studentId], references: [id])
-  studentId       String        @map("student_id")
-  session         ExamSession   @relation(fields: [sessionId], references: [id])
+  id              String       @id @default(cuid())
+  student         User         @relation(fields: [studentId], references: [id])
+  studentId       String       @map("student_id")
+  session         ExamSession  @relation(fields: [sessionId], references: [id])
   sessionId       String
-  categoryScores  Json          // { categoryId: { score, maxScore, percentage, passed } }
+  categoryScores  Json // { categoryId: { score, maxScore, percentage, passed } }
   overallScore    Float
   overallMaxScore Float
   overallPercent  Float
   passed          Boolean
-  grade           String?       // e.g. "A", "B+", "C", "FAIL"
-  status          ResultStatus  @default(PENDING)
+  grade           String? // e.g. "A", "B+", "C", "FAIL"
+  status          ResultStatus @default(PENDING)
   publishedAt     DateTime?
-  computedAt      DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  computedAt      DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   @@unique([studentId, sessionId])
   @@map("student_results")
@@ -338,34 +404,34 @@ model StudentResult {
 // ─────────────────────────────────────────────
 
 model CarePlanType {
-  id            String      @id @default(cuid())
-  name          String      // e.g. "Surgery", "Medicine", "Paediatrics"
-  programme     Programme   @relation(fields: [programmeId], references: [id])
-  programmeId   String
-  maxMarks      Float       @default(10.0)  // Max marks for this sub-type
-  sortOrder     Int         @default(0)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id          String    @id @default(cuid())
+  name        String // e.g. "Surgery", "Medicine", "Paediatrics"
+  programme   Programme @relation(fields: [programmeId], references: [id])
+  programmeId String
+  maxMarks    Float     @default(10.0) // Max marks for this sub-type
+  sortOrder   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  scores        CarePlanScore[]
+  scores CarePlanScore[]
 
   @@unique([name, programmeId])
   @@map("care_plan_types")
 }
 
 model CarePlanScore {
-  id              String       @id @default(cuid())
-  student         User         @relation("CarePlanStudent", fields: [studentId], references: [id])
-  studentId       String
-  session         ExamSession  @relation(fields: [sessionId], references: [id])
-  sessionId       String
-  carePlanType    CarePlanType @relation(fields: [carePlanTypeId], references: [id])
-  carePlanTypeId  String
-  examiner        User         @relation("CarePlanExaminer", fields: [examinerId], references: [id])
-  examinerId      String
-  marks           Float        @default(0)
-  submittedAt     DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id             String       @id @default(cuid())
+  student        User         @relation("CarePlanStudent", fields: [studentId], references: [id])
+  studentId      String
+  session        ExamSession  @relation(fields: [sessionId], references: [id])
+  sessionId      String
+  carePlanType   CarePlanType @relation(fields: [carePlanTypeId], references: [id])
+  carePlanTypeId String
+  examiner       User         @relation("CarePlanExaminer", fields: [examinerId], references: [id])
+  examinerId     String
+  marks          Float        @default(0)
+  submittedAt    DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@unique([studentId, sessionId, carePlanTypeId])
   @@map("care_plan_scores")
@@ -376,23 +442,23 @@ model CarePlanScore {
 // ─────────────────────────────────────────────
 
 model CaseStudyEvaluation {
-  id           String      @id @default(cuid())
-  student      User        @relation("CaseStudyStudent", fields: [studentId], references: [id])
-  studentId    String
-  session      ExamSession @relation(fields: [sessionId], references: [id])
-  sessionId    String
-  examiner     User        @relation("CaseStudyExaminer", fields: [examinerId], references: [id])
-  examinerId   String
-  type         String      @default("MIDWIFERY_CASE_STUDY") // e.g. MIDWIFERY_CASE_STUDY, OBSTETRIC_CASE_STUDY
-  totalScore   Float       @default(0) // Total out of max (e.g. 100)
-  maxScore     Float       @default(100)
-  percentage   Float       @default(0)
-  isSubmitted  Boolean     @default(false)
-  submittedAt  DateTime?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id          String      @id @default(cuid())
+  student     User        @relation("CaseStudyStudent", fields: [studentId], references: [id])
+  studentId   String
+  session     ExamSession @relation(fields: [sessionId], references: [id])
+  sessionId   String
+  examiner    User        @relation("CaseStudyExaminer", fields: [examinerId], references: [id])
+  examinerId  String
+  type        String      @default("MIDWIFERY_CASE_STUDY") // e.g. MIDWIFERY_CASE_STUDY, OBSTETRIC_CASE_STUDY
+  totalScore  Float       @default(0) // Total out of max (e.g. 100)
+  maxScore    Float       @default(100)
+  percentage  Float       @default(0)
+  isSubmitted Boolean     @default(false)
+  submittedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  itemScores   CaseStudyItemScore[]
+  itemScores CaseStudyItemScore[]
 
   @@unique([studentId, sessionId, type])
   @@map("case_study_evaluations")
@@ -402,9 +468,9 @@ model CaseStudyItemScore {
   id           String              @id @default(cuid())
   evaluation   CaseStudyEvaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
   evaluationId String
-  sectionKey   String              // e.g. DATA_GATHERING, UTILIZATION_OF_DATA, CARE_PLAN, MIDWIFERY_CONCEPTS, PRESENTATION_OF_PAPER, VIVA_VOCE
-  itemKey      String              // e.g. social, medical, surgical, present_ob, past_ob, etc.
-  itemName     String              // e.g. "Social (1)", "Identification of problems (2)"
+  sectionKey   String // e.g. DATA_GATHERING, UTILIZATION_OF_DATA, CARE_PLAN, MIDWIFERY_CONCEPTS, PRESENTATION_OF_PAPER, VIVA_VOCE
+  itemKey      String // e.g. social, medical, surgical, present_ob, past_ob, etc.
+  itemName     String // e.g. "Social (1)", "Identification of problems (2)"
   marks        Float               @default(0)
   maxMarks     Float
   comment      String?
@@ -413,4 +479,3 @@ model CaseStudyItemScore {
   @@unique([evaluationId, sectionKey, itemKey])
   @@map("case_study_item_scores")
 }
-

@@ -26,7 +26,6 @@ Thumbs.db
 /backend/dist/
 
 ## Prisma
-/backend/prisma/migrations/
 
 ## Documents (don't track large binary files)
 *.pdf

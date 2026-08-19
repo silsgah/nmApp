@@ -14,14 +14,15 @@ export default async function scorecardRoutes(fastify) {
     // Verify examiner is assigned to this station
     const examinerAssignment = await prisma.examinerAssignment.findUnique({
       where: { examinerId_stationId: { examinerId, stationId } },
-      include: { station: { include: { task: { include: { steps: { orderBy: { stepNumber: 'asc' } } } } } } },
+      include: { station: { include: { session: true } } },
     });
     if (!examinerAssignment) return reply.code(403).send({ error: 'Not assigned to this station' });
 
     const studentAssignments = await prisma.studentAssignment.findMany({
       where: { stationId },
       include: {
-        student: { select: { id: true, name: true, email: true, staffId: true } },
+        student: { select: { id: true, name: true, email: true, staffId: true, programmeId: true, yearLevel: true } },
+        selectedTask: { include: { steps: { orderBy: { stepNumber: 'asc' } }, category: true } },
         scorecards: {
           where: { examinerId },
           select: { id: true, totalScore: true, percentageScore: true, isSubmitted: true, remarks: true },
@@ -36,6 +37,7 @@ export default async function scorecardRoutes(fastify) {
         assignmentId: sa.id,
         candidateNumber: sa.candidateNumber,
         student: sa.student,
+        selectedTask: sa.selectedTask,
         scorecard: sa.scorecards[0] || null,
       })),
     };
@@ -109,6 +111,14 @@ export default async function scorecardRoutes(fastify) {
     });
     if (!examinerAssignment) return reply.code(403).send({ error: 'Unauthorized' });
 
+    const studentAssignment = await prisma.studentAssignment.findFirst({
+      where: { id: studentAssignmentId, stationId: examinerAssignment.stationId },
+      include: { selectedTask: true },
+    });
+    if (!studentAssignment) return reply.code(400).send({ error: 'Candidate is not assigned to this station' });
+    const scoringTask = studentAssignment.selectedTask || examinerAssignment.station.task;
+    if (!scoringTask) return reply.code(400).send({ error: 'Select a task for this candidate before scoring' });
+
     // Lock scoring if session is completed or archived
     const sessionStatus = examinerAssignment.station.session.status;
     if (['COMPLETED', 'ARCHIVED'].includes(sessionStatus)) {
@@ -123,7 +133,7 @@ export default async function scorecardRoutes(fastify) {
       return reply.code(400).send({ error: 'Scorecard is already submitted and cannot be modified.' });
     }
 
-    const maxPossibleScore = examinerAssignment.station.task.maxScore;
+    const maxPossibleScore = scoringTask.maxScore;
     const percentageScore = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
 
     const scorecard = await prisma.scorecard.upsert({
@@ -204,6 +214,7 @@ export default async function scorecardRoutes(fastify) {
     const studentAssignments = await prisma.studentAssignment.findMany({
       where,
       include: {
+        selectedTask: { select: { id: true, name: true, maxScore: true } },
         student: { select: { id: true, name: true, email: true, staffId: true } },
         station: {
           include: {
@@ -239,7 +250,7 @@ export default async function scorecardRoutes(fastify) {
         station: {
           id: sa.station.id,
           stationCode: sa.station.stationCode,
-          task: sa.station.task,
+          task: sa.selectedTask || sa.station.task,
         },
         assignedExaminers: sa.station.examinerAssignments.map(ea => ea.examiner),
         scorecard: submittedScorecard ? {

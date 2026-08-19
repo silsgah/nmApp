@@ -17,6 +17,7 @@ const navItems = [
   { href: "/examiner/search", label: "Find Student", icon: Search },
   { href: "/examiner/case-study", label: "Case Study Entry", icon: FileText },
   { href: "/examiner/care-plan", label: "Care Plan Entry", icon: Stethoscope },
+  { href: "/examiner/obstetric", label: "Obstetric Exam", icon: Stethoscope },
   { href: "/examiner/submitted", label: "Submitted", icon: CheckSquare },
   { href: "/examiner/settings", label: "Settings", icon: Settings },
 ];

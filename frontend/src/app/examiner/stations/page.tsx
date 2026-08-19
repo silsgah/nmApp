@@ -150,7 +150,7 @@ export default function ExaminerStationsPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-semibold text-foreground truncate">
-                      {assignment.station.task.name}
+                      Station {assignment.station.stationCode}
                     </p>
                     {assignment.station.session?.name && (
                       <span className="text-[10px] text-muted-foreground font-medium bg-muted border border-border px-1.5 py-0.5 rounded truncate max-w-[200px]">
@@ -161,15 +161,7 @@ export default function ExaminerStationsPage() {
                   <div className="flex items-center gap-3 mt-1.5 flex-wrap text-xs text-muted-foreground">
                     <span>{candidates} candidate{candidates !== 1 ? "s" : ""}</span>
                     <span>·</span>
-                    <span>Max: {assignment.station.task.maxScore}</span>
-                    <span className={cn(
-                      "px-1.5 py-0.5 rounded text-[10px] font-medium",
-                      assignment.station.task.ratingScale === "SCALE_0_4"
-                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
-                        : "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400"
-                    )}>
-                      {assignment.station.task.ratingScale === "SCALE_0_4" ? "0–4 scale" : "0–2 scale"}
-                    </span>
+                    <span>Task selected per candidate</span>
                   </div>
                 </div>
 

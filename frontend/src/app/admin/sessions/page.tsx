@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { PageLessonBanner } from "@/components/admin/page-lesson-banner";
 import { format } from "date-fns";
 
 interface ExamSession {
@@ -79,6 +80,8 @@ export default function SessionsPage() {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+      {/* Context-aware Page Lesson Banner */}
+      <PageLessonBanner />
       {/* Header */}
       <div className="page-header flex items-center justify-between">
         <div>

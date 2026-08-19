@@ -67,14 +67,15 @@ export default function StudentDashboard() {
                 <div className="divide-y divide-border">
                   {myAssignments.map((assignment: {
                     id: string; candidateNumber: string;
-                    station: { id: string; stationCode: string; task: { id: string; name: string } }
+                    selectedTask?: { id: string; name: string } | null;
+                    station: { id: string; stationCode: string; task: { id: string; name: string } | null }
                   }) => (
                     <div key={assignment.id} className="flex items-center gap-4 px-5 py-3 hover:bg-muted/10 transition-colors">
                       <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0 shadow-sm">
                         <span className="text-white text-xs font-bold">{assignment.station.stationCode}</span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs sm:text-sm font-semibold text-foreground truncate">{assignment.station.task.name}</p>
+                        <p className="text-xs sm:text-sm font-semibold text-foreground truncate">{assignment.selectedTask?.name || `Station ${assignment.station.stationCode}`}</p>
                         <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5">
                           Candidate Number: <span className="font-mono font-bold text-foreground bg-muted px-1.5 py-0.5 rounded">{assignment.candidateNumber || "—"}</span>
                         </p>

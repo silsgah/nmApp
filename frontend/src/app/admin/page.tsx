@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageLessonBanner } from "@/components/admin/page-lesson-banner";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -78,6 +79,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl mx-auto space-y-8">
+      {/* Context-aware Page Lesson Banner */}
+      <PageLessonBanner />
       {/* Header */}
       <div className="page-header">
         <div className="flex items-center justify-between">

@@ -7,9 +7,13 @@ export default async function stationRoutes(fastify) {
   fastify.post('/', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
     const { sessionId, taskId, stationCode, categoryId, notes } = request.body;
 
+    if (!sessionId || !stationCode?.trim()) {
+      return reply.code(400).send({ error: 'sessionId and stationCode are required' });
+    }
+
     const station = await prisma.station.create({
       data: {
-        sessionId, taskId, stationCode: stationCode.toUpperCase(), notes,
+        sessionId, taskId: taskId || null, stationCode: stationCode.trim().toUpperCase(), notes,
         ...(categoryId && {
           stationCategories: { create: { categoryId } },
         }),
@@ -31,7 +35,7 @@ export default async function stationRoutes(fastify) {
       const station = await prisma.station.create({
         data: {
           sessionId,
-          taskId: s.taskId,
+          taskId: s.taskId || null,
           stationCode: s.stationCode.toUpperCase(),
           notes: s.notes || null,
           ...(s.categoryId && {

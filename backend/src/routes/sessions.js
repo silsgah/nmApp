@@ -236,15 +236,19 @@ export default async function sessionRoutes(fastify) {
   fastify.get('/:id/stats', { onRequest: [fastify.requireRole('ADMIN', 'EXAMINER')] }, async (request, reply) => {
     const sessionId = request.params.id;
 
-    const [stationCount, studentCount, examinerCount, submittedCount, publishedResults] = await Promise.all([
-      prisma.station.count({ where: { sessionId } }),
+    const [stations, studentCount, examinerCount, submittedCount, publishedResults] = await Promise.all([
+      prisma.station.findMany({ where: { sessionId }, select: { _count: { select: { studentAssignments: true, examinerAssignments: true } } } }),
       prisma.studentAssignment.count({ where: { station: { sessionId } } }),
       prisma.examinerAssignment.count({ where: { station: { sessionId } } }),
       prisma.scorecard.count({ where: { studentAssignment: { station: { sessionId } }, isSubmitted: true } }),
       prisma.studentResult.count({ where: { sessionId, status: 'PUBLISHED' } }),
     ]);
 
-    const totalExpectedScorecards = studentCount; // 1 per student per examiner per station
+    const stationCount = stations.length;
+    const totalExpectedScorecards = stations.reduce(
+      (total, station) => total + (station._count.studentAssignments * station._count.examinerAssignments),
+      0,
+    );
 
     return {
       stationCount,

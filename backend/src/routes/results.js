@@ -48,7 +48,7 @@ export default async function resultRoutes(fastify) {
       include: {
         task: { select: { name: true } },
         examinerAssignments: { include: { examiner: { select: { name: true, email: true } } } },
-        studentAssignments: { include: { student: { select: { name: true } } } },
+        studentAssignments: { include: { student: { select: { name: true } }, selectedTask: { select: { name: true } } } },
       },
     });
 
@@ -56,6 +56,26 @@ export default async function resultRoutes(fastify) {
 
     for (const station of stations) {
       for (const sa of station.studentAssignments) {
+        if (!sa.selectedTask && !station.task) {
+          pendingExaminations.push({
+            studentName: sa.student.name,
+            stationCode: station.stationCode,
+            taskName: 'Task not selected',
+            examinerName: 'Unassigned',
+            examinerEmail: null,
+          });
+          continue;
+        }
+        if (station.examinerAssignments.length === 0) {
+          pendingExaminations.push({
+            studentName: sa.student.name,
+            stationCode: station.stationCode,
+            taskName: sa.selectedTask?.name || station.task?.name,
+            examinerName: 'No examiner assigned',
+            examinerEmail: null,
+          });
+          continue;
+        }
         // Load all submitted scorecards for this student assignment
         const scorecards = await prisma.scorecard.findMany({
           where: {
@@ -72,7 +92,7 @@ export default async function resultRoutes(fastify) {
             pendingExaminations.push({
               studentName: sa.student.name,
               stationCode: station.stationCode,
-              taskName: station.task.name,
+              taskName: sa.selectedTask?.name || station.task?.name || 'Task not selected',
               examinerName: ea.examiner.name,
               examinerEmail: ea.examiner.email,
             });
@@ -92,6 +112,7 @@ export default async function resultRoutes(fastify) {
     const studentAssignments = await prisma.studentAssignment.findMany({
       where: { station: { sessionId } },
       include: {
+        selectedTask: { include: { category: true } },
         station: {
           include: {
             task: true,
@@ -123,8 +144,12 @@ export default async function resultRoutes(fastify) {
       const categoryMap = {};
 
       for (const sa of assignments) {
-        const categories = sa.station.stationCategories.map(sc => sc.category);
-        const taskMax = sa.station.task.maxScore;
+        const categories = sa.selectedTask?.category
+          ? [sa.selectedTask.category]
+          : sa.station.stationCategories.map(sc => sc.category);
+        const assessmentTask = sa.selectedTask || sa.station.task;
+        if (!assessmentTask) continue;
+        const taskMax = assessmentTask.maxScore;
 
         // Aggregate examiner scores for this task
         let taskScore = 0;
@@ -458,6 +483,9 @@ export default async function resultRoutes(fastify) {
         station: { sessionId: result.sessionId },
       },
       include: {
+        selectedTask: {
+          include: { steps: { orderBy: { stepNumber: 'asc' } } },
+        },
         station: {
           include: {
             task: {
@@ -479,26 +507,23 @@ export default async function resultRoutes(fastify) {
 
     return {
       result,
-      components: studentAssignments.map((sa) => ({
-        stationCode: sa.station.stationCode,
-        candidateNumber: sa.candidateNumber,
-        task: {
-          name: sa.station.task.name,
-          description: sa.station.task.description,
-          ratingScale: sa.station.task.ratingScale,
-          maxScore: sa.station.task.maxScore,
-          steps: sa.station.task.steps,
-        },
-        scorecards: sa.scorecards.map((sc) => ({
-          examinerName: sc.examiner.name,
-          examinerStaffId: sc.examiner.staffId,
-          totalScore: sc.totalScore,
-          maxPossibleScore: sc.maxPossibleScore,
-          percentageScore: sc.percentageScore,
-          remarks: sc.remarks,
-          submittedAt: sc.submittedAt,
-        })),
-      })),
+      components: studentAssignments.map((sa) => {
+        const task = sa.selectedTask || sa.station.task;
+        return {
+          stationCode: sa.station.stationCode,
+          candidateNumber: sa.candidateNumber,
+          task: task ? { name: task.name, description: task.description, ratingScale: task.ratingScale, maxScore: task.maxScore, steps: task.steps } : null,
+          scorecards: sa.scorecards.map((sc) => ({
+            examinerName: sc.examiner.name,
+            examinerStaffId: sc.examiner.staffId,
+            totalScore: sc.totalScore,
+            maxPossibleScore: sc.maxPossibleScore,
+            percentageScore: sc.percentageScore,
+            remarks: sc.remarks,
+            submittedAt: sc.submittedAt,
+          })),
+        };
+      }),
     };
   });
 
