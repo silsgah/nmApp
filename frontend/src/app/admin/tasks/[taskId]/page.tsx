@@ -7,7 +7,7 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 import {
   ArrowLeft, BookOpen, CheckCircle2, Circle, Star,
-  Pencil, Save, X, Plus, Trash2, ToggleLeft, ToggleRight, Hash
+  Pencil, Save, X, Plus, Trash2, ToggleLeft, ToggleRight, Hash, GripVertical, Info
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,6 +63,7 @@ export default function TaskDetailPage() {
   const [editingSteps, setEditingSteps] = useState(false);
   const [localSteps, setLocalSteps] = useState<Omit<TaskStep, "id">[]>([]);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [draggedStepIndex, setDraggedStepIndex] = useState<number | null>(null);
 
   const { data: task, isLoading } = useQuery<Task>({
     queryKey: ["task", taskId],
@@ -122,6 +123,17 @@ export default function TaskDetailPage() {
 
   const updateStep = (index: number, field: keyof Omit<TaskStep, "id">, value: string | number | boolean) =>
     setLocalSteps((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
+
+  const moveStep = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return;
+    setLocalSteps((previous) => {
+      const reordered = [...previous];
+      const [moved] = reordered.splice(fromIndex, 1);
+      reordered.splice(toIndex, 0, moved);
+      return reordered.map((step, index) => ({ ...step, stepNumber: index + 1 }));
+    });
+    setDraggedStepIndex(toIndex);
+  };
 
   if (isLoading) {
     return (
@@ -259,6 +271,14 @@ export default function TaskDetailPage() {
       </Card>
 
       {/* Steps card */}
+      <div className="flex items-start gap-3 rounded-xl border border-blue-200 bg-blue-50 p-4 text-blue-950 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-100">
+        <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
+        <div className="space-y-1 text-xs leading-relaxed">
+          <p className="font-bold">Practical task policy</p>
+          <p>One Major task has full weight. Two different Minor tasks have half weight each. Examiner scores are averaged within each task before the two Minor results are combined. A student cannot repeat the same task in one examination session.</p>
+        </div>
+      </div>
+
       <Card className="shadow-sm">
         <CardHeader className="pb-3 flex flex-row items-start justify-between">
           <div>
@@ -266,7 +286,7 @@ export default function TaskDetailPage() {
               <CheckCircle2 className="w-4 h-4 text-primary" /> Assessment Steps
             </CardTitle>
             <CardDescription className="mt-1">
-              Steps examiners follow when assessing this task. ⭐ marks key steps.
+              Steps examiners follow when assessing this task. ⭐ marks key steps. While editing, drag the handle to change their order.
             </CardDescription>
           </div>
           {!editingSteps ? (
@@ -331,7 +351,20 @@ export default function TaskDetailPage() {
           ) : (
             <div className="space-y-2">
               {localSteps.map((step, i) => (
-                <div key={i} className="flex items-start gap-2">
+                <div
+                  key={i}
+                  draggable
+                  onDragStart={() => setDraggedStepIndex(i)}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    if (draggedStepIndex !== null) moveStep(draggedStepIndex, i);
+                  }}
+                  onDragEnd={() => setDraggedStepIndex(null)}
+                  className={cn("flex items-start gap-2 rounded-lg border border-transparent p-1 transition-colors", draggedStepIndex === i && "border-primary/30 bg-primary/5")}
+                >
+                  <button type="button" className="mt-2.5 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing" title="Drag to reorder" aria-label={`Drag step ${i + 1} to reorder`}>
+                    <GripVertical className="h-5 w-5" />
+                  </button>
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-muted flex items-center justify-center text-[11px] font-bold text-muted-foreground mt-2.5">
                     {i + 1}
                   </div>

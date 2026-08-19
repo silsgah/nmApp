@@ -929,6 +929,10 @@ export default function ExaminerStationPage() {
                     <h2 className="text-lg font-bold">Choose the examination</h2>
                     <p className="text-sm text-muted-foreground">Categories and tasks below are filtered automatically using this student&apos;s programme and level.</p>
                   </div>
+                  <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-xs leading-relaxed text-blue-950 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-100">
+                    <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                    <p><strong>Task policy:</strong> one Major task has full weight; two different Minor tasks have half weight each. Examiner scores are averaged per task, and the same task cannot be repeated by this student within the examination session.</p>
+                  </div>
                   <div className="space-y-2">
                     <Label>Step 2 — Select category</Label>
                     <Select
