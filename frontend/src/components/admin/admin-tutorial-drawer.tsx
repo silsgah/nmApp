@@ -50,7 +50,7 @@ export const TUTORIAL_TOPICS: TutorialTopic[] = [
     details: [
       "1. TASK (The Checklist Blueprint): A reusable clinical procedure stored in the Task Bank (e.g., 'Resuscitation of Newborn'). Defines step-by-step ratings and max scores.",
       "2. EXAM SESSION (The Exam Event Container): A scheduled exam for a cohort (e.g., '2026 RM Year 2 Practical Exam'). Defines overall pass marks and date ranges.",
-      "3. STATION (The Booth in a Session): Links 1 Task to 1 Exam Session at a physical booth (e.g., Station B1). Examiners and Students are assigned to Stations."
+      "3. STATION (The Booth in a Session): Belongs to an Exam Session and receives assigned examiners and students. The examiner selects the candidate's eligible task during assessment."
     ],
     proTip: "Tasks are created once in the Task Bank and can be reused in multiple Exam Sessions across different academic years.",
     relatedLinks: [
@@ -206,6 +206,12 @@ export function AdminTutorialDrawer() {
     }
   }, [pathname, currentTopic?.id]);
 
+  useEffect(() => {
+    const openGuide = () => setIsOpen(true);
+    window.addEventListener("open-admin-guide", openGuide);
+    return () => window.removeEventListener("open-admin-guide", openGuide);
+  }, []);
+
   const filteredTopics = TUTORIAL_TOPICS.filter((topic) => {
     const matchesSearch =
       topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -220,26 +226,6 @@ export function AdminTutorialDrawer() {
 
   return (
     <>
-      {/* Floating Bottom-Left Trigger Button */}
-      <div className="fixed bottom-6 left-6 z-40 flex items-center gap-2">
-        <Button
-          onClick={() => setIsOpen(true)}
-          className="shadow-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-full px-4 py-2.5 flex items-center gap-2 border-2 border-emerald-400/40 transition-all hover:scale-105 active:scale-95 group"
-        >
-          <div className="relative">
-            <BookOpen className="w-4 h-4 text-white group-hover:rotate-12 transition-transform" />
-            <span className="absolute -top-1 -right-1 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-200"></span>
-            </span>
-          </div>
-          <span className="text-xs sm:text-sm tracking-wide">Admin Guide & Lessons</span>
-          <Badge className="bg-emerald-800/80 text-emerald-100 text-[10px] px-1.5 py-0.5 rounded-full ml-1 border-0">
-            Guide
-          </Badge>
-        </Button>
-      </div>
-
       {/* Slide-over Drawer Backdrop */}
       {isOpen && (
         <div

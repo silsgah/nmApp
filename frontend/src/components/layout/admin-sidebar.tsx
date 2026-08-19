@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, BookOpen, ClipboardList,
   BarChart3, Settings, LogOut, Stethoscope, Calendar,
-  ChevronRight, ChevronDown, Bell, Menu, X, GraduationCap, Download, FileSpreadsheet, ShieldCheck, FileText
+  ChevronRight, ChevronDown, Bell, Menu, X, GraduationCap, Download, FileSpreadsheet, ShieldCheck, FileText, HelpCircle
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,10 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface SubNavItem {
   href: string;
@@ -64,6 +68,7 @@ export function AdminSidebar() {
   const router = useRouter();
   const { user, clearAuth } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
@@ -102,6 +107,7 @@ export function AdminSidebar() {
       await api.post("/auth/logout");
     } catch {}
     clearAuth();
+    setLogoutConfirmOpen(false);
     router.push("/login");
     toast.success("Logged out successfully");
   };
@@ -213,6 +219,18 @@ export function AdminSidebar() {
             </Link>
           );
         })}
+        <button
+          type="button"
+          onClick={() => {
+            window.dispatchEvent(new CustomEvent("open-admin-guide"));
+            setMobileOpen(false);
+          }}
+          className="sidebar-nav-item w-full text-left"
+          id="admin-nav-guide-lessons"
+        >
+          <HelpCircle className="w-4 h-4 flex-shrink-0" />
+          <span className="flex-1 truncate">Admin Guide & Lessons</span>
+        </button>
       </nav>
 
       {/* User Profile */}
@@ -239,7 +257,7 @@ export function AdminSidebar() {
             </Badge>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={() => setLogoutConfirmOpen(true)}
             className="text-sidebar-foreground/40 hover:text-sidebar-foreground transition-colors"
             title="Logout"
             id="admin-logout-btn"
@@ -284,6 +302,22 @@ export function AdminSidebar() {
           </aside>
         </>
       )}
+      <AlertDialog open={logoutConfirmOpen} onOpenChange={setLogoutConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm logout</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to log out of the admin portal?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Stay logged in</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLogout} className="bg-destructive text-white hover:bg-destructive/90">
+              <LogOut className="w-4 h-4 mr-2" /> Log out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
