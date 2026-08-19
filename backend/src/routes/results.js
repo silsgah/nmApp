@@ -2,6 +2,7 @@
  * Results Routes — Grading engine + results publication
  */
 import { generateResultPdf, generateSessionBroadsheetPdf } from '../lib/pdf.js';
+import { aggregateExaminerScores } from '../lib/scoring-policy.js';
 
 export default async function resultRoutes(fastify) {
   const { prisma } = fastify;
@@ -152,16 +153,7 @@ export default async function resultRoutes(fastify) {
         const taskMax = assessmentTask.maxScore;
 
         // Aggregate examiner scores for this task
-        let taskScore = 0;
-        if (sa.scorecards.length > 0) {
-          if (config.scoreAggregation === 'AVERAGE') {
-            taskScore = sa.scorecards.reduce((sum, s) => sum + s.totalScore, 0) / sa.scorecards.length;
-          } else if (config.scoreAggregation === 'SUM') {
-            taskScore = sa.scorecards.reduce((sum, s) => sum + s.totalScore, 0);
-          } else if (config.scoreAggregation === 'HIGHEST') {
-            taskScore = Math.max(...sa.scorecards.map(s => s.totalScore));
-          }
-        }
+        const taskScore = aggregateExaminerScores(sa.scorecards.map((scorecard) => scorecard.totalScore), config.scoreAggregation);
 
         // Map to each category this station belongs to
         for (const cat of categories) {

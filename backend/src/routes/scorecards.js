@@ -1,3 +1,5 @@
+import { assertScoreWithinBounds } from '../lib/scoring-policy.js';
+
 /**
  * Scorecard Routes — Examiner score entry per task/student
  */
@@ -134,9 +136,8 @@ export default async function scorecardRoutes(fastify) {
     }
 
     const maxPossibleScore = scoringTask.maxScore;
-    if (totalScore > maxPossibleScore) {
-      return reply.code(400).send({ error: `Total score cannot exceed ${maxPossibleScore}` });
-    }
+    try { assertScoreWithinBounds(totalScore, maxPossibleScore); }
+    catch { return reply.code(400).send({ error: `Total score must be between 0 and ${maxPossibleScore}` }); }
     const percentageScore = maxPossibleScore > 0 ? (totalScore / maxPossibleScore) * 100 : 0;
 
     const scorecard = await prisma.scorecard.upsert({
