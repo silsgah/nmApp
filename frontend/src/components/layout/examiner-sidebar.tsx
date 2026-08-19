@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ClipboardList, CheckSquare, LogOut, Stethoscope, ChevronRight, Menu, X, Settings, Search, FileText } from "lucide-react";
+import { LayoutDashboard, ClipboardList, CheckSquare, LogOut, Stethoscope, ChevronRight, ChevronLeft, Menu, X, Settings, Search, FileText } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { LogoutConfirmDialog } from "@/components/layout/logout-confirm-dialog";
+import { useCollapsibleSidebar } from "@/components/layout/use-collapsible-sidebar";
 
 const navItems = [
   { href: "/examiner", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -26,25 +27,26 @@ export function ExaminerSidebar() {
   const { user } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
+  const { collapsed, toggleCollapsed } = useCollapsibleSidebar();
 
   const initials = user?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) || "EX";
   const isActive = (href: string, exact?: boolean) => exact ? pathname === href : pathname.startsWith(href);
 
-  const SidebarContent = () => (
+  const SidebarContent = ({ compact = false }: { compact?: boolean }) => (
     <div className="flex flex-col h-full">
       <div className="p-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 flex items-center justify-center bg-white rounded-lg p-0.5 shadow-inner">
             <img src="/gaf-logo.png" alt="GAF Logo" className="w-8 h-8 object-contain" />
           </div>
-          <div>
+          {!compact && <div>
             <p className="font-bold text-sm text-sidebar-foreground" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>NM Portal</p>
             <p className="text-xs text-sidebar-foreground/50">Examiner Portal</p>
-          </div>
+          </div>}
         </div>
       </div>
       <nav className="flex-1 p-3 space-y-1">
-        <p className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider px-3 py-2">Examination</p>
+        {!compact && <p className="text-xs font-semibold text-sidebar-foreground/40 uppercase tracking-wider px-3 py-2">Examination</p>}
         {navItems.map(({ href, label, icon: Icon, exact }) => (
           <Link
             key={href}
@@ -54,8 +56,8 @@ export function ExaminerSidebar() {
             id={`examiner-nav-${label.toLowerCase().replace(/\s+/g, "-")}`}
           >
             <Icon className="w-4 h-4 flex-shrink-0" />
-            <span className="flex-1">{label}</span>
-            {isActive(href, exact) && <ChevronRight className="w-3 h-3 opacity-60" />}
+            {!compact && <span className="flex-1">{label}</span>}
+            {!compact && isActive(href, exact) && <ChevronRight className="w-3 h-3 opacity-60" />}
           </Link>
         ))}
       </nav>
@@ -70,7 +72,7 @@ export function ExaminerSidebar() {
               <AvatarFallback className="bg-sidebar-primary text-sidebar-primary-foreground text-xs font-bold">{initials}</AvatarFallback>
             )}
           </Avatar>
-          <div className="flex-1 min-w-0">
+          <div className={cn("flex-1 min-w-0", compact && "hidden")}>
             <p className="text-xs font-semibold text-sidebar-foreground truncate">{user?.name}</p>
             <p className="text-[10px] text-sidebar-foreground/50 truncate">{user?.staffId}</p>
           </div>
@@ -84,8 +86,11 @@ export function ExaminerSidebar() {
 
   return (
     <>
-      <aside className="hidden md:flex md:w-60 lg:w-64 bg-sidebar flex-col fixed left-0 top-0 h-screen z-30 shadow-xl">
-        <SidebarContent />
+      <aside className={cn("hidden md:flex bg-sidebar flex-col fixed left-0 top-0 h-screen z-30 shadow-xl transition-[width] duration-200", collapsed ? "w-[4.5rem]" : "w-64")}>
+        <button type="button" onClick={toggleCollapsed} className="absolute -right-3 top-16 z-40 grid h-7 w-7 place-items-center rounded-full border bg-background text-foreground shadow-md" title={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
+          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        </button>
+        <SidebarContent compact={collapsed} />
       </aside>
       <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-sidebar border-b border-sidebar-border px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">

@@ -4,7 +4,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
   return (
     <div className="min-h-screen bg-background">
       <StudentSidebar />
-      <main className="md:ml-60 lg:ml-64 min-h-screen flex flex-col justify-between">
+      <main className="portal-main min-h-screen flex flex-col justify-between">
         <div className="pt-14 md:pt-0 flex-1">{children}</div>
         {/* Creator Footer */}
         <footer className="w-full py-4 text-center border-t border-border/40 bg-muted/5 mt-auto">

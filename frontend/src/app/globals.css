@@ -85,6 +85,7 @@
   --sidebar-accent-foreground: oklch(0.95 0.01 255);
   --sidebar-border: oklch(0.15 0.04 250);
   --sidebar-ring: oklch(0.38 0.18 20);
+  --portal-sidebar-width: 16rem;
 
   /* Custom brand colors */
   --brand-primary: oklch(0.38 0.18 20);    /* Crimson */
@@ -92,6 +93,13 @@
   --brand-success: oklch(0.49 0.15 145);   /* Forest Green */
   --brand-warning: oklch(0.81 0.18 85);    /* Gold */
   --brand-danger: oklch(0.577 0.245 27);
+}
+
+@media (min-width: 768px) {
+  .portal-main {
+    margin-left: var(--portal-sidebar-width, 16rem);
+    transition: margin-left 200ms ease;
+  }
 }
 
 .dark {
