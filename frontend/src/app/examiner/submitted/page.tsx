@@ -30,12 +30,13 @@ interface SubmittedScorecard {
   percentageScore: number;
   remarks: string | null;
   submittedAt: string;
+  taskAttempt: { task: { id: string; name: string; maxScore: number } } | null;
   studentAssignment: {
     student: { id: string; name: string; staffId: string | null };
     station: {
       id: string;
       stationCode: string;
-      task: { id: string; name: string; maxScore: number };
+      task: { id: string; name: string; maxScore: number } | null;
       session: { id: string; name: string };
     };
   };
@@ -51,10 +52,11 @@ export default function SubmittedScorecardsPage() {
 
   const filteredScorecards = scorecards?.filter((s) => {
     const term = search.toLowerCase();
+    const taskName = s.taskAttempt?.task?.name ?? s.studentAssignment.station.task?.name ?? "Task unavailable";
     return (
       s.studentAssignment.student.name.toLowerCase().includes(term) ||
       (s.studentAssignment.student.staffId?.toLowerCase() || "").includes(term) ||
-      s.studentAssignment.station.task.name.toLowerCase().includes(term) ||
+      taskName.toLowerCase().includes(term) ||
       s.studentAssignment.station.session.name.toLowerCase().includes(term)
     );
   }) ?? [];
@@ -132,6 +134,7 @@ export default function SubmittedScorecardsPage() {
             ) : (
               filteredScorecards.map((scorecard) => {
                 const s = scorecard.studentAssignment;
+                const task = scorecard.taskAttempt?.task ?? s.station.task;
                 return (
                   <TableRow
                     key={scorecard.id}
@@ -161,7 +164,7 @@ export default function SubmittedScorecardsPage() {
                           {s.station.stationCode}
                         </span>
                         <span className="text-xs font-semibold text-foreground truncate max-w-[220px]">
-                          {s.station.task.name}
+                          {task?.name ?? "Task unavailable"}
                         </span>
                       </div>
                     </TableCell>

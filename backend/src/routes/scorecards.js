@@ -62,6 +62,7 @@ export default async function scorecardRoutes(fastify) {
     return prisma.scorecard.findMany({
       where: { examinerId, isSubmitted: true },
       include: {
+        taskAttempt: { include: { task: { select: { id: true, name: true, maxScore: true } } } },
         studentAssignment: {
           include: {
             student: { select: { id: true, name: true, staffId: true } },

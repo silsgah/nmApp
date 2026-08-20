@@ -145,6 +145,21 @@ export default async function assignmentRoutes(fastify) {
   fastify.post('/students', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
     const { studentId, stationId, candidateNumber } = request.body;
 
+    const [student, station] = await Promise.all([
+      prisma.user.findUnique({ where: { id: studentId }, select: { id: true, role: true, isActive: true, programmeId: true, yearLevel: true } }),
+      prisma.station.findUnique({ where: { id: stationId }, include: { session: true } }),
+    ]);
+    if (!student || student.role !== 'STUDENT' || !station) return reply.code(404).send({ error: 'Student or station not found' });
+    if (!student.isActive || student.programmeId !== station.session.programmeId || (station.session.yearLevel != null && student.yearLevel !== station.session.yearLevel)) {
+      return reply.code(400).send({ error: 'Student programme and year level must match the examination session' });
+    }
+    const eligibleTaskCount = await prisma.task.count({ where: {
+      isActive: true,
+      programmes: { some: { programmeId: student.programmeId } },
+      ...(student.yearLevel != null && { yearLevels: { some: { yearLevel: student.yearLevel } } }),
+    } });
+    if (eligibleTaskCount < 1) return reply.code(400).send({ error: 'No active tasks are mapped to this student programme and year level' });
+
     const existing = await prisma.studentAssignment.findUnique({
       where: { studentId_stationId: { studentId, stationId } },
     });
@@ -180,12 +195,16 @@ export default async function assignmentRoutes(fastify) {
   });
 
   fastify.delete('/students/:id', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
-    try {
-      await prisma.studentAssignment.delete({ where: { id: request.params.id } });
-      return { message: 'Assignment removed' };
-    } catch {
-      return reply.code(404).send({ error: 'Assignment not found' });
+    const assignment = await prisma.studentAssignment.findUnique({
+      where: { id: request.params.id },
+      include: { _count: { select: { taskAttempts: true, scorecards: true } } },
+    });
+    if (!assignment) return reply.code(404).send({ error: 'Assignment not found' });
+    if (assignment._count.taskAttempts > 0 || assignment._count.scorecards > 0) {
+      return reply.code(409).send({ error: 'This candidate has examination records. Use the audited reopen/archive workflow instead.' });
     }
+    await prisma.studentAssignment.delete({ where: { id: assignment.id } });
+    return { message: 'Assignment removed' };
   });
 
   // ── Examiner Assignments ────────────────────────────────────────────────

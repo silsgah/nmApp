@@ -1,4 +1,5 @@
 import { validateExaminationReset } from '../lib/examination-reset-policy.js';
+import { evaluateStudentEligibility, validateScheduleSelection } from '../lib/schedule-policy.js';
 
 /**
  * Exam Session Routes
@@ -195,7 +196,41 @@ export default async function sessionRoutes(fastify) {
     });
   });
 
-  // Auto-assign students and examiners
+  async function getScheduleOptions(session) {
+    const taskWhere = {
+      isActive: true,
+      programmes: { some: { programmeId: session.programmeId } },
+      ...(session.yearLevel != null && { yearLevels: { some: { yearLevel: session.yearLevel } } }),
+    };
+    const [students, examiners, eligibleTaskCount] = await Promise.all([
+      prisma.user.findMany({
+        where: { role: 'STUDENT', programmeId: session.programmeId },
+        select: { id: true, name: true, staffId: true, programmeId: true, yearLevel: true, isActive: true },
+        orderBy: [{ staffId: 'asc' }, { name: 'asc' }],
+      }),
+      prisma.user.findMany({
+        where: { role: 'EXAMINER', programmeId: session.programmeId, isActive: true },
+        select: { id: true, name: true, staffId: true },
+        orderBy: { name: 'asc' },
+      }),
+      prisma.task.count({ where: taskWhere }),
+    ]);
+    const assessed = students.map((student) => ({ ...student, ...evaluateStudentEligibility(student, session, eligibleTaskCount) }));
+    return {
+      students: assessed.filter((student) => student.eligible),
+      excludedStudents: assessed.filter((student) => !student.eligible),
+      examiners,
+      eligibleTaskCount,
+    };
+  }
+
+  fastify.get('/:id/schedule-options', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
+    const session = await prisma.examSession.findUnique({ where: { id: request.params.id }, include: { stations: true, config: true } });
+    if (!session) return reply.code(404).send({ error: 'Session not found' });
+    return { ...(await getScheduleOptions(session)), stationCount: session.stations.length, examinerCount: session.config?.examinerCount ?? 3 };
+  });
+
+  // Assign only the candidates and examiners explicitly approved by the administrator.
   fastify.post('/:id/auto-assign', { onRequest: [fastify.requireRole('ADMIN')] }, async (request, reply) => {
     const session = await prisma.examSession.findUnique({
       where: { id: request.params.id },
@@ -210,28 +245,21 @@ export default async function sessionRoutes(fastify) {
       return reply.code(400).send({ error: 'Cannot generate schedule for a session with no stations. Please add at least one station first.' });
     }
 
-    // Filter students by matching programmeId AND yearLevel (if session has target yearLevel)
-    const studentWhere = {
-      role: 'STUDENT',
-      programmeId: session.programmeId,
-      isActive: true,
-      ...(session.yearLevel && {
-        OR: [
-          { yearLevel: session.yearLevel },
-          { yearLevel: null },
-        ],
-      }),
-    };
-
-    const [students, examiners] = await Promise.all([
-      prisma.user.findMany({
-        where: studentWhere,
-        orderBy: { staffId: 'asc' },
-      }),
-      prisma.user.findMany({
-        where: { role: 'EXAMINER', programmeId: session.programmeId, isActive: true },
-      }),
-    ]);
+    const options = await getScheduleOptions(session);
+    const studentIds = request.body?.studentIds;
+    const examinerIds = request.body?.examinerIds;
+    try {
+      validateScheduleSelection({
+        eligibleStudentIds: options.students.map((student) => student.id),
+        eligibleExaminerIds: options.examiners.map((examiner) => examiner.id),
+        studentIds,
+        examinerIds,
+      });
+    } catch (error) {
+      return reply.code(400).send({ error: error.message });
+    }
+    const students = options.students.filter((student) => studentIds.includes(student.id));
+    const examiners = options.examiners.filter((examiner) => examinerIds.includes(examiner.id));
 
     const stationIds = session.stations.map(s => s.id);
 
@@ -268,7 +296,13 @@ export default async function sessionRoutes(fastify) {
       }
     }
 
-    return { message: 'Schedule generated successfully', studentsCount: students.length, stationsCount: session.stations.length };
+    return {
+      message: 'Selected candidates and examiners scheduled successfully',
+      studentsCount: students.length,
+      examinersCount: Math.min(examinerCount, examiners.length),
+      stationsCount: session.stations.length,
+      excludedStudents: options.excludedStudents,
+    };
   });
 
   // Destructive but controlled: clear examination work while preserving the
