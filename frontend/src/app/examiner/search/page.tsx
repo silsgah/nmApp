@@ -19,7 +19,7 @@ interface StationAssignment {
   station: {
     id: string;
     stationCode: string;
-    task: { id: string; name: string; maxScore: number; ratingScale: string };
+    task?: { id: string; name: string; maxScore: number; ratingScale: string } | null;
     _count: { studentAssignments: number };
     session?: { id: string; name: string; status: string };
   };
@@ -30,6 +30,8 @@ interface StationCandidate {
   assignmentId: string;
   candidateNumber: string;
   student: { id: string; name: string; email: string; staffId: string | null };
+  selectedTask?: { id: string; name: string; maxScore: number } | null;
+  taskAttempts?: Array<{ task: { id: string; name: string; maxScore: number } }>;
   scorecard: {
     id: string; totalScore: number; percentageScore: number; isSubmitted: boolean; remarks: string;
   } | null;
@@ -39,7 +41,7 @@ interface StationData {
   station: {
     id: string;
     stationCode: string;
-    task: { id: string; name: string; maxScore: number; ratingScale: string };
+    task?: { id: string; name: string; maxScore: number; ratingScale: string } | null;
   };
   candidates: StationCandidate[];
 }
@@ -91,19 +93,22 @@ export default function FindStudentPage() {
     if (!allStationData || !assignments) return [];
     return allStationData.flatMap((sd, idx) => {
       const assignment = assignments[idx];
-      return sd.candidates.map((c) => ({
-        studentId: c.student.id,
-        studentName: c.student.name,
-        indexNumber: c.student.staffId,
-        stationId: sd.station.id,
-        stationCode: sd.station.stationCode,
-        taskName: sd.station.task.name,
-        maxScore: sd.station.task.maxScore,
-        assignmentId: c.assignmentId,
-        candidateNumber: c.candidateNumber,
-        scorecard: c.scorecard,
-        sessionName: assignment?.station?.session?.name ?? "",
-      }));
+      return sd.candidates.map((c) => {
+        const candidateTask = c.taskAttempts?.[0]?.task ?? c.selectedTask ?? sd.station.task;
+        return {
+          studentId: c.student.id,
+          studentName: c.student.name,
+          indexNumber: c.student.staffId,
+          stationId: sd.station.id,
+          stationCode: sd.station.stationCode,
+          taskName: candidateTask?.name ?? "Task selected per candidate",
+          maxScore: candidateTask?.maxScore ?? 0,
+          assignmentId: c.assignmentId,
+          candidateNumber: c.candidateNumber,
+          scorecard: c.scorecard,
+          sessionName: assignment?.station?.session?.name ?? "",
+        };
+      });
     });
   }, [allStationData, assignments]);
 

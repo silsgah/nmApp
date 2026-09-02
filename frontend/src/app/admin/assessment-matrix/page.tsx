@@ -54,11 +54,11 @@ interface AssessmentMatrixRecord {
   station: {
     id: string;
     stationCode: string;
-    task: {
+    task?: {
       id: string;
       name: string;
       maxScore: number;
-    };
+    } | null;
   };
   assignedExaminers: Array<{
     id: string;
@@ -140,7 +140,7 @@ export default function AssessmentMatrixPage() {
     const query = search.toLowerCase();
     const studentName = r.student.name.toLowerCase();
     const studentIndex = (r.student.staffId || "").toLowerCase();
-    const taskName = r.station.task.name.toLowerCase();
+    const taskName = (r.station.task?.name || "").toLowerCase();
     const stationCode = r.station.stationCode.toLowerCase();
     const examinerNames = r.assignedExaminers.map((e) => e.name.toLowerCase()).join(" ");
 
@@ -184,11 +184,11 @@ export default function AssessmentMatrixPage() {
       `"${r.session.programme.name}"`,
       `"${r.session.name}"`,
       `"${r.station.stationCode}"`,
-      `"${r.station.task.name.replace(/"/g, '""')}"`,
+      `"${(r.station.task?.name || "Dynamic task").replace(/"/g, '""')}"`,
       `"${r.assignedExaminers.map((e) => e.name).join("; ")}"`,
       `"${r.scorecard?.isSubmitted ? "Finished / Assessed" : "Pending"}"`,
       r.scorecard?.isSubmitted ? r.scorecard.totalScore : "",
-      r.station.task.maxScore,
+      r.station.task?.maxScore ?? "—",
       r.scorecard?.isSubmitted ? Math.round(r.scorecard.percentageScore) : "",
       `"${r.scorecard?.examinerName || ""}"`,
       r.scorecard?.submittedAt ? new Date(r.scorecard.submittedAt).toLocaleDateString("en-GB") : ""
@@ -449,7 +449,7 @@ export default function AssessmentMatrixPage() {
                           {r.station.stationCode}
                         </span>
                         <span className="text-xs font-semibold text-foreground truncate max-w-[240px]">
-                          {r.station.task.name}
+                          {r.station.task?.name || "Selected during examination"}
                         </span>
                       </div>
                     </TableCell>
@@ -487,7 +487,7 @@ export default function AssessmentMatrixPage() {
                       {isSubmitted && r.scorecard ? (
                         <div className="flex flex-col items-end">
                           <span className="text-xs font-bold text-foreground">
-                            {r.scorecard.totalScore} / {r.station.task.maxScore}
+                            {r.scorecard.totalScore} / {r.station.task?.maxScore ?? "—"}
                           </span>
                           <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
                             ({Math.round(r.scorecard.percentageScore)}%)
@@ -535,12 +535,12 @@ export default function AssessmentMatrixPage() {
                 <RotateCcw className="w-5 h-5" /> Reset Candidate Assessment?
               </DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground mt-1">
-                This will unsubmit the scorecard for <strong>{resetTarget.student.name}</strong> (Index: {resetTarget.student.staffId || "N/A"}) at Station <strong>{resetTarget.station.stationCode} ({resetTarget.station.task.name})</strong> and revert their status back to <strong>Pending Assessment</strong> so an examiner can re-assess them.
+                This will unsubmit the scorecard for <strong>{resetTarget.student.name}</strong> (Index: {resetTarget.student.staffId || "N/A"}) at Station <strong>{resetTarget.station.stationCode}{resetTarget.station.task?.name ? ` (${resetTarget.station.task.name})` : ""}</strong> and revert their status back to <strong>Pending Assessment</strong> so an examiner can re-assess them.
               </DialogDescription>
             </DialogHeader>
 
             <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-xs text-amber-800 dark:text-amber-300">
-              <p className="font-semibold">Current Marks: {resetTarget.scorecard?.totalScore} / {resetTarget.station.task.maxScore} ({Math.round(resetTarget.scorecard?.percentageScore ?? 0)}%)</p>
+              <p className="font-semibold">Current Marks: {resetTarget.scorecard?.totalScore} / {resetTarget.station.task?.maxScore ?? "—"} ({Math.round(resetTarget.scorecard?.percentageScore ?? 0)}%)</p>
               <p className="mt-0.5 text-[11px] opacity-80">Assessed by: {resetTarget.scorecard?.examinerName || "Examiner"}</p>
             </div>
             <Input value={reopenReason} onChange={(event) => setReopenReason(event.target.value)} placeholder="Reason for reopening (minimum 10 characters)" />

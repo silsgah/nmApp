@@ -18,7 +18,7 @@ interface StationAssignment {
   id: string;
   station: {
     id: string; stationCode: string;
-    task: { id: string; name: string; maxScore: number; ratingScale: string };
+    task?: { id: string; name: string; maxScore: number; ratingScale: string } | null;
     _count: { studentAssignments: number };
     session?: { id: string; name: string; status: string };
   };
@@ -138,7 +138,7 @@ export default function ExaminerDashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">
-                      {assignment.station.task.name}
+                      {assignment.station.task?.name || `Station ${assignment.station.stationCode}`}
                     </p>
                     <div className="flex items-center gap-3 mt-1 flex-wrap">
                       <span className="text-xs text-muted-foreground">
@@ -146,16 +146,18 @@ export default function ExaminerDashboard() {
                       </span>
                       <span className="text-muted-foreground/40 text-xs">·</span>
                       <span className="text-xs text-muted-foreground">
-                        Max score: {assignment.station.task.maxScore}
+                        {assignment.station.task ? `Max score: ${assignment.station.task.maxScore}` : "Task selected per candidate"}
                       </span>
-                      <span className={cn(
-                        "text-[10px] font-medium px-2 py-0.5 rounded-full",
-                        assignment.station.task.ratingScale === "SCALE_0_4"
-                          ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
-                          : "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400"
-                      )}>
-                        {assignment.station.task.ratingScale === "SCALE_0_4" ? "0–4 Scale" : "0–2 Scale"}
-                      </span>
+                      {assignment.station.task?.ratingScale && (
+                        <span className={cn(
+                          "text-[10px] font-medium px-2 py-0.5 rounded-full",
+                          assignment.station.task.ratingScale === "SCALE_0_4"
+                            ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400"
+                            : "bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400"
+                        )}>
+                          {assignment.station.task.ratingScale === "SCALE_0_4" ? "0–4 Scale" : "0–2 Scale"}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
