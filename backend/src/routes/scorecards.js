@@ -16,7 +16,18 @@ export default async function scorecardRoutes(fastify) {
     // Verify examiner is assigned to this station
     const examinerAssignment = await prisma.examinerAssignment.findUnique({
       where: { examinerId_stationId: { examinerId, stationId } },
-      include: { station: { include: { session: true } } },
+      include: {
+        station: {
+          include: {
+            session: true,
+            examinerAssignments: {
+              include: {
+                examiner: { select: { id: true, name: true, staffId: true } },
+              },
+            },
+          },
+        },
+      },
     });
     if (!examinerAssignment) return reply.code(403).send({ error: 'Not assigned to this station' });
 
@@ -29,28 +40,158 @@ export default async function scorecardRoutes(fastify) {
           where: { status: { in: ['ACTIVE', 'REOPENED'] } },
           include: {
             task: { include: { steps: { orderBy: { stepNumber: 'asc' } }, category: true } },
-            scorecards: { where: { examinerId }, select: { id: true, totalScore: true, percentageScore: true, isSubmitted: true, remarks: true } },
+            scorecards: {
+              include: {
+                examiner: { select: { id: true, name: true, staffId: true } },
+              },
+              orderBy: { submittedAt: 'asc' },
+            },
           },
           orderBy: { sequence: 'asc' },
         },
         scorecards: {
-          where: { examinerId },
-          select: { id: true, totalScore: true, percentageScore: true, isSubmitted: true, remarks: true },
+          include: {
+            examiner: { select: { id: true, name: true, staffId: true } },
+          },
+          orderBy: { submittedAt: 'asc' },
         },
       },
       orderBy: { candidateNumber: 'asc' },
     });
 
+    const assignedExaminers = examinerAssignment.station.examinerAssignments.map(ea => ea.examiner);
+
     return {
       station: examinerAssignment.station,
-      candidates: studentAssignments.map(sa => ({
-        assignmentId: sa.id,
-        candidateNumber: sa.candidateNumber,
-        student: sa.student,
-        selectedTask: sa.selectedTask,
-        taskAttempts: sa.taskAttempts,
-        scorecard: sa.scorecards[0] || null,
-      })),
+      stationExaminers: assignedExaminers,
+      candidates: studentAssignments.map(sa => {
+        const myScorecard = sa.scorecards.find(s => s.examinerId === examinerId) || null;
+        const isMyScorecardSubmitted = Boolean(myScorecard?.isSubmitted);
+
+        // Active task attempt
+        const activeAttempt = sa.taskAttempts[sa.taskAttempts.length - 1] || null;
+        const activeScorecards = activeAttempt?.scorecards || sa.scorecards;
+
+        // Build reconciliation array for all assigned examiners on this station
+        const reconciliation = assignedExaminers.map(ex => {
+          const sc = activeScorecards.find(s => s.examinerId === ex.id);
+          const isSelf = ex.id === examinerId;
+          const isSubmitted = Boolean(sc?.isSubmitted);
+
+          if (!sc) {
+            return {
+              examinerId: ex.id,
+              examinerName: ex.name,
+              staffId: ex.staffId,
+              isSelf,
+              status: 'NOT_STARTED',
+              isSubmitted: false,
+              totalScore: null,
+              percentageScore: null,
+              remarks: null,
+              submittedAt: null,
+              isMasked: false,
+            };
+          }
+
+          // If self or if current examiner has submitted, reveal score details
+          if (isSelf || isMyScorecardSubmitted) {
+            return {
+              id: sc.id,
+              examinerId: ex.id,
+              examinerName: ex.name,
+              staffId: ex.staffId,
+              isSelf,
+              status: isSubmitted ? 'SUBMITTED' : 'DRAFT',
+              isSubmitted,
+              totalScore: sc.totalScore,
+              percentageScore: sc.percentageScore,
+              remarks: sc.remarks,
+              submittedAt: sc.submittedAt,
+              isMasked: false,
+            };
+          }
+
+          // Blind marking: mask co-examiner scores until current examiner submits
+          return {
+            id: sc.id,
+            examinerId: ex.id,
+            examinerName: ex.name,
+            staffId: ex.staffId,
+            isSelf: false,
+            status: isSubmitted ? 'SUBMITTED' : 'DRAFT',
+            isSubmitted,
+            totalScore: null,
+            percentageScore: null,
+            remarks: null,
+            submittedAt: sc.submittedAt,
+            isMasked: true,
+          };
+        });
+
+        // Compute summary metrics if current examiner has submitted
+        let reconciliationSummary = {
+          totalAssigned: assignedExaminers.length,
+          totalSubmitted: reconciliation.filter(r => r.isSubmitted).length,
+          isBlindMasked: !isMyScorecardSubmitted,
+          meanScore: null,
+          meanPercentage: null,
+          minPercentage: null,
+          maxPercentage: null,
+          scoreSpread: null,
+          percentageSpread: null,
+          varianceLevel: 'PENDING',
+          hasHighVariance: false,
+        };
+
+        if (isMyScorecardSubmitted) {
+          const submittedWithScores = reconciliation.filter(r => r.isSubmitted && r.totalScore !== null);
+          if (submittedWithScores.length >= 2) {
+            const sumScore = submittedWithScores.reduce((acc, curr) => acc + curr.totalScore, 0);
+            const sumPct = submittedWithScores.reduce((acc, curr) => acc + curr.percentageScore, 0);
+            const meanScore = Number((sumScore / submittedWithScores.length).toFixed(2));
+            const meanPercentage = Number((sumPct / submittedWithScores.length).toFixed(1));
+
+            const percentages = submittedWithScores.map(r => r.percentageScore);
+            const minPercentage = Math.min(...percentages);
+            const maxPercentage = Math.max(...percentages);
+            const percentageSpread = Number((maxPercentage - minPercentage).toFixed(1));
+
+            const scores = submittedWithScores.map(r => r.totalScore);
+            const scoreSpread = Number((Math.max(...scores) - Math.min(...scores)).toFixed(2));
+
+            const varianceLevel = percentageSpread <= 10 ? 'LOW' : (percentageSpread <= 15 ? 'MODERATE' : 'HIGH');
+
+            reconciliationSummary = {
+              ...reconciliationSummary,
+              meanScore,
+              meanPercentage,
+              minPercentage,
+              maxPercentage,
+              scoreSpread,
+              percentageSpread,
+              varianceLevel,
+              hasHighVariance: percentageSpread > 15,
+            };
+          }
+        }
+
+        const safeTaskAttempts = sa.taskAttempts.map(ta => ({
+          ...ta,
+          scorecards: ta.scorecards.filter(s => s.examinerId === examinerId),
+        }));
+
+        return {
+          assignmentId: sa.id,
+          candidateNumber: sa.candidateNumber,
+          student: sa.student,
+          selectedTask: sa.selectedTask,
+          taskAttempts: safeTaskAttempts,
+          scorecard: myScorecard,
+          reconciliation,
+          reconciliationSummary,
+        };
+      }),
     };
   });
 

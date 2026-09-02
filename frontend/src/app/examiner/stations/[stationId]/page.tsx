@@ -29,6 +29,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ExaminerCopilot } from "@/components/examiner/examiner-copilot";
+import {
+  StationReconciliationPanel,
+  ExaminerReconciliationItem,
+  ReconciliationSummary,
+} from "@/components/examiner/station-reconciliation-panel";
 
 interface Candidate {
   assignmentId: string;
@@ -39,6 +44,8 @@ interface Candidate {
     id: string; totalScore: number; percentageScore: number; isSubmitted: boolean; remarks: string;
   } | null;
   taskAttempts: TaskAttempt[];
+  reconciliation?: ExaminerReconciliationItem[];
+  reconciliationSummary?: ReconciliationSummary;
 }
 
 interface TaskAttempt {
@@ -937,6 +944,20 @@ export default function ExaminerStationPage() {
                         onNextCandidate={hasNextCandidate ? handleNextCandidate : undefined}
                         onInsertRemark={(fn) => { insertRemarkRef.current = fn; }}
                       />
+
+                      {/* Multi-Examiner Score Reconciliation & Peer Consensus Panel */}
+                      {activeCandidate.reconciliation && activeCandidate.reconciliation.length > 0 && (
+                        <StationReconciliationPanel
+                          candidateName={activeCandidate.student.name}
+                          candidateNumber={activeCandidate.candidateNumber}
+                          taskName={attempt.task.name}
+                          maxScore={attempt.task.maxScore}
+                          ratingScale={attempt.task.ratingScale}
+                          steps={attempt.task.steps}
+                          reconciliation={activeCandidate.reconciliation}
+                          summary={activeCandidate.reconciliationSummary}
+                        />
+                      )}
                     </div>;
                   })}
                   {(activeCandidate.taskAttempts.length === 0 || activeCandidate.taskAttempts.every((attempt) => attempt.scorecards[0]?.isSubmitted)) && (
