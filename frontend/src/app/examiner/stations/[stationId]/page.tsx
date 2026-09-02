@@ -8,7 +8,7 @@ import { useAuthStore } from "@/store/auth";
 import { toast } from "sonner";
 import {
   ArrowLeft, User, CheckCircle2, AlertCircle, Send,
-  ChevronDown, ChevronUp, Info, Clock, Search, X, Scale
+  ChevronDown, ChevronUp, Info, Clock, Search, X, Scale, RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -960,8 +960,8 @@ export default function ExaminerStationPage() {
                       />
 
                       {/* Multi-Examiner Score Reconciliation & Peer Consensus Panel */}
-                      {activeCandidate.reconciliation && activeCandidate.reconciliation.length > 0 && (
-                        <div id="station-reconciliation-section" className="pt-2">
+                      <div id="station-reconciliation-section" className="pt-2">
+                        {activeCandidate.reconciliation && activeCandidate.reconciliation.length > 0 ? (
                           <StationReconciliationPanel
                             candidateName={activeCandidate.student.name}
                             candidateNumber={activeCandidate.candidateNumber}
@@ -972,8 +972,24 @@ export default function ExaminerStationPage() {
                             reconciliation={activeCandidate.reconciliation}
                             summary={activeCandidate.reconciliationSummary}
                           />
-                        </div>
-                      )}
+                        ) : attempt.scorecards[0]?.isSubmitted ? (
+                          <div className="rounded-xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/60 via-white to-slate-50/60 dark:from-indigo-950/30 dark:via-card dark:to-slate-950/30 p-6 space-y-3">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
+                                <Scale className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                              </div>
+                              <div>
+                                <h3 className="text-sm font-bold text-foreground">Station Reconciliation</h3>
+                                <p className="text-xs text-muted-foreground">Multi-examiner peer score comparison</p>
+                              </div>
+                            </div>
+                            <div className="flex items-start gap-2 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-950/30 p-3 text-xs leading-relaxed text-amber-900 dark:text-amber-200">
+                              <RefreshCw className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 animate-spin" />
+                              <p>Reconciliation data is loading. If this persists, refresh the page to fetch the latest examiner scores for this candidate.</p>
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>;
                   })}
                   {(activeCandidate.taskAttempts.length === 0 || activeCandidate.taskAttempts.every((attempt) => attempt.scorecards[0]?.isSubmitted)) && (
