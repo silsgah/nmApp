@@ -971,6 +971,9 @@ export default function ExaminerStationPage() {
                             steps={attempt.task.steps}
                             reconciliation={activeCandidate.reconciliation}
                             summary={activeCandidate.reconciliationSummary}
+                            onReexaminationComplete={() => {
+                              queryClient.invalidateQueries({ queryKey: ["station-candidates", stationId] });
+                            }}
                           />
                         ) : attempt.scorecards[0]?.isSubmitted ? (
                           <div className="rounded-xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50/60 via-white to-slate-50/60 dark:from-indigo-950/30 dark:via-card dark:to-slate-950/30 p-6 space-y-3">

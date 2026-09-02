@@ -339,6 +339,36 @@ export default async function scorecardRoutes(fastify) {
     });
   });
 
+  // POST reexamine — examiner re-opens their own submitted scorecard for revision
+  fastify.post('/:id/reexamine', {
+    onRequest: [fastify.requireRole('EXAMINER')],
+  }, async (request, reply) => {
+    const scorecard = await prisma.scorecard.findFirst({
+      where: { id: request.params.id, examinerId: request.user.id },
+      include: { studentAssignment: { include: { station: { include: { session: true } } } } },
+    });
+    if (!scorecard) return reply.code(404).send({ error: 'Scorecard not found' });
+
+    // Session must still be active
+    const sessionStatus = scorecard.studentAssignment?.station?.session?.status;
+    if (['COMPLETED', 'ARCHIVED'].includes(sessionStatus)) {
+      return reply.code(400).send({ error: 'This exam session is completed/archived. Re-examination is not permitted.' });
+    }
+
+    // Must be currently submitted
+    if (!scorecard.isSubmitted) {
+      return reply.code(400).send({ error: 'Scorecard is not yet submitted. You can edit it directly.' });
+    }
+
+    // Un-submit: keep all data (scores, ratings, remarks) but reset submission flag
+    const updated = await prisma.scorecard.update({
+      where: { id: request.params.id },
+      data: { isSubmitted: false, submittedAt: null },
+    });
+
+    return reply.code(200).send(updated);
+  });
+
   // POST unsubmit (admin override — resets assessment to pending)
   fastify.post('/:id/unsubmit', {
     onRequest: [fastify.requireRole('ADMIN')],

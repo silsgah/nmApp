@@ -30,12 +30,16 @@ import {
   MessageSquare,
   FileSpreadsheet,
   Users,
-  Sparkles,
   Star,
   Info,
-  ChevronRight,
+  RotateCcw,
+  Loader2,
+  Quote,
+  Calendar,
+  Award,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 export interface ExaminerReconciliationItem {
   id?: string;
@@ -82,6 +86,8 @@ interface StationReconciliationPanelProps {
   steps?: TaskStep[];
   reconciliation: ExaminerReconciliationItem[];
   summary?: ReconciliationSummary;
+  selfScorecardId?: string;
+  onReexaminationComplete?: () => void;
 }
 
 export function StationReconciliationPanel({
@@ -93,12 +99,19 @@ export function StationReconciliationPanel({
   steps = [],
   reconciliation = [],
   summary,
+  selfScorecardId,
+  onReexaminationComplete,
 }: StationReconciliationPanelProps) {
   const [stepComparisonOpen, setStepComparisonOpen] = useState(false);
   const [activeRemarkModal, setActiveRemarkModal] = useState<{
     examinerName: string;
+    staffId: string | null;
     text: string;
+    totalScore: number | null;
+    percentageScore: number | null;
+    submittedAt: string | null;
   } | null>(null);
+  const [reexamining, setReexamining] = useState(false);
 
   const isBlindMasked = summary?.isBlindMasked ?? true;
   const submittedItems = reconciliation.filter((r) => r.isSubmitted);
@@ -134,6 +147,46 @@ export function StationReconciliationPanel({
       text,
     };
   });
+
+  const scaleMax = ratingScale === "SCALE_0_4" ? 4 : 2;
+
+  // Find self scorecard ID from reconciliation data
+  const selfExaminer = reconciliation.find((r) => r.isSelf && r.isSubmitted);
+  const effectiveScorecardId = selfScorecardId || selfExaminer?.id;
+
+  // Re-examination handler
+  const handleReexamine = async () => {
+    if (!effectiveScorecardId) {
+      toast.error("Could not find your scorecard to re-examine.");
+      return;
+    }
+    setReexamining(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const res = await fetch(`${apiUrl}/scorecards/${effectiveScorecardId}/reexamine`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Request failed" }));
+        throw new Error(err.error || "Re-examination request failed");
+      }
+      toast.success("Scorecard re-opened for revision. You can now update your ratings.");
+      if (onReexaminationComplete) {
+        onReexaminationComplete();
+      } else {
+        window.location.reload();
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Re-examination failed. Please try again.");
+    } finally {
+      setReexamining(false);
+    }
+  };
 
   return (
     <>
@@ -228,7 +281,7 @@ export function StationReconciliationPanel({
                   Attention Required: Scoring Variance ({summary?.percentageSpread}%) Exceeds 15%
                 </p>
                 <p className="mt-0.5 text-red-800 dark:text-red-300/90">
-                  There is a significant scoring spread across assigned examiners for this candidate. Station examiners should review the step breakdown together to reach consensus.
+                  There is a significant scoring spread across assigned examiners for this candidate. Station examiners should review the step breakdown together to reach consensus. You may request a re-examination to revise your scores.
                 </p>
               </div>
             </div>
@@ -374,13 +427,17 @@ export function StationReconciliationPanel({
                             onClick={() =>
                               setActiveRemarkModal({
                                 examinerName: examiner.examinerName,
+                                staffId: examiner.staffId,
                                 text: parsedRemarkText,
+                                totalScore: examiner.totalScore,
+                                percentageScore: examiner.percentageScore,
+                                submittedAt: examiner.submittedAt,
                               })
                             }
-                            className="h-7 w-7 p-0 cursor-pointer hover:bg-muted"
+                            className="h-7 w-7 p-0 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-lg"
                             title="View Examiner Remarks"
                           >
-                            <MessageSquare className="w-3.5 h-3.5 text-primary" />
+                            <MessageSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                           </Button>
                         ) : (
                           <span className="text-xs text-muted-foreground/50">—</span>
@@ -441,7 +498,7 @@ export function StationReconciliationPanel({
             </div>
           )}
 
-          {/* Action Row - Always visible to examiner */}
+          {/* Action Row */}
           {steps.length > 0 && (
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border/60">
               <div className="text-xs text-muted-foreground">
@@ -464,62 +521,133 @@ export function StationReconciliationPanel({
                 )}
               </div>
 
-              {!isBlindMasked ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setStepComparisonOpen(true)}
-                  className="h-8.5 px-3.5 text-xs font-semibold gap-1.5 cursor-pointer border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 shadow-xs flex-shrink-0"
-                  id="compare-step-ratings-btn"
-                >
-                  <FileSpreadsheet className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                  <span>Compare Step Ratings</span>
-                  <Badge
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Re-Examination Button */}
+                {!isBlindMasked && selfExaminer && effectiveScorecardId && (summary?.varianceLevel === "MODERATE" || summary?.hasHighVariance) && (
+                  <Button
                     variant="outline"
-                    className="text-[10px] ml-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border-indigo-200"
+                    size="sm"
+                    onClick={handleReexamine}
+                    disabled={reexamining}
+                    className="h-8.5 px-3.5 text-xs font-semibold gap-1.5 cursor-pointer border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40 shadow-xs"
                   >
-                    {unmaskedSubmittedItems.length} Examiner{unmaskedSubmittedItems.length === 1 ? "" : "s"}
-                  </Badge>
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled
-                  className="h-8.5 px-3.5 text-xs font-medium gap-1.5 opacity-60 cursor-not-allowed flex-shrink-0 border-dashed"
-                  title="Submit your scorecard first to unlock peer step comparison"
-                >
-                  <Lock className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Compare Step Ratings (Locked)</span>
-                </Button>
-              )}
+                    {reexamining ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                    )}
+                    <span>{reexamining ? "Re-opening..." : "Request Re-Examination"}</span>
+                  </Button>
+                )}
+
+                {/* Compare Step Ratings */}
+                {!isBlindMasked ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setStepComparisonOpen(true)}
+                    className="h-8.5 px-3.5 text-xs font-semibold gap-1.5 cursor-pointer border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 shadow-xs flex-shrink-0"
+                    id="compare-step-ratings-btn"
+                  >
+                    <FileSpreadsheet className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                    <span>Compare Step Ratings</span>
+                    <Badge
+                      variant="outline"
+                      className="text-[10px] ml-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border-indigo-200"
+                    >
+                      {unmaskedSubmittedItems.length} Examiner{unmaskedSubmittedItems.length === 1 ? "" : "s"}
+                    </Badge>
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled
+                    className="h-8.5 px-3.5 text-xs font-medium gap-1.5 opacity-60 cursor-not-allowed flex-shrink-0 border-dashed"
+                    title="Submit your scorecard first to unlock peer step comparison"
+                  >
+                    <Lock className="w-3.5 h-3.5 text-amber-600" />
+                    <span>Compare Step Ratings (Locked)</span>
+                  </Button>
+                )}
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Step-by-Step Itemized Comparison Dialog */}
+      {/* ═══════════════════════════════════════════════════════════════
+          STEP-BY-STEP COMPARISON DIALOG — Full-width professional modal
+          ═══════════════════════════════════════════════════════════════ */}
       <Dialog open={stepComparisonOpen} onOpenChange={setStepComparisonOpen}>
-        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] flex flex-col p-0 rounded-2xl border border-border/80 shadow-2xl overflow-hidden bg-background">
-          <DialogHeader className="px-6 py-4 border-b border-border/60 bg-muted/15">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
-                <FileSpreadsheet className="w-5 h-5" />
+        <DialogContent
+          className="sm:max-w-5xl w-[96vw] max-h-[90vh] flex flex-col p-0 rounded-2xl border border-border/80 shadow-2xl overflow-hidden bg-background"
+          showCloseButton={false}
+        >
+          {/* Header */}
+          <DialogHeader className="px-6 py-4 border-b border-border/60 bg-gradient-to-r from-indigo-50/80 via-white to-slate-50/50 dark:from-indigo-950/30 dark:via-background dark:to-slate-950/20">
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                  <FileSpreadsheet className="w-5 h-5" />
+                </div>
+                <div>
+                  <DialogTitle className="text-base font-bold text-foreground">
+                    Step-by-Step Examiner Ratings Comparison
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-muted-foreground mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                    <span>Candidate: <strong className="text-foreground">{candidateName}</strong> ({candidateNumber})</span>
+                    <span className="text-muted-foreground/40">·</span>
+                    <span>Task: <strong className="text-foreground">{taskName}</strong></span>
+                    <span className="text-muted-foreground/40">·</span>
+                    <span>Scale: <strong className="text-foreground">0–{scaleMax}</strong></span>
+                  </DialogDescription>
+                </div>
               </div>
-              <div>
-                <DialogTitle className="text-base font-bold text-foreground">
-                  Step-by-Step Examiner Ratings Comparison
-                </DialogTitle>
-                <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                  Candidate: <strong>{candidateName}</strong> ({candidateNumber}) · Task: <strong>{taskName}</strong>
-                </DialogDescription>
-              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStepComparisonOpen(false)}
+                className="h-8 w-8 p-0 rounded-lg cursor-pointer hover:bg-muted flex-shrink-0"
+              >
+                ✕
+              </Button>
             </div>
+
+            {/* Examiner Legend */}
+            {examinerStepRatings.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mt-3">
+                {examinerStepRatings.map((ex, i) => {
+                  const colors = [
+                    "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-900/40 dark:text-indigo-300 dark:border-indigo-800",
+                    "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-900/40 dark:text-violet-300 dark:border-violet-800",
+                    "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-900/40 dark:text-cyan-300 dark:border-cyan-800",
+                    "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/40 dark:text-rose-300 dark:border-rose-800",
+                    "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-800",
+                  ];
+                  return (
+                    <Badge
+                      key={ex.examinerId}
+                      variant="outline"
+                      className={cn("text-[11px] font-semibold px-2 py-0.5 gap-1", colors[i % colors.length])}
+                    >
+                      <Users className="w-3 h-3" />
+                      {ex.examinerName.split(" ")[0]} {ex.isSelf ? "(You)" : ""}
+                      <span className="font-mono font-black ml-1">
+                        {ex.totalScore}/{maxScore}
+                      </span>
+                    </Badge>
+                  );
+                })}
+              </div>
+            )}
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto p-6 min-h-0 space-y-4">
+          {/* Scrollable Body */}
+          <div className="flex-1 overflow-y-auto min-h-0">
+            {/* Awaiting notice */}
             {examinerStepRatings.length === 1 && (
-              <div className="p-3 rounded-xl border border-indigo-200/80 bg-indigo-50/60 dark:bg-indigo-950/20 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-200 flex items-start gap-2.5">
+              <div className="mx-6 mt-4 p-3.5 rounded-xl border border-indigo-200/80 bg-indigo-50/60 dark:bg-indigo-950/20 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-200 flex items-start gap-2.5">
                 <Info className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="font-bold">Awaiting Co-Examiner Submissions</p>
@@ -530,167 +658,316 @@ export function StationReconciliationPanel({
               </div>
             )}
 
-            <div className="rounded-xl border border-border/70 overflow-hidden shadow-2xs">
-              <Table>
-                <TableHeader className="bg-muted/40">
-                  <TableRow>
-                    <TableHead className="w-12 text-center text-xs font-bold">#</TableHead>
-                    <TableHead className="text-xs font-bold">Procedure Step</TableHead>
-                    {examinerStepRatings.map((ex) => (
-                      <TableHead
-                        key={ex.examinerId}
-                        className="text-center text-xs font-bold whitespace-nowrap px-3"
-                      >
-                        <div className="flex flex-col items-center">
-                          <span>{ex.examinerName.split(" ")[0]}</span>
-                          <span className="text-[10px] font-normal text-muted-foreground font-mono">
-                            {ex.isSelf ? "(You)" : ex.staffId || ""}
-                          </span>
-                        </div>
-                      </TableHead>
-                    ))}
-                    <TableHead className="w-28 text-center text-xs font-bold">Agreement</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {steps.map((step) => {
-                    const ratingsForStep = examinerStepRatings.map(
-                      (ex) => ex.ratings[step.id] ?? null
-                    );
-                    const validRatings = ratingsForStep.filter((r) => r !== null) as number[];
-
-                    const isUnanimous =
-                      validRatings.length > 0 &&
-                      validRatings.every((r) => r === validRatings[0]);
-
-                    const minRating = validRatings.length > 0 ? Math.min(...validRatings) : 0;
-                    const maxRating = validRatings.length > 0 ? Math.max(...validRatings) : 0;
-                    const stepGap = maxRating - minRating;
-
-                    return (
-                      <TableRow
-                        key={step.id}
-                        className={cn(
-                          !isUnanimous && validRatings.length > 1
-                            ? "bg-amber-50/40 dark:bg-amber-950/15"
-                            : "hover:bg-muted/20"
-                        )}
-                      >
-                        <TableCell className="text-center font-bold text-xs py-3 text-muted-foreground">
-                          {step.stepNumber}
-                        </TableCell>
-
-                        <TableCell className="py-3">
-                          <div className="flex items-start gap-2">
-                            <span className="text-xs sm:text-sm text-foreground leading-relaxed">
-                              {step.description}
-                            </span>
-                            {step.isKeyStep && (
-                              <Badge
-                                variant="outline"
-                                className="bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300 text-[10px] font-semibold gap-1 flex-shrink-0"
-                              >
-                                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-600" />
-                                Key Step
-                              </Badge>
-                            )}
-                          </div>
-                        </TableCell>
-
-                        {examinerStepRatings.map((ex) => {
-                          const r = ex.ratings[step.id];
+            {/* Comparison Table */}
+            <div className="p-6">
+              <div className="rounded-xl border border-border/70 overflow-hidden shadow-2xs">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-muted/40">
+                      <TableRow>
+                        <TableHead className="w-12 text-center text-xs font-bold sticky left-0 bg-muted/40 z-10">#</TableHead>
+                        <TableHead className="text-xs font-bold min-w-[200px]">Procedure Step</TableHead>
+                        {examinerStepRatings.map((ex, i) => {
+                          const headerColors = [
+                            "text-indigo-700 dark:text-indigo-300",
+                            "text-violet-700 dark:text-violet-300",
+                            "text-cyan-700 dark:text-cyan-300",
+                            "text-rose-700 dark:text-rose-300",
+                            "text-amber-700 dark:text-amber-300",
+                          ];
                           return (
-                            <TableCell
+                            <TableHead
                               key={ex.examinerId}
-                              className="text-center py-3 font-mono font-bold text-xs sm:text-sm"
+                              className={cn("text-center text-xs font-bold whitespace-nowrap px-4", headerColors[i % headerColors.length])}
                             >
-                              {r !== undefined ? (
-                                <span
-                                  className={cn(
-                                    "px-2 py-0.5 rounded",
-                                    r === 0
-                                      ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 font-black"
-                                      : "bg-muted text-foreground"
-                                  )}
-                                >
-                                  {r}
+                              <div className="flex flex-col items-center gap-0.5">
+                                <span className="font-bold">{ex.examinerName.split(" ")[0]}</span>
+                                <span className="text-[10px] font-normal text-muted-foreground font-mono">
+                                  {ex.isSelf ? "(You)" : ex.staffId || "Examiner"}
                                 </span>
-                              ) : (
-                                <span className="text-muted-foreground/50">—</span>
-                              )}
-                            </TableCell>
+                              </div>
+                            </TableHead>
                           );
                         })}
-
-                        <TableCell className="text-center py-3">
-                          {validRatings.length < 2 ? (
-                            <span className="text-xs text-muted-foreground">—</span>
-                          ) : isUnanimous ? (
-                            <Badge
-                              variant="outline"
-                              className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-300 text-[10px] font-semibold"
-                            >
-                              Agreement
-                            </Badge>
-                          ) : (
-                            <Badge
-                              variant="outline"
-                              className="bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300 text-[10px] font-semibold"
-                            >
-                              Diff ({stepGap} pts)
-                            </Badge>
-                          )}
-                        </TableCell>
+                        <TableHead className="w-28 text-center text-xs font-bold">Agreement</TableHead>
                       </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {steps.map((step) => {
+                        const ratingsForStep = examinerStepRatings.map(
+                          (ex) => ex.ratings[step.id] ?? null
+                        );
+                        const validRatings = ratingsForStep.filter((r) => r !== null) as number[];
+
+                        const isUnanimous =
+                          validRatings.length > 0 &&
+                          validRatings.every((r) => r === validRatings[0]);
+
+                        const minRating = validRatings.length > 0 ? Math.min(...validRatings) : 0;
+                        const maxRating = validRatings.length > 0 ? Math.max(...validRatings) : 0;
+                        const stepGap = maxRating - minRating;
+
+                        return (
+                          <TableRow
+                            key={step.id}
+                            className={cn(
+                              !isUnanimous && validRatings.length > 1
+                                ? "bg-amber-50/40 dark:bg-amber-950/15"
+                                : "hover:bg-muted/20"
+                            )}
+                          >
+                            <TableCell className="text-center font-bold text-xs py-3 text-muted-foreground sticky left-0 bg-inherit z-10">
+                              {step.stepNumber}
+                            </TableCell>
+
+                            <TableCell className="py-3">
+                              <div className="flex items-start gap-2">
+                                <span className="text-xs text-foreground leading-relaxed">
+                                  {step.description}
+                                </span>
+                                {step.isKeyStep && (
+                                  <Badge
+                                    variant="outline"
+                                    className="bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300 text-[10px] font-semibold gap-1 flex-shrink-0"
+                                  >
+                                    <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-600" />
+                                    Key
+                                  </Badge>
+                                )}
+                              </div>
+                            </TableCell>
+
+                            {examinerStepRatings.map((ex, i) => {
+                              const r = ex.ratings[step.id];
+                              const cellColors = [
+                                { bg: "bg-indigo-100/60 dark:bg-indigo-900/30", text: "text-indigo-700 dark:text-indigo-300" },
+                                { bg: "bg-violet-100/60 dark:bg-violet-900/30", text: "text-violet-700 dark:text-violet-300" },
+                                { bg: "bg-cyan-100/60 dark:bg-cyan-900/30", text: "text-cyan-700 dark:text-cyan-300" },
+                                { bg: "bg-rose-100/60 dark:bg-rose-900/30", text: "text-rose-700 dark:text-rose-300" },
+                                { bg: "bg-amber-100/60 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-300" },
+                              ];
+                              const color = cellColors[i % cellColors.length];
+                              return (
+                                <TableCell
+                                  key={ex.examinerId}
+                                  className="text-center py-3 font-mono font-bold text-sm"
+                                >
+                                  {r !== undefined && r !== null ? (
+                                    <span
+                                      className={cn(
+                                        "inline-flex items-center justify-center w-8 h-8 rounded-lg font-black text-sm",
+                                        r === 0
+                                          ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 ring-1 ring-red-300 dark:ring-red-800"
+                                          : r === scaleMax
+                                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 ring-1 ring-emerald-300 dark:ring-emerald-800"
+                                            : cn(color.bg, color.text)
+                                      )}
+                                    >
+                                      {r}
+                                    </span>
+                                  ) : (
+                                    <span className="text-muted-foreground/50">—</span>
+                                  )}
+                                </TableCell>
+                              );
+                            })}
+
+                            <TableCell className="text-center py-3">
+                              {validRatings.length < 2 ? (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              ) : isUnanimous ? (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-300 text-[10px] font-semibold gap-1"
+                                >
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  Agree
+                                </Badge>
+                              ) : (
+                                <Badge
+                                  variant="outline"
+                                  className="bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300 text-[10px] font-semibold gap-1"
+                                >
+                                  <AlertTriangle className="w-3 h-3" />
+                                  Δ{stepGap}
+                                </Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+
+                      {/* Summary Row — Total Scores */}
+                      {examinerStepRatings.length > 0 && (
+                        <TableRow className="bg-muted/30 border-t-2 border-border/80 font-bold">
+                          <TableCell className="text-center py-3 sticky left-0 bg-muted/30 z-10">
+                            <Award className="w-4 h-4 mx-auto text-muted-foreground" />
+                          </TableCell>
+                          <TableCell className="py-3 text-xs font-bold text-foreground uppercase tracking-wide">
+                            Total Score
+                          </TableCell>
+                          {examinerStepRatings.map((ex) => (
+                            <TableCell key={ex.examinerId} className="text-center py-3">
+                              <div className="flex flex-col items-center gap-0.5">
+                                <span className="font-mono font-black text-sm text-foreground">
+                                  {ex.totalScore}/{maxScore}
+                                </span>
+                                <span className={cn(
+                                  "text-[10px] font-bold",
+                                  (ex.percentageScore ?? 0) >= 50
+                                    ? "text-emerald-600 dark:text-emerald-400"
+                                    : "text-red-600 dark:text-red-400"
+                                )}>
+                                  {ex.percentageScore?.toFixed(1)}%
+                                </span>
+                              </div>
+                            </TableCell>
+                          ))}
+                          <TableCell className="text-center py-3">
+                            {summary?.meanPercentage !== null && summary?.meanPercentage !== undefined && (
+                              <div className="flex flex-col items-center gap-0.5">
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase">Mean</span>
+                                <span className="font-mono font-black text-sm text-primary">
+                                  {summary.meanPercentage}%
+                                </span>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
             </div>
           </div>
 
-          <DialogFooter className="px-6 py-3 border-t border-border/60 bg-muted/15 flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              Tip: Steps with rating differences are highlighted in amber for rapid reconciliation.
+          {/* Footer */}
+          <DialogFooter className="px-6 py-3.5 border-t border-border/60 bg-muted/15 flex flex-col sm:flex-row items-center justify-between gap-3 -mx-0 -mb-0 rounded-b-2xl">
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <Info className="w-3.5 h-3.5 text-muted-foreground/60 flex-shrink-0" />
+              Steps with rating differences are highlighted in amber. 0 = red, {scaleMax} = green.
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setStepComparisonOpen(false)}
-              className="cursor-pointer"
-            >
-              Close
-            </Button>
+            <div className="flex items-center gap-2">
+              {/* Re-Examination from within dialog */}
+              {!isBlindMasked && selfExaminer && effectiveScorecardId && (summary?.varianceLevel === "MODERATE" || summary?.hasHighVariance) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleReexamine}
+                  disabled={reexamining}
+                  className="h-8 px-3 text-xs font-semibold gap-1.5 cursor-pointer border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                >
+                  {reexamining ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <RotateCcw className="w-3.5 h-3.5" />
+                  )}
+                  Re-Examine
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setStepComparisonOpen(false)}
+                className="cursor-pointer h-8 px-4"
+              >
+                Close
+              </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Remark Popup Dialog */}
+      {/* ═══════════════════════════════════════════════════════════════
+          FEEDBACK / REMARKS MODAL — Professional, polished design
+          ═══════════════════════════════════════════════════════════════ */}
       {activeRemarkModal && (
         <Dialog open onOpenChange={() => setActiveRemarkModal(null)}>
-          <DialogContent className="max-w-md rounded-2xl border border-border/80 shadow-xl">
-            <DialogHeader>
-              <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-primary" />
-                <span>Remarks by {activeRemarkModal.examinerName}</span>
-              </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
-                Clinical feedback recorded for this candidate's performance.
-              </DialogDescription>
+          <DialogContent className="sm:max-w-lg p-0 rounded-2xl border border-border/80 shadow-xl overflow-hidden bg-background">
+            {/* Header */}
+            <DialogHeader className="px-6 py-4 border-b border-border/60 bg-gradient-to-r from-slate-50/80 via-white to-indigo-50/30 dark:from-slate-950/40 dark:via-background dark:to-indigo-950/20">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                  <MessageSquare className="w-5 h-5" />
+                </div>
+                <div>
+                  <DialogTitle className="text-base font-bold text-foreground">
+                    Examiner Clinical Feedback
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                    Qualitative remarks for candidate <strong className="text-foreground">{candidateName}</strong>
+                  </DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
 
-            <div className="py-3">
-              <div className="p-4 rounded-xl bg-muted/40 border border-border/60 text-xs text-foreground leading-relaxed whitespace-pre-wrap">
-                {activeRemarkModal.text}
+            {/* Content */}
+            <div className="px-6 py-5 space-y-4">
+              {/* Examiner Info Card */}
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-muted/30 border border-border/60">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold">
+                    {activeRemarkModal.examinerName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground">{activeRemarkModal.examinerName}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono">
+                      {activeRemarkModal.staffId ? `Staff ID: ${activeRemarkModal.staffId}` : "Clinical Examiner"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {activeRemarkModal.totalScore !== null && (
+                    <div className="text-right">
+                      <p className="font-mono text-sm font-black text-foreground">
+                        {activeRemarkModal.totalScore}/{maxScore}
+                      </p>
+                      <p className={cn(
+                        "text-[10px] font-bold",
+                        (activeRemarkModal.percentageScore ?? 0) >= 50
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-red-600 dark:text-red-400"
+                      )}>
+                        {activeRemarkModal.percentageScore?.toFixed(1)}%
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Submitted date */}
+              {activeRemarkModal.submittedAt && (
+                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                  <Calendar className="w-3 h-3" />
+                  <span>
+                    Submitted {new Date(activeRemarkModal.submittedAt).toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              )}
+
+              {/* Remarks Block */}
+              <div className="relative">
+                <Quote className="absolute top-3 left-3 w-5 h-5 text-indigo-200 dark:text-indigo-800" />
+                <div className="p-4 pl-10 rounded-xl bg-gradient-to-br from-indigo-50/40 via-white to-slate-50/30 dark:from-indigo-950/20 dark:via-card dark:to-slate-950/10 border border-indigo-100 dark:border-indigo-900/40 text-sm text-foreground leading-relaxed whitespace-pre-wrap italic">
+                  {activeRemarkModal.text}
+                </div>
               </div>
             </div>
 
-            <DialogFooter>
+            {/* Footer */}
+            <DialogFooter className="px-6 py-3 border-t border-border/60 bg-muted/15 -mx-0 -mb-0 rounded-b-2xl">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setActiveRemarkModal(null)}
-                className="cursor-pointer"
+                className="cursor-pointer h-8 px-4"
               >
                 Close
               </Button>
