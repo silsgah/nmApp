@@ -441,21 +441,58 @@ export function StationReconciliationPanel({
             </div>
           )}
 
-          {/* Action Row */}
-          {!isBlindMasked && unmaskedSubmittedItems.length >= 2 && steps.length > 0 && (
-            <div className="flex items-center justify-between pt-2 border-t border-border/50">
-              <p className="text-xs text-muted-foreground">
-                Examine step-by-step scoring differences across all {unmaskedSubmittedItems.length} examiners.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setStepComparisonOpen(true)}
-                className="h-8 text-xs font-semibold gap-1.5 cursor-pointer border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
-              >
-                <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-                Compare Step Ratings
-              </Button>
+          {/* Action Row - Always visible to examiner */}
+          {steps.length > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border/60">
+              <div className="text-xs text-muted-foreground">
+                {!isBlindMasked ? (
+                  unmaskedSubmittedItems.length >= 2 ? (
+                    <span>
+                      Examine itemized step scoring differences across all{" "}
+                      <strong className="text-foreground">{unmaskedSubmittedItems.length}</strong> submitted examiners.
+                    </span>
+                  ) : (
+                    <span>
+                      You have submitted your scorecard. Once co-examiners submit, their ratings will appear side-by-side.
+                    </span>
+                  )
+                ) : (
+                  <span className="flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
+                    <Lock className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+                    Submit this candidate&apos;s score above to unlock peer reconciliation and step ratings.
+                  </span>
+                )}
+              </div>
+
+              {!isBlindMasked ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setStepComparisonOpen(true)}
+                  className="h-8.5 px-3.5 text-xs font-semibold gap-1.5 cursor-pointer border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 shadow-xs flex-shrink-0"
+                  id="compare-step-ratings-btn"
+                >
+                  <FileSpreadsheet className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                  <span>Compare Step Ratings</span>
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] ml-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 border-indigo-200"
+                  >
+                    {unmaskedSubmittedItems.length} Examiner{unmaskedSubmittedItems.length === 1 ? "" : "s"}
+                  </Badge>
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled
+                  className="h-8.5 px-3.5 text-xs font-medium gap-1.5 opacity-60 cursor-not-allowed flex-shrink-0 border-dashed"
+                  title="Submit your scorecard first to unlock peer step comparison"
+                >
+                  <Lock className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Compare Step Ratings (Locked)</span>
+                </Button>
+              )}
             </div>
           )}
         </CardContent>
@@ -480,7 +517,19 @@ export function StationReconciliationPanel({
             </div>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto p-6 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 min-h-0 space-y-4">
+            {examinerStepRatings.length === 1 && (
+              <div className="p-3 rounded-xl border border-indigo-200/80 bg-indigo-50/60 dark:bg-indigo-950/20 dark:border-indigo-900/40 text-xs text-indigo-900 dark:text-indigo-200 flex items-start gap-2.5">
+                <Info className="w-4 h-4 text-indigo-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold">Awaiting Co-Examiner Submissions</p>
+                  <p className="text-indigo-800 dark:text-indigo-300/90 mt-0.5">
+                    You have submitted your step ratings below. When your co-examiner(s) finalize their scorecards, their marks will populate side-by-side in this table for reconciliation.
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div className="rounded-xl border border-border/70 overflow-hidden shadow-2xs">
               <Table>
                 <TableHeader className="bg-muted/40">

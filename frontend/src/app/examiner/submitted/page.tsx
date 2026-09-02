@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import { useState } from "react";
 import {
   CheckSquare, Search, RefreshCw, Calendar, BookOpen,
-  User, CheckCircle2, ChevronRight, ArrowLeft
+  User, CheckCircle2, ChevronRight, ArrowLeft, Scale
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,7 @@ interface SubmittedScorecard {
   submittedAt: string;
   taskAttempt: { task: { id: string; name: string; maxScore: number } } | null;
   studentAssignment: {
+    id: string;
     student: { id: string; name: string; staffId: string | null };
     station: {
       id: string;
@@ -110,6 +111,7 @@ export default function SubmittedScorecardsPage() {
               <TableHead className="px-6 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider h-11">Exam Session</TableHead>
               <TableHead className="px-6 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider h-11">Date Submitted</TableHead>
               <TableHead className="px-6 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right h-11">Grade Marks</TableHead>
+              <TableHead className="px-6 py-3.5 text-xs font-bold text-muted-foreground uppercase tracking-wider text-center h-11">Reconciliation</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -121,11 +123,12 @@ export default function SubmittedScorecardsPage() {
                   <TableCell className="px-6 py-4"><Skeleton className="h-4 w-28" /></TableCell>
                   <TableCell className="px-6 py-4"><Skeleton className="h-4 w-24" /></TableCell>
                   <TableCell className="px-6 py-4 text-right"><Skeleton className="h-6 w-16 ml-auto rounded-full" /></TableCell>
+                  <TableCell className="px-6 py-4 text-center"><Skeleton className="h-7 w-20 mx-auto rounded-lg" /></TableCell>
                 </TableRow>
               ))
             ) : filteredScorecards.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="py-16 text-center">
+                <TableCell colSpan={6} className="py-16 text-center">
                   <CheckSquare className="w-12 h-12 mx-auto mb-3 text-muted-foreground/20" />
                   <p className="text-muted-foreground font-medium">No submitted scorecards found</p>
                   <p className="text-xs text-muted-foreground/75 mt-1">Scorecards you submit from your assigned stations will show here.</p>
@@ -195,6 +198,20 @@ export default function SubmittedScorecardsPage() {
                           {Math.round(scorecard.percentageScore)}%
                         </Badge>
                       </div>
+                    </TableCell>
+
+                    {/* Reconciliation Action */}
+                    <TableCell className="px-6 py-3.5 text-center whitespace-nowrap">
+                      <Link href={`/examiner/stations/${s.station.id}?assignmentId=${s.id}`}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7.5 px-2.5 text-xs font-semibold gap-1.5 border-indigo-200 text-indigo-700 dark:text-indigo-300 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 cursor-pointer shadow-2xs"
+                        >
+                          <Scale className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>Reconcile</span>
+                        </Button>
+                      </Link>
                     </TableCell>
                   </TableRow>
                 );

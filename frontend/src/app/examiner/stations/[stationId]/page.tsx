@@ -8,7 +8,7 @@ import { useAuthStore } from "@/store/auth";
 import { toast } from "sonner";
 import {
   ArrowLeft, User, CheckCircle2, AlertCircle, Send,
-  ChevronDown, ChevronUp, Info, Clock, Search, X
+  ChevronDown, ChevronUp, Info, Clock, Search, X, Scale
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -270,16 +270,30 @@ function ScoreEntryCard({
               </p>
             </div>
           </div>
-          {onNextCandidate && (
-            <div className="pt-4">
+          {/* Action buttons on submitted card */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const el = document.getElementById("station-reconciliation-section");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="border-indigo-300 text-indigo-700 dark:text-indigo-300 dark:border-indigo-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/40 text-xs font-semibold gap-1.5 cursor-pointer shadow-xs"
+            >
+              <Scale className="w-3.5 h-3.5 text-indigo-600" />
+              View Station Reconciliation & Peer Scores
+            </Button>
+            {onNextCandidate && (
               <Button
                 onClick={onNextCandidate}
                 className="gradient-primary border-0 text-white font-bold px-6 py-2 shadow-sm cursor-pointer"
               >
                 Grade Next Candidate →
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       ) : (
         /* Grading Form (Step Wizard vs Full checklist) */
@@ -947,16 +961,18 @@ export default function ExaminerStationPage() {
 
                       {/* Multi-Examiner Score Reconciliation & Peer Consensus Panel */}
                       {activeCandidate.reconciliation && activeCandidate.reconciliation.length > 0 && (
-                        <StationReconciliationPanel
-                          candidateName={activeCandidate.student.name}
-                          candidateNumber={activeCandidate.candidateNumber}
-                          taskName={attempt.task.name}
-                          maxScore={attempt.task.maxScore}
-                          ratingScale={attempt.task.ratingScale}
-                          steps={attempt.task.steps}
-                          reconciliation={activeCandidate.reconciliation}
-                          summary={activeCandidate.reconciliationSummary}
-                        />
+                        <div id="station-reconciliation-section" className="pt-2">
+                          <StationReconciliationPanel
+                            candidateName={activeCandidate.student.name}
+                            candidateNumber={activeCandidate.candidateNumber}
+                            taskName={attempt.task.name}
+                            maxScore={attempt.task.maxScore}
+                            ratingScale={attempt.task.ratingScale}
+                            steps={attempt.task.steps}
+                            reconciliation={activeCandidate.reconciliation}
+                            summary={activeCandidate.reconciliationSummary}
+                          />
+                        </div>
                       )}
                     </div>;
                   })}
