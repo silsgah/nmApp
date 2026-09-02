@@ -32,6 +32,7 @@ Thumbs.db
 *.xlsx
 *.xls
 *.docx
+contract/
 
 ## Debug logs
 npm-debug.log*
