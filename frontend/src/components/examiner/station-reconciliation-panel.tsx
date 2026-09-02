@@ -37,6 +37,7 @@ import {
   Quote,
   Calendar,
   Award,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -90,6 +91,33 @@ interface StationReconciliationPanelProps {
   onReexaminationComplete?: () => void;
 }
 
+/**
+ * Safely parse remarks JSON from scorecard.
+ * Prevents raw JSON strings from leaking to the UI when narrative text is empty.
+ */
+function parseExaminerRemarks(remarksRaw: string | null | undefined): {
+  text: string;
+  ratings: Record<string, number>;
+} {
+  if (!remarksRaw) return { text: "", ratings: {} };
+  try {
+    const parsed = JSON.parse(remarksRaw);
+    if (parsed && typeof parsed === "object") {
+      const ratings =
+        parsed.ratings && typeof parsed.ratings === "object" ? parsed.ratings : {};
+      const text = typeof parsed.text === "string" ? parsed.text.trim() : "";
+      return { text, ratings };
+    }
+    return { text: String(remarksRaw).trim(), ratings: {} };
+  } catch {
+    const trimmed = String(remarksRaw).trim();
+    if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+      return { text: "", ratings: {} };
+    }
+    return { text: trimmed, ratings: {} };
+  }
+}
+
 export function StationReconciliationPanel({
   candidateName,
   candidateNumber,
@@ -106,10 +134,13 @@ export function StationReconciliationPanel({
   const [activeRemarkModal, setActiveRemarkModal] = useState<{
     examinerName: string;
     staffId: string | null;
+    isSelf: boolean;
     text: string;
+    hasText: boolean;
     totalScore: number | null;
     percentageScore: number | null;
     submittedAt: string | null;
+    ratings: Record<string, number>;
   } | null>(null);
   const [reexamining, setReexamining] = useState(false);
 
@@ -119,23 +150,9 @@ export function StationReconciliationPanel({
     (r) => r.isSubmitted && !r.isMasked && r.totalScore !== null
   );
 
-  // Parse step ratings from each unmasked examiner's remarks JSON
+  // Parse step ratings and clean text remarks from each unmasked examiner
   const examinerStepRatings = unmaskedSubmittedItems.map((ex) => {
-    let ratings: Record<string, number> = {};
-    let text = "";
-    if (ex.remarks) {
-      try {
-        const parsed = JSON.parse(ex.remarks);
-        if (parsed && typeof parsed === "object" && parsed.ratings) {
-          ratings = parsed.ratings;
-          text = parsed.text || "";
-        } else {
-          text = ex.remarks;
-        }
-      } catch {
-        text = ex.remarks;
-      }
-    }
+    const { text, ratings } = parseExaminerRemarks(ex.remarks);
     return {
       examinerId: ex.examinerId,
       examinerName: ex.examinerName,
@@ -269,7 +286,7 @@ export function StationReconciliationPanel({
               <div>
                 <p className="font-bold">Independent Clinical Assessment Active</p>
                 <p className="mt-0.5 text-amber-800 dark:text-amber-300/90">
-                  To protect objectivity and prevent scoring bias, peer examiners' numerical marks remain confidential until you finalize and submit your scorecard for this candidate.
+                  To protect objectivity and prevent scoring bias, peer examiners&apos; numerical marks remain confidential until you finalize and submit your scorecard for this candidate.
                 </p>
               </div>
             </div>
@@ -292,11 +309,11 @@ export function StationReconciliationPanel({
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow>
-                  <TableHead className="w-[35%] text-xs font-bold">Assigned Examiner</TableHead>
-                  <TableHead className="w-[20%] text-xs font-bold">Status</TableHead>
-                  <TableHead className="w-[20%] text-xs font-bold">Score Awarded</TableHead>
+                  <TableHead className="w-[34%] text-xs font-bold">Assigned Examiner</TableHead>
+                  <TableHead className="w-[18%] text-xs font-bold">Status</TableHead>
+                  <TableHead className="w-[18%] text-xs font-bold">Score Awarded</TableHead>
                   <TableHead className="w-[15%] text-xs font-bold text-right">Percentage</TableHead>
-                  <TableHead className="w-[10%] text-xs font-bold text-center">Feedback</TableHead>
+                  <TableHead className="w-[15%] text-xs font-bold text-center">Feedback & Marks</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -308,16 +325,11 @@ export function StationReconciliationPanel({
                     .toUpperCase()
                     .slice(0, 2);
 
-                  // Extract text remarks if any
-                  let parsedRemarkText = "";
-                  if (examiner.remarks) {
-                    try {
-                      const parsed = JSON.parse(examiner.remarks);
-                      parsedRemarkText = parsed?.text || examiner.remarks;
-                    } catch {
-                      parsedRemarkText = examiner.remarks;
-                    }
-                  }
+                  // Extract clean text remarks and ratings
+                  const { text: cleanRemarkText, ratings: examinerRatings } = parseExaminerRemarks(
+                    examiner.remarks
+                  );
+                  const hasWrittenRemark = cleanRemarkText.length > 0;
 
                   return (
                     <TableRow
@@ -419,25 +431,46 @@ export function StationReconciliationPanel({
                         )}
                       </TableCell>
 
+                      {/* Feedback & Marks Action Column */}
                       <TableCell className="py-3 text-center">
-                        {!examiner.isMasked && parsedRemarkText ? (
+                        {examiner.isMasked ? (
+                          <span className="text-xs text-muted-foreground font-mono">🔒</span>
+                        ) : examiner.isSubmitted ? (
                           <Button
-                            variant="ghost"
+                            variant={hasWrittenRemark ? "outline" : "ghost"}
                             size="sm"
                             onClick={() =>
                               setActiveRemarkModal({
                                 examinerName: examiner.examinerName,
                                 staffId: examiner.staffId,
-                                text: parsedRemarkText,
+                                isSelf: examiner.isSelf,
+                                text: cleanRemarkText,
+                                hasText: hasWrittenRemark,
                                 totalScore: examiner.totalScore,
                                 percentageScore: examiner.percentageScore,
                                 submittedAt: examiner.submittedAt,
+                                ratings: examinerRatings,
                               })
                             }
-                            className="h-7 w-7 p-0 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded-lg"
-                            title="View Examiner Remarks"
+                            className={cn(
+                              "h-7 px-2.5 text-xs font-semibold gap-1.5 cursor-pointer rounded-lg shadow-2xs transition-all",
+                              hasWrittenRemark
+                                ? "border-indigo-200 text-indigo-700 dark:text-indigo-300 dark:border-indigo-800 bg-indigo-50/50 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:hover:bg-indigo-900/50"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                            )}
+                            title={hasWrittenRemark ? "View Clinical Notes & Step Marks" : "View Step Marks Breakdown"}
                           >
-                            <MessageSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                            {hasWrittenRemark ? (
+                              <>
+                                <MessageSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                                <span>Notes & Marks</span>
+                              </>
+                            ) : (
+                              <>
+                                <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+                                <span>Marks</span>
+                              </>
+                            )}
                           </Button>
                         ) : (
                           <span className="text-xs text-muted-foreground/50">—</span>
@@ -880,94 +913,237 @@ export function StationReconciliationPanel({
       </Dialog>
 
       {/* ═══════════════════════════════════════════════════════════════
-          FEEDBACK / REMARKS MODAL — Professional, polished design
+          FEEDBACK / REMARKS MODAL — Professional Assessment Card
           ═══════════════════════════════════════════════════════════════ */}
       {activeRemarkModal && (
         <Dialog open onOpenChange={() => setActiveRemarkModal(null)}>
-          <DialogContent className="sm:max-w-lg p-0 rounded-2xl border border-border/80 shadow-xl overflow-hidden bg-background">
-            {/* Header */}
-            <DialogHeader className="px-6 py-4 border-b border-border/60 bg-gradient-to-r from-slate-50/80 via-white to-indigo-50/30 dark:from-slate-950/40 dark:via-background dark:to-indigo-950/20">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
-                  <MessageSquare className="w-5 h-5" />
+          <DialogContent
+            className="sm:max-w-2xl w-[95vw] max-h-[85vh] flex flex-col p-0 rounded-2xl border border-border/80 shadow-2xl overflow-hidden bg-background"
+            showCloseButton={false}
+          >
+            {/* Modal Header */}
+            <DialogHeader className="px-6 py-4 border-b border-border/60 bg-gradient-to-r from-slate-50 via-white to-indigo-50/40 dark:from-slate-950 dark:via-background dark:to-indigo-950/20">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                    <MessageSquare className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                      <span>Examiner Assessment & Feedback</span>
+                      {activeRemarkModal.isSelf && (
+                        <Badge variant="outline" className="text-[10px] font-bold bg-primary/10 text-primary border-primary/30">
+                          Your Scorecard
+                        </Badge>
+                      )}
+                    </DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground mt-0.5">
+                      Candidate: <strong className="text-foreground">{candidateName}</strong> ({candidateNumber}) · Task: <strong className="text-foreground">{taskName}</strong>
+                    </DialogDescription>
+                  </div>
                 </div>
-                <div>
-                  <DialogTitle className="text-base font-bold text-foreground">
-                    Examiner Clinical Feedback
-                  </DialogTitle>
-                  <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                    Qualitative remarks for candidate <strong className="text-foreground">{candidateName}</strong>
-                  </DialogDescription>
-                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setActiveRemarkModal(null)}
+                  className="h-8 w-8 p-0 rounded-lg cursor-pointer hover:bg-muted flex-shrink-0"
+                >
+                  ✕
+                </Button>
               </div>
             </DialogHeader>
 
-            {/* Content */}
-            <div className="px-6 py-5 space-y-4">
-              {/* Examiner Info Card */}
-              <div className="flex items-center justify-between p-3.5 rounded-xl bg-muted/30 border border-border/60">
+            {/* Scrollable Modal Body */}
+            <div className="flex-1 overflow-y-auto min-h-0 px-6 py-5 space-y-5">
+              {/* Examiner Profile & Score Header */}
+              <div className="p-4 rounded-xl bg-muted/30 border border-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold">
+                  <div className={cn(
+                    "w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold shadow-xs flex-shrink-0",
+                    activeRemarkModal.isSelf
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900"
+                  )}>
                     {activeRemarkModal.examinerName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-foreground">{activeRemarkModal.examinerName}</p>
-                    <p className="text-[10px] text-muted-foreground font-mono">
+                    <h4 className="text-sm font-bold text-foreground flex items-center gap-2">
+                      {activeRemarkModal.examinerName}
+                    </h4>
+                    <p className="text-xs text-muted-foreground font-mono mt-0.5">
                       {activeRemarkModal.staffId ? `Staff ID: ${activeRemarkModal.staffId}` : "Clinical Examiner"}
                     </p>
+                    {activeRemarkModal.submittedAt && (
+                      <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-1">
+                        <Calendar className="w-3 h-3 text-muted-foreground/70" />
+                        <span>
+                          Submitted {new Date(activeRemarkModal.submittedAt).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                          })}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  {activeRemarkModal.totalScore !== null && (
-                    <div className="text-right">
-                      <p className="font-mono text-sm font-black text-foreground">
-                        {activeRemarkModal.totalScore}/{maxScore}
-                      </p>
-                      <p className={cn(
-                        "text-[10px] font-bold",
+
+                {/* Score awarded card */}
+                {activeRemarkModal.totalScore !== null && (
+                  <div className="p-3 rounded-lg bg-background border border-border/60 flex items-center gap-4 flex-shrink-0">
+                    <div>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                        Score Awarded
+                      </span>
+                      <span className="font-mono text-lg font-black text-foreground">
+                        {activeRemarkModal.totalScore} / {maxScore} pts
+                      </span>
+                    </div>
+                    <div className="text-right pl-3 border-l border-border/60">
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">
+                        Grade
+                      </span>
+                      <Badge className={cn(
+                        "text-xs font-bold px-2 py-0.5 mt-0.5 shadow-xs",
                         (activeRemarkModal.percentageScore ?? 0) >= 50
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-red-600 dark:text-red-400"
+                          ? "bg-emerald-500 hover:bg-emerald-500 text-white"
+                          : "bg-red-500 hover:bg-red-500 text-white"
                       )}>
                         {activeRemarkModal.percentageScore?.toFixed(1)}%
-                      </p>
+                      </Badge>
                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Qualitative Remarks Section */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h5 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    <MessageSquare className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                    <span>Qualitative Clinical Feedback</span>
+                  </h5>
+                  {activeRemarkModal.hasText && (
+                    <Badge variant="outline" className="text-[10px] font-medium text-emerald-700 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200">
+                      Examiner Notes Recorded
+                    </Badge>
                   )}
                 </div>
+
+                {activeRemarkModal.hasText ? (
+                  <div className="relative p-4 pl-10 rounded-xl bg-gradient-to-br from-indigo-50/50 via-white to-slate-50/50 dark:from-indigo-950/20 dark:via-card dark:to-slate-950/20 border border-indigo-200/70 dark:border-indigo-900/50 shadow-xs">
+                    <Quote className="absolute top-3.5 left-3 w-5 h-5 text-indigo-300 dark:text-indigo-700" />
+                    <p className="text-xs sm:text-sm text-foreground leading-relaxed whitespace-pre-wrap italic">
+                      &ldquo;{activeRemarkModal.text}&rdquo;
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl border border-dashed border-border bg-muted/10 text-center space-y-1">
+                    <p className="text-xs font-semibold text-muted-foreground">
+                      No written qualitative remarks were entered for this assessment.
+                    </p>
+                    <p className="text-[11px] text-muted-foreground/75">
+                      This examiner evaluated the candidate directly via the procedural checklist step ratings below.
+                    </p>
+                  </div>
+                )}
               </div>
 
-              {/* Submitted date */}
-              {activeRemarkModal.submittedAt && (
-                <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                  <Calendar className="w-3 h-3" />
-                  <span>
-                    Submitted {new Date(activeRemarkModal.submittedAt).toLocaleDateString("en-GB", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </span>
+              {/* Procedural Step Ratings Breakdown by this Examiner */}
+              {steps.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h5 className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                      <span>Procedural Step Ratings Breakdown</span>
+                    </h5>
+                    <span className="text-[11px] text-muted-foreground font-medium">
+                      Scale: 0 – {scaleMax}
+                    </span>
+                  </div>
+
+                  <div className="rounded-xl border border-border/70 overflow-hidden shadow-2xs">
+                    <Table>
+                      <TableHeader className="bg-muted/30">
+                        <TableRow>
+                          <TableHead className="w-10 text-center text-xs font-bold py-2">#</TableHead>
+                          <TableHead className="text-xs font-bold py-2">Procedure Step</TableHead>
+                          <TableHead className="w-24 text-center text-xs font-bold py-2">Score Awarded</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {steps.map((step) => {
+                          const r = activeRemarkModal.ratings[step.id];
+                          return (
+                            <TableRow key={step.id} className="hover:bg-muted/20">
+                              <TableCell className="text-center font-bold text-xs py-2.5 text-muted-foreground">
+                                {step.stepNumber}
+                              </TableCell>
+                              <TableCell className="py-2.5">
+                                <div className="flex items-start gap-2">
+                                  <span className="text-xs text-foreground leading-relaxed">
+                                    {step.description}
+                                  </span>
+                                  {step.isKeyStep && (
+                                    <Badge
+                                      variant="outline"
+                                      className="bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border-amber-300 text-[10px] font-semibold gap-1 flex-shrink-0 py-0"
+                                    >
+                                      <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-600" />
+                                      Key Step
+                                    </Badge>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-center py-2.5">
+                                {r !== undefined && r !== null ? (
+                                  <span
+                                    className={cn(
+                                      "inline-flex items-center justify-center w-7 h-7 rounded-lg font-mono font-black text-xs",
+                                      r === 0
+                                        ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 ring-1 ring-red-300 dark:ring-red-800"
+                                        : r === scaleMax
+                                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 ring-1 ring-emerald-300 dark:ring-emerald-800"
+                                          : "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 ring-1 ring-indigo-200 dark:ring-indigo-800"
+                                    )}
+                                  >
+                                    {r}
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground/50">—</span>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
               )}
-
-              {/* Remarks Block */}
-              <div className="relative">
-                <Quote className="absolute top-3 left-3 w-5 h-5 text-indigo-200 dark:text-indigo-800" />
-                <div className="p-4 pl-10 rounded-xl bg-gradient-to-br from-indigo-50/40 via-white to-slate-50/30 dark:from-indigo-950/20 dark:via-card dark:to-slate-950/10 border border-indigo-100 dark:border-indigo-900/40 text-sm text-foreground leading-relaxed whitespace-pre-wrap italic">
-                  {activeRemarkModal.text}
-                </div>
-              </div>
             </div>
 
-            {/* Footer */}
-            <DialogFooter className="px-6 py-3 border-t border-border/60 bg-muted/15 -mx-0 -mb-0 rounded-b-2xl">
+            {/* Modal Footer */}
+            <DialogFooter className="px-6 py-3.5 border-t border-border/60 bg-muted/15 flex flex-col sm:flex-row items-center justify-between gap-3 -mx-0 -mb-0 rounded-b-2xl">
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => {
+                  setActiveRemarkModal(null);
+                  setStepComparisonOpen(true);
+                }}
+                className="h-8 px-3 text-xs font-semibold gap-1.5 cursor-pointer border-indigo-300 dark:border-indigo-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/40"
+              >
+                <FileSpreadsheet className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+                <span>Open Peer Step Comparison</span>
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
                 onClick={() => setActiveRemarkModal(null)}
-                className="cursor-pointer h-8 px-4"
+                className="cursor-pointer h-8 px-5"
               >
                 Close
               </Button>
