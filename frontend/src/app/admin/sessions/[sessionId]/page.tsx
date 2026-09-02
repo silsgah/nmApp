@@ -104,104 +104,7 @@ function AddStationDialog({
   );
 }
 
-interface ScheduleCandidate {
-  id: string;
-  name: string;
-  staffId: string | null;
-  yearLevel: number | null;
-  reason?: string | null;
-}
-
-interface ScheduleExaminer {
-  id: string;
-  name: string;
-  staffId: string | null;
-}
-
-interface ScheduleOptions {
-  students: ScheduleCandidate[];
-  excludedStudents: ScheduleCandidate[];
-  examiners: ScheduleExaminer[];
-  eligibleTaskCount: number;
-  examinerCount: number;
-}
-
-function ScheduleSessionDialog({ sessionId, onClose }: { sessionId: string; onClose: () => void }) {
-  const queryClient = useQueryClient();
-  const [studentIds, setStudentIds] = useState<string[]>([]);
-  const [examinerIds, setExaminerIds] = useState<string[]>([]);
-  const { data: options, isLoading } = useQuery<ScheduleOptions>({
-    queryKey: ["schedule-options", sessionId],
-    queryFn: () => api.get(`/sessions/${sessionId}/schedule-options`).then((response) => response.data),
-  });
-
-  const mutation = useMutation({
-    mutationFn: () => api.post(`/sessions/${sessionId}/auto-assign`, { studentIds, examinerIds }),
-    onSuccess: (response) => {
-      toast.success(response.data?.message || "Schedule created");
-      queryClient.invalidateQueries({ queryKey: ["session", sessionId] });
-      queryClient.invalidateQueries({ queryKey: ["session-stats", sessionId] });
-      onClose();
-    },
-    onError: (error: { response?: { data?: { error?: string } } }) => toast.error(error.response?.data?.error || "Failed to create schedule"),
-  });
-
-  const toggle = (id: string, selected: string[], setSelected: (value: string[]) => void) => {
-    setSelected(selected.includes(id) ? selected.filter((value) => value !== id) : [...selected, id]);
-  };
-
-  return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Create examination schedule</DialogTitle>
-          <DialogDescription>Select exactly which eligible candidates and examiners should be assigned to every station. Existing draft assignments will be replaced.</DialogDescription>
-        </DialogHeader>
-        {isLoading ? <Skeleton className="h-52 w-full" /> : (
-          <div className="grid gap-5 py-2 md:grid-cols-2">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label>Eligible candidates ({options?.students?.length ?? 0})</Label>
-                <button type="button" className="text-xs text-primary" onClick={() => setStudentIds(studentIds.length ? [] : (options?.students ?? []).map((student) => student.id))}>{studentIds.length ? "Clear" : "Select all"}</button>
-              </div>
-              <div className="max-h-56 space-y-2 overflow-y-auto rounded-lg border p-2">
-                {options?.students?.map((student) => (
-                  <label key={student.id} className="flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-muted/40">
-                    <input type="checkbox" checked={studentIds.includes(student.id)} onChange={() => toggle(student.id, studentIds, setStudentIds)} />
-                    <span className="text-sm"><strong>{student.name}</strong><span className="block text-xs text-muted-foreground">{student.staffId || "No index number"} · Year {student.yearLevel}</span></span>
-                  </label>
-                ))}
-                {!options?.students?.length && <p className="p-3 text-xs text-amber-700">No candidates have an exact programme/year match with active tasks.</p>}
-              </div>
-              {!!options?.excludedStudents?.length && (
-                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-                  <p className="font-semibold">Excluded automatically</p>
-                  {options.excludedStudents.map((student) => <p key={student.id}>{student.name}: {student.reason}</p>)}
-                </div>
-              )}
-            </div>
-            <div className="space-y-3">
-              <Label>Eligible examiners ({options?.examiners?.length ?? 0})</Label>
-              <div className="max-h-56 space-y-2 overflow-y-auto rounded-lg border p-2">
-                {options?.examiners?.map((examiner) => (
-                  <label key={examiner.id} className="flex cursor-pointer items-center gap-3 rounded-md p-2 hover:bg-muted/40">
-                    <input type="checkbox" checked={examinerIds.includes(examiner.id)} onChange={() => toggle(examiner.id, examinerIds, setExaminerIds)} />
-                    <span className="text-sm"><strong>{examiner.name}</strong><span className="block text-xs text-muted-foreground">{examiner.staffId || "No staff ID"}</span></span>
-                  </label>
-                ))}
-              </div>
-              <p className="rounded-lg bg-blue-50 p-3 text-xs text-blue-700">{options?.eligibleTaskCount ?? 0} active tasks match this session&apos;s programme and year level.</p>
-            </div>
-          </div>
-        )}
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button disabled={!studentIds.length || !examinerIds.length || mutation.isPending} onClick={() => mutation.mutate()}>{mutation.isPending ? "Scheduling…" : `Schedule ${studentIds.length} candidate${studentIds.length === 1 ? "" : "s"}`}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
+import { ScheduleSessionDialog } from "@/components/admin/schedule-session-dialog";
 
 export default function SessionDetailPage() {
   const params = useParams();
@@ -511,7 +414,13 @@ export default function SessionDetailPage() {
         />
       )}
 
-      {scheduleOpen && <ScheduleSessionDialog sessionId={sessionId} onClose={() => setScheduleOpen(false)} />}
+      {scheduleOpen && (
+        <ScheduleSessionDialog
+          sessionId={sessionId}
+          session={session}
+          onClose={() => setScheduleOpen(false)}
+        />
+      )}
 
       {/* Manage station assignments dialog */}
       {selectedStation && (
