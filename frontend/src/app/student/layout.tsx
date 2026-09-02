@@ -1,11 +1,15 @@
 import { StudentSidebar } from "@/components/layout/student-sidebar";
+import { TopNavbar } from "@/components/layout/top-navbar";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <StudentSidebar />
       <main className="portal-main min-h-screen flex flex-col justify-between">
-        <div className="pt-14 md:pt-0 flex-1">{children}</div>
+        <div className="pt-14 md:pt-0 flex-1 flex flex-col">
+          <TopNavbar portalName="Student" />
+          <div className="flex-1">{children}</div>
+        </div>
         {/* Creator Footer */}
         <footer className="w-full py-4 text-center border-t border-border/40 bg-muted/5 mt-auto">
           <p className="text-[10px] sm:text-[11px] text-muted-foreground/65 font-medium tracking-wide">

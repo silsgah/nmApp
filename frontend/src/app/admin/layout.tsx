@@ -1,4 +1,5 @@
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
+import { TopNavbar } from "@/components/layout/top-navbar";
 import { AdminCopilot } from "@/components/admin/admin-copilot";
 import { AdminTutorialDrawer } from "@/components/admin/admin-tutorial-drawer";
 import type { Metadata } from "next";
@@ -12,8 +13,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-background">
       <AdminSidebar />
       <main className="portal-main min-h-screen flex flex-col justify-between">
-        <div className="pt-14 md:pt-0 flex-1">
-          {children}
+        <div className="pt-14 md:pt-0 flex-1 flex flex-col">
+          <TopNavbar portalName="Admin" />
+          <div className="flex-1">{children}</div>
         </div>
         {/* Creator Footer */}
         <footer className="w-full py-4 text-center border-t border-border/40 bg-muted/5 mt-auto">
