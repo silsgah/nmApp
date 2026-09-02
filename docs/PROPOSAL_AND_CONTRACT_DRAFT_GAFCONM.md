@@ -6,7 +6,8 @@
 **SUBMITTED BY:** EED Soft Consult  
 **CONTACT:** info@eedconsult.com | www.eedconsult.com | Tel: +233 558075023  
 **DOCUMENT REF:** EED-GAFCONM-CPEMS-2025-V1  
-**DATE:** March 2025 / Academic Year 2024/2025  
+**DATE:** March 2025  
+**FEE STRUCTURE:** GHS 23.00 per Student / per Semester  
 
 ---
 
@@ -26,7 +27,7 @@ EED Soft Consult is pleased to present this comprehensive technical and financia
 
 Our specialized **Clinical Practical Examination Management System (CPEMS)** replaces labor-intensive, error-prone paper scorecards with an automated, multi-examiner digital scoring system. The platform streamlines candidate assessment, real-time checklist scoring, independent Obstetric & Care Study evaluations, automated weighted aggregations, audit trails, and instant PDF result generation—saving hundreds of administrative hours while guaranteeing 100% mathematical accuracy and institutional integrity.
 
-This document details the functional specifications, cloud infrastructure requirements (domain, high-availability hosting, managed database), Service Level Agreements (SLA), and transparent pricing options (both **Institutional Enterprise** and **Per-Candidate** models).
+This proposal details the specialized system specifications, cloud architecture, quality assurance protocols, and our transparent **Per-Student Examination Service Model of GHS 23.00 per student per semester**.
 
 We look forward to partnering with GAFCONM to establish a benchmark for military nursing examination excellence in Ghana and the West African sub-region.
 
@@ -98,46 +99,46 @@ To guarantee 99.9% uptime during high-stakes examination sessions, EED Soft Cons
 
 ## 5. COMMERCIAL PRICING & FINANCIAL PROPOSAL
 
-We provide two flexible commercial engagement models tailored to GAFCONM’s procurement requirements:
+EED Soft Consult provides a transparent, predictable, and highly cost-effective fee structure specifically structured for GAFCONM.
 
-### SECTION A: INFRASTRUCTURE & RECURRING ANNUAL COSTS
+### PRIMARY COMMERCIAL MODEL: PER-STUDENT SEMESTER FEE
+**Rate: GHS 23.00 per Enrolled Student / per Semester**  
+*Pay-As-You-Examine • Zero Upfront Capital Outlay • All-Inclusive*
 
-| Item | Description | Billing Cycle | Price (GHS) |
-| :--- | :--- | :--- | :---: |
-| **A1. Domain & SSL Certification** | Official domain management, DNS routing, and enterprise SSL security | Annual | **GHS 1,200.00** |
-| **A2. Cloud Application Hosting** | High-availability redundant web servers, Edge CDN, and auto-scaling bandwidth | Annual | **GHS 6,800.00** |
-| **A3. Managed PostgreSQL Database** | Dedicated cloud database, automated backups, and encrypted storage | Annual | **GHS 5,500.00** |
-| **A4. SLA Maintenance & Support** | System patches, database maintenance, uptime monitoring, bug fixes | Annual | **GHS 9,500.00** |
-| **A5. On-site Exam Day Technical Standby** | Dedicated EED technical engineers physically present during practical exams | Per Exam Period | **GHS 4,500.00** |
-| **SUBTOTAL (Annual Cloud & Support Base):** | | **Annual** | **GHS 23,000.00** |
+Under this primary commercial model, GAFCONM incurs **zero upfront software development or licensing costs**. The College is billed strictly at a flat fee of **GHS 23.00 per candidate per academic semester** sitting the clinical practical examinations.
+
+#### What Is Covered by the GHS 23.00 Fee:
+* **Complete Practical Station Marking:** Multi-station evaluation across Major, Minor, and Health Assessment checklists.
+* **Multi-Examiner Consensus:** Blind scoring, automated score aggregation, and real-time variance/reconciliation detection.
+* **Specialized Clinical Modules:** Midwifery Case Studies (Data Gathering, Care Plan, Viva Voce), Care Plan rubrics, and the Obstetric Examination.
+* **Instant Official Results:** Automated computation of weighted pass/fail grades and automated generation of official GAFCONM student PDF result slips.
+* **Cloud Infrastructure Fully Absorbed:** Dedicated cloud servers, SSL encryption, and daily encrypted database backups with zero separate hosting surcharges.
+* **On-Site Exam Day Technical Standby:** EED systems engineers physically present at GAFCONM examination stations throughout the examination period.
+
+#### Transparent Semester Billing Schedule (Illustrative Cohorts)
+
+| Candidate Cohort | Fee / Student | Total Semester Invoice | Inclusions |
+| :---: | :---: | :---: | :--- |
+| **200 Students** | GHS 23.00 | **GHS 4,600.00** | Full examination suite, cloud hosting, PDF slips, on-site standby |
+| **350 Students** | GHS 23.00 | **GHS 8,050.00** | Full examination suite, cloud hosting, PDF slips, on-site standby |
+| **500 Students** | GHS 23.00 | **GHS 11,500.00** | Full examination suite, cloud hosting, PDF slips, on-site standby |
+| **650 Students** | GHS 23.00 | **GHS 14,950.00** | Full examination suite, cloud hosting, PDF slips, on-site standby |
+| **800 Students** | GHS 23.00 | **GHS 18,400.00** | Full examination suite, cloud hosting, PDF slips, on-site standby |
+
+*Note: Invoicing is based strictly on the official candidate roster certified by the GAFCONM Examination Directorate for each semester's examination cycle. No minimum cohort volume is required.*
 
 ---
 
-### SECTION B: COMMERCIAL PRICING OPTIONS
+### ALTERNATIVE OPTION: INSTITUTIONAL ENTERPRISE LICENSE (PERPETUAL / ANNUAL BUYOUT)
+*Provided for institutions requiring dedicated private-cloud self-hosting and permanent code ownership.*
 
-#### OPTION 1: INSTITUTIONAL ENTERPRISE LICENSE (FIXED ANNUAL / PERPETUAL)
-*Recommended for unrestricted institutional adoption with full administrative control.*
-
-| Phase / Deliverable | Scope & Inclusions | One-Time / Annual Cost |
+| Phase / Component | Scope & Deliverables | Cost (GHS) |
 | :--- | :--- | :---: |
-| **1. System Implementation & Setup** | Customization for GAFCONM, task bank ingestion (RGN & RM), server configuration, and admin onboarding | **GHS 38,000.00** *(One-time)* |
-| **2. Annual Cloud, Hosting & DB (A1–A3)** | Domain, SSL, high-speed hosting, and managed PostgreSQL database | **GHS 13,500.00** *(Annual)* |
-| **3. Annual Maintenance & SLA Support (A4–A5)**| 24/7 technical support, updates, backups, and on-site exam day support | **GHS 14,000.00** *(Annual)* |
-| **TOTAL YEAR 1 INVESTMENT:** | *(Implementation + Full Year Cloud & Support)* | **GHS 65,500.00** |
-| **SUBSEQUENT ANNUAL RENEWAL (Year 2+):**| *(Hosting, Database, Maintenance, SLA & Support)* | **GHS 27,500.00 / year** |
-
----
-
-#### OPTION 2: PER-CANDIDATE / PER-SESSION EXAMINATION FEE MODEL
-*Zero initial capital expenditure model. Payment is billed strictly per candidate enrolled in each practical examination session.*
-
-| Candidate Volume (Per Exam Session) | Cost Per Student / Session | Inclusions |
-| :--- | :---: | :--- |
-| **Tier 1: Up to 150 Students** | **GHS 120.00** / candidate | Full system access, all stations, Care Plan & Case Study, cloud hosting, automated PDF results, examiner standby support. |
-| **Tier 2: 151 – 350 Students** | **GHS 95.00** / candidate | Full system access, cloud hosting, on-site technical engineer standby, result computation, database backups. |
-| **Tier 3: 351+ Students** | **GHS 80.00** / candidate | Enterprise volume rate, full institutional access, dedicated database instance, priority examiner training. |
-
-*Note on Option 2: The institution incurs zero upfront implementation costs; hosting, domain, database, and technical support are included in the per-candidate fee.*
+| **1. System Setup & Customization** | Custom codebase deployment, task bank ingestion, role setup, staff training | **GHS 38,000.00** *(One-time)* |
+| **2. Annual Cloud Infrastructure** | High-availability redundant web servers, managed PostgreSQL cluster, SSL | **GHS 12,000.00** *(Annual)* |
+| **3. Annual SLA & On-Site Support** | 24/7 technical monitoring, security patches, on-site exam day engineering | **GHS 14,000.00** *(Annual)* |
+| **TOTAL YEAR 1 CAPITAL INVESTMENT:** | | **GHS 64,000.00** |
+| **SUBSEQUENT ANNUAL RENEWAL (Year 2+):**| *(Hosting, Database, Maintenance, SLA & Support)* | **GHS 26,000.00 / yr** |
 
 ---
 
@@ -177,9 +178,9 @@ EED Soft Consult guarantees standard and mission-critical support tiers:
 ## 8. MASTER SERVICE AGREEMENT & TERMS OF CONTRACT
 
 1. **Confidentiality & Data Sovereignty:** All student records, examiner scorecards, and institutional marks remain the exclusive property of GAFCONM. EED Soft Consult adheres to strict data privacy and non-disclosure protocols.
-2. **Intellectual Property:** EED Soft Consult grants GAFCONM an exclusive institutional operating license for the duration of the agreement.
-3. **Payment Terms (Option 1):** 50% mobilization advance upon contract signing; 30% upon successful training & mock exam; 20% upon official first examination session completion.
-4. **Payment Terms (Option 2):** Invoiced per enrolled candidate list 7 days prior to examination session date.
+2. **Accuracy Guarantee:** EED Soft Consult warrants that the system will perform strictly according to approved clinical rubrics with 100% mathematical accuracy.
+3. **Payment Terms (Primary Per-Student Model):** Invoiced per academic semester based on the certified candidate list. 70% payable upon candidate register certification prior to examination commencement; 30% balance payable upon publication of official student result slips.
+4. **Payment Terms (Enterprise License Option):** 50% mobilization advance upon contract signing; 30% upon successful training & mock dry-run; 20% upon official first examination session completion.
 5. **Contract Validity:** This proposal and quoted pricing are valid for **60 calendar days** from submission date.
 
 ---
